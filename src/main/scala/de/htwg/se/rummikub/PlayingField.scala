@@ -1,4 +1,4 @@
-package htwg.de.se.rummikub
+package de.htwg.se.rummikub
 
 class PlayingField {
   def logo(): Unit = {
