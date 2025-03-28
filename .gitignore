@@ -1,0 +1,55 @@
+# macOS
+.DS_Store
+
+# sbt specific
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+project/local-plugins.sbt
+.history
+.ensime
+.ensime_cache/
+.sbt-scripted/
+local.sbt
+project/project/
+project/target/
+target/
+
+# Bloop
+.bsp
+
+# VS Code
+.vscode/
+
+# Metals
+.bloop/
+.metals/
+metals.sbt
+project/metals.sbt
+
+# IDEA
+.idea
+.idea_modules
+/.worksheet/
+*.log
+*.iml
+*.ipr
+*.iws
+
+# Java
+*.class
+
+# Scala
+.tasty
+test/scala/.scala-build
+
+# Coursier
+null/
+
+# other
+.history
+.scala_dependencies
+.cache-main
