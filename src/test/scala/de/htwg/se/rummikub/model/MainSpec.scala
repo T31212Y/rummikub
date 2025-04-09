@@ -8,7 +8,6 @@ import java.io.PrintStream
 
 import de.htwg.se.rummikub.model.{run => runMain}
 
-
 class MainSpec extends AnyWordSpec {
   "Main" should {
     "print the logo" in {
@@ -33,17 +32,12 @@ class MainSpec extends AnyWordSpec {
     }
     "print the layout" in {
         val output = new ByteArrayOutputStream()
-        val printStream = new PrintStream(output)
-        Console.withOut(printStream) {
+        Console.withOut(new PrintStream(output)) {
           runMain()
         }
 
-        val lines = output
-            .toString
-            .split("\n")
-            .map(_.trim.replaceAll("\\s", " "))
-        val layoutLines = lines.drop(6).take(23) 
-        printf(layoutLines.mkString("\n"))
+        val lines = output.toString.split("\n").map(_.trim.replaceAll("\\s", " "))
+        val layoutLines = lines.drop(6).take(23)
 
         val expectedLayout = Array(
             "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *",
