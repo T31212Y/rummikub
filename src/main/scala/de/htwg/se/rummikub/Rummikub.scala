@@ -26,11 +26,7 @@ object Rummikub {
       print(tui.showHelp() + "\n")
       println("Please enter a command:")
       input = readLine()
-      if (input == "help") {
-        println(tui.showHelpPage().mkString("\n") + "\n")
-      } else {
-        playingField = tui.inputCommands(input, playingField)
-      }
+      playingField = tui.inputCommands(input, playingField)
     }
 
     println(tui.showGoodbye())

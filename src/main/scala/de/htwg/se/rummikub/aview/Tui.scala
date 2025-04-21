@@ -21,8 +21,8 @@ class Tui {
     
     def showHelpPage(): Vector[String] = {
         Vector("Available commands:",
-               "new - Start a new game",
-               "start - Start a new game",
+               "new - Create a new game",
+               "start - Start the game",
                "quit - Exit the game"
               )
     }
@@ -38,7 +38,7 @@ class Tui {
     def inputCommands(input: String, playingField: PlayingField): PlayingField = {
         input match {
             case "new" => {
-                println("Starting a new game...")
+                println("Creating a new game...")
                 println(askAmountOfPlayers())
                 val amountPlayers: Int = readLine().toInt
                 println(askPlayerNames())
@@ -48,8 +48,10 @@ class Tui {
             case "start" => {
                 playingField.updatePlayingField()
             }
-            // case "help" =>
-            //case "solve" =>
+            case "help" => {
+                println(showHelpPage().mkString("\n") + "\n")
+                playingField
+            }
             case "quit" => playingField
             case _ => playingField
         }
