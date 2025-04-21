@@ -8,7 +8,7 @@ class PlayingFieldSpec extends AnyWordSpec {
     "have a logo" in {
       val playingField = new PlayingField()
       playingField.logo().mkString("\n") should be (
-        Array(
+        Vector(
         " ____                                _  _            _      _",
         "|  _ \\  _   _  _ __ ___   _ __ ___  (_)| | __ _   _ | |__  | |",
         "| |_) || | | || '_ ` _ \\ | '_ ` _ \\ | || |/ /| | | || '_ \\ | |",
@@ -21,7 +21,7 @@ class PlayingFieldSpec extends AnyWordSpec {
     "have a layout" in {
       val playingField = new PlayingField()
       playingField.pFieldLayout().mkString("\n") should be (
-        Array(
+        Vector(
         "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ",
         "|              |_______________________________________________|              |",
         "|              |_______________________________________________|              |",                                                                                                                                                         

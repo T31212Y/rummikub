@@ -1,7 +1,7 @@
 package de.htwg.se.rummikub.model
 
-case class Group(var tokens: List[Token]) {
-  def addToken(token: Token): Unit = {
+case class Group(var tokens: List[Token | Joker]) {
+  def addToken(token: Token | Joker): Unit = {
     tokens = tokens :+ token
   }
 
@@ -9,7 +9,7 @@ case class Group(var tokens: List[Token]) {
     tokens = tokens.filterNot(_.equals(token))
   }
 
-  def getTokens: List[Token] = tokens
+  def getTokens: List[Token | Joker] = tokens
 
   override def toString: String = {
     tokens.map(_.toString).mkString(", ")

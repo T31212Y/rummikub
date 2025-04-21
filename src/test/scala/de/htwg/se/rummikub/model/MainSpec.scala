@@ -19,7 +19,7 @@ class MainSpec extends AnyWordSpec {
         val lines = output.toString.split("\n")
         val logoLines = lines.take(5)
 
-        val expectedLogo = Array(
+        val expectedLogo = Vector(
             " ____                                _  _            _      _",
             "|  _ \\  _   _  _ __ ___   _ __ ___  (_)| | __ _   _ | |__  | |",
             "| |_) || | | || '_ ` _ \\ | '_ ` _ \\ | || |/ /| | | || '_ \\ | |",
@@ -39,7 +39,7 @@ class MainSpec extends AnyWordSpec {
         val lines = output.toString.split("\n").map(_.trim.replaceAll("\\s", " "))
         val layoutLines = lines.drop(6).take(23)
 
-        val expectedLayout = Array(
+        val expectedLayout = Vector(
             "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *",
             "|              |_______________________________________________|              |",
             "|              |_______________________________________________|              |",                                                                                                                                                         
