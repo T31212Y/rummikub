@@ -12,7 +12,7 @@ class PlayerSpec extends AnyWordSpec {
 
     "have a string representation" in {
       val player = Player("Anki")
-      player.toString should be("Anki")
+      player.toString should be("Player: Anki")
     }
   }
 }

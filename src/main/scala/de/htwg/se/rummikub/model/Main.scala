@@ -1,7 +1,6 @@
 package de.htwg.se.rummikub.model
 
 @main def run(): Unit = 
-  val sf : PlayingField = new PlayingField()
+  val sf : PlayingField = new PlayingField(2, List(new Player("Azra"), new Player("Moritz")))
 
-  println(sf.logo().mkString("\n") + "\n")
-  println(sf.pFieldLayout().mkString("\n"))
+  println(sf.toString().replace("x", " ").replace("y", " "))

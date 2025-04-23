@@ -6,13 +6,13 @@ import org.scalatest.matchers.should.Matchers._
 class JokerSpec extends AnyWordSpec {
   "Joker" should {
     "be red or black" in {
-      val joker = Joker("red")
-      List("red", "black") should contain(joker.color)
+      val joker = Joker(Color.RED)
+      List(Color.RED, Color.BLACK) should contain(joker.color)
     }
 
     "have a string representation" in {
-      val joker = Joker("red")
-      joker.toString should be("Joker red")
+      val joker = Joker(Color.RED)
+      joker.toString should be(" \u001b[31mJ\u001b[0m")
     }
   }
 }

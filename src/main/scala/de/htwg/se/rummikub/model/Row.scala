@@ -1,17 +1,40 @@
 package de.htwg.se.rummikub.model
  
-case class Row(var tokens: List[Token| Joker]) {
-    def addToken(token: Token| Joker): Unit = {
-        tokens = tokens :+ token
+case class Row(row: List[String]) {
+
+    var rowTokens: List[Token | Joker] = changeStringListToTokenList(row)
+
+    def changeStringListToTokenList(row: List[String]): List[Token | Joker] = {
+        row.map { tokenString =>
+            val tokenParts = tokenString.split(":")
+
+            if (tokenParts(0) == "J") {
+                tokenParts(1) match {
+                    case "red" => Joker(Color.RED)
+                    case "black" => Joker(Color.BLACK)
+                }
+            } else  {
+                tokenParts(1) match {
+                    case "red" => Token(tokenParts(0).toInt, Color.RED)
+                    case "blue" => Token(tokenParts(0).toInt, Color.BLUE)
+                    case "green" => Token(tokenParts(0).toInt, Color.GREEN)
+                    case "black" => Token(tokenParts(0).toInt, Color.BLACK)
+                }
+            }
+        }
+    }
+
+    def addToken(token: Token | Joker): Unit = {
+        rowTokens = rowTokens :+ token
     }
     
     def removeToken(token: Token| Joker): Unit = {
-        tokens = tokens.filterNot(_.equals(token))
+        rowTokens = rowTokens.filterNot(_.equals(token))
     }
     
-    def getTokens: List[Token| Joker] = tokens
+    def getTokens: List[Token| Joker] = rowTokens
     
     override def toString: String = {
-        tokens.map(_.toString).mkString(", ")
+        rowTokens.map(_.toString).mkString(" ")
     }
 }
