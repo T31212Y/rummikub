@@ -102,18 +102,12 @@ class Tui {
                 case "row" => {
                     println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
                     val rowInput = new Row(readLine().split(",").map(_.trim).toList)
-                    /*if (!rowInput.isValid()) {
-                        println("Invalid row. Please enter at least 3 tokens of the same color.")
-                    } else {*/
                     val removeTokens = pf.addTableRow(rowInput)
                     currentPlayer.tokens = currentPlayer.tokens.filterNot(token => removeTokens.contains(token))
                 }
                 case "group" => {
                     println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
                     val groupInput = new Group(readLine().split(",").map(_.trim).toList)
-                    /*if (!groupInput.isValid()) {
-                        println("Invalid group. Please enter at least 3 tokens of different colors.")
-                    } else {*/
                     val removeTokens = pf.addTableGroup(groupInput)
                     currentPlayer.tokens = currentPlayer.tokens.filterNot(token => removeTokens.contains(token))
                 }

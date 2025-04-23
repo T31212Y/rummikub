@@ -11,8 +11,6 @@ case class Group(group: List[String]) {
       if (tokenParts(0) == "J") {
         tokenParts(1) match {
           case "red" => Joker(Color.RED)
-          case "blue" => Joker(Color.BLUE)
-          case "green" => Joker(Color.GREEN)
           case "black" => Joker(Color.BLACK)
         }
       } else {
@@ -24,36 +22,6 @@ case class Group(group: List[String]) {
         }
       }
     }
-  }
-
-  def isValid(): Boolean = {
-    if (groupTokens.isEmpty || groupTokens.size < 3) {
-      return false
-    }
-
-    val firstToken = groupTokens.head
-    val isDifferentColor = groupTokens.forall {
-      case token: Token => token.color != firstToken.asInstanceOf[Token].color
-      case joker: Joker => joker.color != firstToken.asInstanceOf[Joker].color
-    }
-
-    
-    /*if (groupTokens.head.isInstanceOf[Joker]) {
-      val groupTokensWithoutJoker = groupTokens.filterNot(_.isInstanceOf[Joker])
-      val firstTokenWithoutJoker = groupTokensWithoutJoker.head
-      val isSameNumber = groupTokensWithoutJoker.forall {
-        case token: Token => token.number == firstTokenWithoutJoker.asInstanceOf[Token].number
-        case _ => false
-      }
-      isDifferentColor && isSameNumber
-    } else {
-      val groupTokensWithoutJoker = groupTokens.filterNot(_.isInstanceOf[Joker])
-      val isSameNumber = groupTokensWithoutJoker.forall {
-        case token: Token => token.number == firstToken.asInstanceOf[Token].number
-        case _ => false
-      }
-    }*/
-      isDifferentColor
   }
 
   def addToken(token: Token | Joker): Unit = {

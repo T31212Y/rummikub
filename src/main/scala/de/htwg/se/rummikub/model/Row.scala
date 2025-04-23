@@ -11,8 +11,6 @@ case class Row(row: List[String]) {
             if (tokenParts(0) == "J") {
                 tokenParts(1) match {
                     case "red" => Joker(Color.RED)
-                    case "blue" => Joker(Color.BLUE)
-                    case "green" => Joker(Color.GREEN)
                     case "black" => Joker(Color.BLACK)
                 }
             } else  {
@@ -24,20 +22,6 @@ case class Row(row: List[String]) {
                 }
             }
         }
-    }
-
-    def isValid(): Boolean = {
-        if (rowTokens.isEmpty || rowTokens.size < 3) {
-            return false
-        }
-
-        val firstToken = rowTokens.head
-        val isSameColor = rowTokens.forall {
-            case token: Token => token.color == firstToken.asInstanceOf[Token].color
-            case joker: Joker => joker.color == firstToken.asInstanceOf[Joker].color
-        }
-              
-        isSameColor
     }
 
     def addToken(token: Token | Joker): Unit = {

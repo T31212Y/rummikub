@@ -8,7 +8,7 @@ case class Player(name: String) {
   var startCounter = 0
   var commandHistory: List[String] = List()
 
-  def setFirstRowGroup(): Boolean = {
+  def firstMove(): Boolean = {
     if (startCounter < 30) {
       false
     } else {
@@ -17,7 +17,6 @@ case class Player(name: String) {
   }
 
   override def toString: String = {
-    val tokenStrings = tokens.map(_.toString).mkString(", ")
     s"Player: $name"
   }
 }
