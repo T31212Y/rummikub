@@ -13,7 +13,7 @@ class TokenStackSpec extends AnyWordSpec {
 
         "check if the stack is empty" in {
             val stack = TokenStack()
-            stack.isEmpty should be(true)
+            stack.isEmpty should be(false)
         }
 
         "check the size of the stack" in {
@@ -24,6 +24,23 @@ class TokenStackSpec extends AnyWordSpec {
         "be empty after removing all tokens" in {
             val stack = TokenStack().removeAllTokens()
             stack.isEmpty should be(true)
+        }
+        "have a string representation" in {
+            val stack = TokenStack()
+            val removedTokens = stack.removeMultipleTokens(104)
+            stack.toString() should not contain (removedTokens.toString())
+        }
+        "draw a token from the stack" in {
+            val stack = TokenStack()
+            val token = stack.drawToken()
+            token should not be null
+            stack.size should be(105)
+        }
+        "draw multiple tokens from the stack" in {
+            val stack = TokenStack()
+            val tokens = stack.drawMultipleTokens(3)
+            tokens.size should be(3)
+            stack.size should be(103)
         }
     }
 }

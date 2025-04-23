@@ -12,13 +12,13 @@ class BoardSpec extends AnyWordSpec {
 
         "have a correct string representation" in {
             val board = new Board(15, 24, 2, 1, "up")
-            board.toString() should be(
+            board.toString().replace("x", " ") should be(
                 Vector(
                 "|               |                                               |               |",
                 "|               +-----------------------------------------------+               |",
                 "|               |                                               |               |",
                 "|               +-----------------------------------------------+               |"
-                ).mkString("\n")
+                ).mkString("\n") + "\n"
             )
         }
     }

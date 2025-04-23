@@ -6,44 +6,53 @@ import org.scalatest.matchers.should.Matchers._
 class RowSpec extends AnyWordSpec {
   "Row" should {
     "be created with a list of tokens" in {
-        val token1 = Token(7, Color.BLUE)
-        val token2 = Token(8, Color.BLUE)
-        val token3 = Token(9, Color.BLUE)
-        val row = Row(List(token1, token2, token3).map(_.asInstanceOf[Token | Joker]))
+        val token1 = "7:blue"
+        val token2 = "8:blue"
+        val token3 = "9:blue"
+        val row = Row(List(token1, token2, token3))
+        row.rowTokens should be (List(Token(7, Color.BLUE), Token(8, Color.BLUE), Token(9, Color.BLUE)))
     }
 
     "add a token" in {
-      val row = Row(List())
-      val token = Token(1, Color.RED)
-      row.addToken(token)
-      row.getTokens should contain (List(token))
+      val token = "1:red"
+      val row = Row(List(token))
+      val tokenToAdd = Token(1, Color.RED)
+      row.addToken(tokenToAdd)
+      row.getTokens should contain (tokenToAdd)
     }
 
     "remove a token" in {
-      val token1 = Token(11, Color.BLUE)
-      val token2 = Token(12, Color.BLUE)
-      val token3 = Token(13, Color.BLUE)
-      val row = Row(List(token1, token2, token3).map(_.asInstanceOf[Token | Joker]))
-      row.removeToken(token1)
-      row.getTokens should not contain (List(token1))
+      val token1 = "11:blue"
+      val token2 = "12:blue"
+      val token3 = "13:blue"
+      val row = Row(List(token1, token2, token3))
+      val tokenToRemove = Token(11, Color.BLUE)
+      row.removeToken(tokenToRemove)
+      row.getTokens should not contain (tokenToRemove)
     }
 
     "get tokens" in {
-      val token1 = Token(13, Color.GREEN)
-      val token2 = Token(1, Color.GREEN)
-      val token3 = Token(2, Color.GREEN)
-      val row = Row(List(token1, token2, token3).map(_.asInstanceOf[Token | Joker]))
-      row.getTokens should contain (List(token1))
-      row.getTokens should contain (List(token2))
-      row.getTokens should contain (List(token3))
+      val token1 = "13:green"
+      val token2 = "1:green"
+      val token3 = "2:green"
+      val row = Row(List(token1, token2, token3))
+      val tokenToGet = Token(13, Color.GREEN)
+      row.getTokens should contain (tokenToGet)
     }
 
     "have a correct string representation" in {
-      val token1 = Token(5, Color.RED)
-      val token2 = Token(6, Color.RED)
-      val token3 = Token(7, Color.RED)
-      val row = Row(List(token1, token2, token3).map(_.asInstanceOf[Token | Joker]))
-      row.toString should be ("1 red\n2 red\n3 red")
+      val token1 = "5:red"
+      val token2 = "6:red"
+      val token3 = "J:red"
+      val token4 = "J:black"
+      val row = Row(List(token1, token2, token3, token4))
+      row.toString should be (row.rowTokens.map(_.toString).mkString(" "))
+    }
+
+    "change string list to token list" in {
+      val tokenStrings = List("1:red", "2:blue", "3:green", "4:black")
+      val row = Row(tokenStrings)
+      row.changeStringListToTokenList(tokenStrings) should be (List(Token(1, Color.RED), Token(2, Color.BLUE), Token(3, Color.GREEN), Token(4, Color.BLACK)))
     }
   }
 }

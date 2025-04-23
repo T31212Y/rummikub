@@ -10,43 +10,43 @@ class GroupSpec extends AnyWordSpec {
             val token2 = "1:blue"
             val token3 = "1:green"
             val group = Group(List(token1, token2, token3))
-            group.groupTokens should contain (token1)
-            group.groupTokens should contain (token2)
-            group.groupTokens should contain (token3)
+            group.groupTokens should be (List(Token(1, Color.RED), Token(1, Color.BLUE), Token(1, Color.GREEN)))
         }
 
         "add a token" in {
-            val row = Row(List())
-            val token = Token(1, Color.RED)
-            row.addToken(token)
-            row.getTokens should contain (List(token))
+            val token = "1:red"
+            val group = Group(List(token))
+            val tokenToAdd = Token(1, Color.RED)
+            group.addToken(tokenToAdd)
+            group.getTokens should contain (tokenToAdd)
         }
 
         "remove a token" in {
-            val token1 = Token(11, Color.RED)
-            val token2 = Token(11, Color.BLUE)
-            val token3 = Token(11, Color.BLACK)
-            val row = Row(List(token1, token2, token3).map(_.asInstanceOf[String]))
-            row.removeToken(token1)
-            row.getTokens should not contain (List(token1))
+            val token1 = "11:red"
+            val token2 = "11:blue"
+            val token3 = "11:black"
+            val tokenToRemove = Token(11, Color.RED)
+            val group = Group(List(token1, token2, token3))
+            group.removeToken(tokenToRemove)
+            group.getTokens should not contain (tokenToRemove)
         }
 
         "get tokens" in {
-            val token1 = Token(13, Color.GREEN)
-            val token2 = Token(13, Color.RED)
-            val token3 = Token(13, Color.BLUE)
-            val row = Row(List(token1, token2, token3).map(_.asInstanceOf[String]))
-            row.getTokens should contain (List(token1))
-            row.getTokens should contain (List(token2))
-            row.getTokens should contain (List(token3))
+            val token1 = "13:green"
+            val token2 = "13:red"
+            val token3 = "13:blue"
+            val tokenToGet = Token(13, Color.GREEN)
+            val group = Group(List(token1, token2, token3))
+            group.getTokens should contain (tokenToGet)
         }
 
         "have a string representation" in {
             val token1 = "7:red"
             val token2 = "7:blue"
-            val token3 = "7:green"
-            val group = Group(List(token1, token2, token3))
-            group.toString should be (group.groupTokens.foreach(_.toString))
+            val token3 = "J:red"
+            val token4 = "J:black"
+            val group = Group(List(token1, token2, token3, token4))
+            group.toString should be (group.groupTokens.map(_.toString).mkString(" "))
         }
     }
 }

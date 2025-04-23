@@ -6,10 +6,10 @@ import org.scalatest.matchers.should.Matchers._
 class ColorSpec extends AnyWordSpec {
   "Color" should {
     "have a string representation" in {
-      Color.RED.toString should be("RED")
-      Color.BLUE.toString should be("BLUE")
-      Color.GREEN.toString should be("GREEN")
-      Color.BLACK.toString should be("BLACK")
+      Color.RED.toString should be("\u001b[31m")
+      Color.BLUE.toString should be("\u001b[34m")
+      Color.GREEN.toString should be("\u001b[32m")
+      Color.BLACK.toString should be("\u001b[30m")
     }
   }
 }

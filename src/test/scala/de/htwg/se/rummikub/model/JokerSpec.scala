@@ -12,7 +12,7 @@ class JokerSpec extends AnyWordSpec {
 
     "have a string representation" in {
       val joker = Joker(Color.RED)
-      joker.toString should be("Joker red")
+      joker.toString should be(" \u001b[31mJ\u001b[0m")
     }
   }
 }

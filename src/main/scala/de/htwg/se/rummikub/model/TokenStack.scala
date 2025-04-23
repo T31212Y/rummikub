@@ -32,6 +32,12 @@ case class TokenStack() {
     tokens
   }
 
+  def removeMultipleTokens(n: Int): List[Token | Joker] = {
+    val tokensToRemove = tokens.take(n)
+    tokens = tokens.drop(n)
+    tokensToRemove
+  }
+
   def removeAllTokens(): List[Token | Joker] = {
     tokens = List()
     tokens
