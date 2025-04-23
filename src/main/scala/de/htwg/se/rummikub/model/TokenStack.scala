@@ -32,6 +32,11 @@ case class TokenStack() {
     tokens
   }
 
+  def removeAllTokens(): List[Token | Joker] = {
+    tokens = List()
+    tokens
+  }
+
   def isEmpty: Boolean = tokens.isEmpty
 
   def size: Int = tokens.size

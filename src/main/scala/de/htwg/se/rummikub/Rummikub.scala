@@ -15,7 +15,7 @@ object Rummikub {
     val amountPlayers: Int = readLine().toInt
 
     println(tui.askPlayerNames())
-    val players = readLine().split(",").map(_.trim).toList.map(name => Player(name, tokens = TokenStack().drawMultipleTokens(14)))
+    val players = readLine().split(",").map(_.trim).toList.map(name => Player(name))
     println("\n")
 
     var playingField = new PlayingField(amountPlayers, players)
