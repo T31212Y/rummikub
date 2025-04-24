@@ -44,8 +44,7 @@ case class PlayingField(amountOfPlayers: Int, players: List[Player]) {
         pf.boardP2.boardEUD = pf.boardP2.createBoardFrameSingle(pf.player2.tokens.take(cntTokens))
       }
 
-      pf.innerField2Players = new Table(cntRows - 4, pf.boardP1.size(pf.boardP1.wrapBoardRowSingle(pf.boardP1.boardELRP12_1)) - 2)
-      pf.innerField2Players.tokensOnTable = this.innerField2Players.tokensOnTable
+      pf.innerField2Players = new Table(cntRows - 4, pf.boardP1.size(pf.boardP1.wrapBoardRowSingle(pf.boardP1.boardELRP12_1)) - 2, this.innerField2Players.tokensOnTable)
 
     } else if (amountOfPlayers == 3) {
       if (player1.tokens.size < cntTokens + 1) {
@@ -77,8 +76,7 @@ case class PlayingField(amountOfPlayers: Int, players: List[Player]) {
         pf.boardP2.boardEUD = pf.boardP2.createBoardFrameSingle(pf.player2.tokens.take(cntTokens))
       }
 
-      pf.innerField34Players = new Table(cntRows - 4, pf.boardP13.size(pf.boardP13.wrapBoardRowDouble(pf.boardP13.boardELRP12_1, pf.boardP13.boardELRP34_1)) - 2)
-      pf.innerField34Players.tokensOnTable = this.innerField34Players.tokensOnTable      
+      pf.innerField34Players = new Table(cntRows - 4, pf.boardP13.size(pf.boardP13.wrapBoardRowDouble(pf.boardP13.boardELRP12_1, pf.boardP13.boardELRP34_1)) - 2, this.innerField34Players.tokensOnTable)
 
     } else if (amountOfPlayers == 4) {
       if (player1.tokens.size < cntTokens + 1) {
@@ -117,8 +115,7 @@ case class PlayingField(amountOfPlayers: Int, players: List[Player]) {
 
       pf.boardP24.boardEUD = pf.boardP24.createBoardFrameDouble(pf.player2.tokens.take(cntTokens), pf.player4.tokens.take(cntTokens))
 
-      pf.innerField34Players = new Table(cntRows - 4, pf.boardP24.size(pf.boardP24.wrapBoardRowDouble(pf.boardP24.boardELRP12_1, pf.boardP24.boardELRP34_1)) - 2)
-      pf.innerField34Players.tokensOnTable = this.innerField34Players.tokensOnTable
+      pf.innerField34Players = new Table(cntRows - 4, pf.boardP24.size(pf.boardP24.wrapBoardRowDouble(pf.boardP24.boardELRP12_1, pf.boardP24.boardELRP34_1)) - 2, this.innerField34Players.tokensOnTable)
       
     }
     pf
@@ -126,18 +123,18 @@ case class PlayingField(amountOfPlayers: Int, players: List[Player]) {
 
   def addTableRow(row: Row): List[Token | Joker] = {
     if (amountOfPlayers == 2) {
-      innerField2Players.tokensOnTable = innerField2Players.tokensOnTable :+ row.rowTokens
+      innerField2Players = innerField2Players.add(row.rowTokens)
     } else if (amountOfPlayers > 2) {
-      innerField34Players.tokensOnTable = innerField34Players.tokensOnTable :+ row.rowTokens
+      innerField34Players = innerField34Players.add(row.rowTokens)
     }
     row.rowTokens
   }
 
   def addTableGroup(group: Group): List[Token | Joker] = {
     if (amountOfPlayers == 2) {
-      innerField2Players.tokensOnTable = innerField2Players.tokensOnTable :+ group.groupTokens
+      innerField2Players = innerField2Players.add(group.groupTokens)
     } else if (amountOfPlayers > 2) {
-      innerField34Players.tokensOnTable = innerField34Players.tokensOnTable :+ group.groupTokens
+      innerField34Players = innerField34Players.add(group.groupTokens)
     }
     group.groupTokens
   }
