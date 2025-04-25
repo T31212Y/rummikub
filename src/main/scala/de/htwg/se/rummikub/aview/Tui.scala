@@ -1,6 +1,9 @@
 package de.htwg.se.rummikub.aview
 
+import de.htwg.se.rummikub.controller.Controller
 import de.htwg.se.rummikub.model.{Player, PlayingField, TokenStack, Row, Group}
+import de.htwg.se.rummikub.util.Observable
+
 
 import scala.io.StdIn.readLine
 
@@ -68,7 +71,8 @@ class Tui {
         println("Drawing tokens for each player...")
         pf.players.foreach { player =>
             val drawnTokens = stack.drawMultipleTokens(14)
-            player.tokens = player.tokens ++ drawnTokens
+            val p = player.copy(tokens = player.tokens ++ drawnTokens)
+            p
         }
 
         while (!winGame(pf.players) && gameInput != "end") {
@@ -83,13 +87,13 @@ class Tui {
             println("end - End the game\n")
 
             gameInput = readLine()
-            currentPlayer.commandHistory = currentPlayer.commandHistory :+ gameInput
+            currentPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory:+ gameInput)
 
             gameInput match {
                 case "draw" => {
                     println("Drawing a token...")
                     val drawnToken = stack.drawToken()
-                    currentPlayer.tokens = currentPlayer.tokens :+ drawnToken
+                    currentPlayer = currentPlayer.copy(tokens = currentPlayer.tokens :+ drawnToken)
                     currentPlayer = passTurn(pf, currentPlayer)
                 }
                 case "pass" => {
@@ -103,13 +107,13 @@ class Tui {
                     println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
                     val rowInput = new Row(readLine().split(",").map(_.trim).toList)
                     val removeTokens = pf.addTableRow(rowInput)
-                    currentPlayer.tokens = currentPlayer.tokens.filterNot(token => removeTokens.contains(token))
+                    currentPlayer = currentPlayer.copy(tokens = currentPlayer.tokens.filterNot(token => removeTokens.contains(token)))
                 }
                 case "group" => {
                     println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
                     val groupInput = new Group(readLine().split(",").map(_.trim).toList)
                     val removeTokens = pf.addTableGroup(groupInput)
-                    currentPlayer.tokens = currentPlayer.tokens.filterNot(token => removeTokens.contains(token))
+                    currentPlayer = currentPlayer.copy(tokens = currentPlayer.tokens.filterNot(token => removeTokens.contains(token)))
                 }
                 case "end" => println("Exiting the game...")
                 case _ => println("Invalid command.")
@@ -121,7 +125,7 @@ class Tui {
     def passTurn(playingField: PlayingField, currentPlayer: Player): Player = {
         val nextPlayer = playingField.nextPlayer(currentPlayer)
         println(currentPlayer.name + " passed the turn to " + nextPlayer.name)
-        currentPlayer.commandHistory = List("")
+        //currentPlayer = currentPlayer.copy(commandHistory = List(""))
         nextPlayer
     }
 
