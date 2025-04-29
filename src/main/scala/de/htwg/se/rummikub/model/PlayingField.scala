@@ -1,10 +1,13 @@
 package de.htwg.se.rummikub.model
 
-case class PlayingField(amountOfPlayers: Int, players: List[Player]) {
-
-  val cntRows = 20
-  val cntTokens = 24
-  val cntEdgeSpaces = 15
+case class PlayingField(
+        amountOfPlayers: Int, 
+        players: List[Player],
+        cntRows: Int = 20,
+        cntTokens: Int = 24,
+        cntEdgeSpaces: Int = 15,
+        var innerField2Players: Table = new Table(20, 80), 
+        var innerField34Players: Table = new Table(20, 80)) {
  
   val player1 = players(0)
   val player2 = players(1)
@@ -18,8 +21,13 @@ case class PlayingField(amountOfPlayers: Int, players: List[Player]) {
   var boardP13 = new Board(cntEdgeSpaces, cntTokens, amountOfPlayers, 2, "up")
   var boardP24 = new Board(cntEdgeSpaces, cntTokens, amountOfPlayers, 2, "down")
 
-  var innerField2Players = new Table(cntRows - 4, boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)) - 2)
-  var innerField34Players = new Table(cntRows - 4, boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)) - 2)
+  if (innerField2Players.tokensOnTable == List()) {
+    innerField2Players = new Table(cntRows - 4, boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)) - 2)
+  }
+
+  if (innerField34Players.tokensOnTable == List()) {
+    innerField34Players = new Table(cntRows - 4, boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)) - 2)
+  }
 
   def updatePlayingField(): PlayingField = {
     var pf = new PlayingField(amountOfPlayers, players)
@@ -121,24 +129,6 @@ case class PlayingField(amountOfPlayers: Int, players: List[Player]) {
     pf
   }
 
-  def addTableRow(row: Row): List[Token | Joker] = {
-    if (amountOfPlayers == 2) {
-      innerField2Players = innerField2Players.add(row.rowTokens)
-    } else if (amountOfPlayers > 2) {
-      innerField34Players = innerField34Players.add(row.rowTokens)
-    }
-    row.rowTokens
-  }
-
-  def addTableGroup(group: Group): List[Token | Joker] = {
-    if (amountOfPlayers == 2) {
-      innerField2Players = innerField2Players.add(group.groupTokens)
-    } else if (amountOfPlayers > 2) {
-      innerField34Players = innerField34Players.add(group.groupTokens)
-    }
-    group.groupTokens
-  }
-
   def lineWithPlayerName(char: String, length: Int, p: String): String = {
     val len = length - p.length - 5
     char.repeat(5) + p + char * len
@@ -151,11 +141,6 @@ case class PlayingField(amountOfPlayers: Int, players: List[Player]) {
 
   def simpleLine(char: String, length: Int): String = {
     char * length
-  }
-
-  def nextPlayer(p: Player): Player = {
-    val current = players.indexOf(p)
-    if (current == players.size - 1) players(0) else players(current + 1)
   }
 
   override def toString(): String = {
