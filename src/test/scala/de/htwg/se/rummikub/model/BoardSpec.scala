@@ -9,6 +9,37 @@ class BoardSpec extends AnyWordSpec {
             val board = new Board(15, 24, 2, 1, "up")
             board.size(board.boardELRP12_1) should be(49)
         }
+        
+        "format an empty board row correctly" in {
+            val board = new Board(15, 24, 2, 1, "up")
+            val emptyRow = board.formatEmptyBoardRow(10)
+            emptyRow should be("|            |")
+        }
+
+        "wrap a single board row correctly" in {
+            val board = new Board(2, 24, 2, 1, "up")
+            val wrapped = board.wrapBoardRowSingle("[123]")
+            wrapped should be("|  [123]  |")
+        }
+
+        "wrap a double board row correctly" in {
+            val board = new Board(2, 24, 2, 2, "up")
+            val wrapped = board.wrapBoardRowDouble("[123]", "[456]")
+            wrapped should be("|  [123]  [456]  |")
+        }
+
+        "wrap a single to double board row correctly" in {
+            val board = new Board(2, 24, 3, 1, "down")
+            val wrapped = board.wrapBoardRowSingleToDouble("[123]", 90)
+            wrapped.length should be (101) 
+        }
+
+        "create a board frame for double rows" in {
+            val board = new Board(2, 24, 2, 2, "up")
+            val frame = board.createBoardFrameFromStringDouble(5, 7)
+            frame should include ("+-----+")
+            frame should include ("+-------+")
+        }
 
         "have a correct string representation" in {
             val board = new Board(15, 24, 2, 1, "up")
@@ -20,6 +51,78 @@ class BoardSpec extends AnyWordSpec {
                 "|               +-----------------------------------------------+               |"
                 ).mkString("\n") + "\n"
             )
+        }
+
+        "have correct toString for amtBoardsInRow = 2 and dest = up" in {
+            val board = new Board(15, 24, 2, 2, "up")
+            val str = board.toString().replace("x", " ").replace("y", " ")
+            str should include ("|")
+            str should include ("+")
+        }
+
+        "have correct toString for amtBoardsInRow = 1, dest = down, amtPlayers != 3" in {
+            val board = new Board(15, 24, 2, 1, "down")
+            val str = board.toString().replace("x", " ")
+            str should include ("|")
+            str should include ("+")
+        }
+
+        "have correct toString for amtBoardsInRow = 1, dest = down, amtPlayers == 3" in {
+            val board = new Board(15, 24, 3, 1, "down")
+            val str = board.toString().replace("x", " ")
+            str should include ("|")
+            str should include ("+")
+        }
+
+        "have correct toString for amtBoardsInRow = 2, dest = down" in {
+            val board = new Board(15, 24, 2, 2, "down")
+            val str = board.toString().replace("x", " ").replace("y", " ")
+            str should include ("|")
+            str should include ("+")
+        }
+
+        "should create a single board frame with tokens correctly" in {
+            val board = new Board(2, 5, 2, 1, "up")
+            val row = List.fill(5)(Token(1, Color.RED))
+            val frame = board.createBoardFrameSingle(row)
+            frame should include("|  +----------------+  |")
+        }
+
+
+        "should create a single board frame with jokers correctly" in {
+            val board = new Board(2, 5, 2, 1, "up")
+            val row = List.fill(5)(Joker(Color.RED))
+            val frame = board.createBoardFrameSingle(row)
+            frame should include("|  +----------------+  |")
+        }
+
+        "should create a double board frame with tokens correctly" in {
+            val board = new Board(2, 5, 2, 2, "up")
+            val row1 = List.fill(5)(Token(1, Color.RED))
+            val row2 = List.fill(5)(Token(2, Color.RED))
+            val frame = board.createBoardFrameDouble(row1, row2)
+            frame should include("|  +----------------+  +----------------+  |")
+
+        }
+
+        "should create a double board frame with jokers correctly" in {
+            val board = new Board(2, 5, 2, 2, "up")
+            val row1 = List.fill(5)(Joker(Color.RED))
+            val row2 = List.fill(5)(Joker(Color.BLACK))
+            val frame = board.createBoardFrameDouble(row1, row2)
+            frame should include("|  +----------------+  +----------------+  |")
+        }
+
+        "should create an empty board frame correctly" in {
+            val board = new Board(2, 5, 2, 1, "up")
+            val row = List()
+            val frame = board.createBoardFrameSingle(row)
+            frame should include("|  +----------------+  |")
+        }
+
+        "handle unexpected amtBoardsInRow or dest gracefully" in {
+            val board = new Board(15, 24, 2, 3, "left")
+            board.toString() should be ("")
         }
     }
 }

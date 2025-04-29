@@ -1,10 +1,14 @@
 package de.htwg.se.rummikub.aview
 
-import de.htwg.se.rummikub.model.{Player, PlayingField, TokenStack, Row, Group}
+import de.htwg.se.rummikub.controller.Controller
+import de.htwg.se.rummikub.util.Observer
 
 import scala.io.StdIn.readLine
 
-class Tui {
+class Tui(controller: Controller) extends Observer {
+
+    controller.add(this)
+
     def showWelcome(): Vector[String] = {
         Vector("Welcome to",
         " ____                                _  _            _      _",
@@ -35,45 +39,42 @@ class Tui {
         "Please enter the names of the players (comma-separated):"
     }
 
-    def inputCommands(input: String, playingField: PlayingField): PlayingField = {
+    def inputCommands(input: String): Unit = {
         input match {
             case "new" => {
                 println("Creating a new game...")
+
                 println(askAmountOfPlayers())
                 val amountPlayers: Int = readLine().toInt
+
                 println(askPlayerNames())
-                val players = readLine().split(",").map(_.trim).toList.map(name => Player(name))
-                new PlayingField(amountPlayers, players)
+                val players = readLine().split(",").map(_.trim).toList.map(name => controller.createPlayer(name))
+
+                controller.createPlayingField(amountPlayers, players)
             }
             case "start" => {
-                playGame(playingField)
+                playGame()
             }
             case "help" => {
                 println(showHelpPage().mkString("\n") + "\n")
-                playingField
             }
-            case "quit" => playingField
-            case _ => playingField
+            case "quit" =>
+            case _ =>
         }
     }
 
-    def playGame(playingField: PlayingField): PlayingField = {
+    def playGame(): Unit = {
         println("Starting the game...")
 
-        val stack = new TokenStack()
-        var pf = playingField
-        var currentPlayer = pf.player1
+        var stack = controller.createTokenStack()
+        var currentPlayer = controller.playingField.player1
         var gameInput = ""
 
         println("Drawing tokens for each player...")
-        pf.players.foreach { player =>
-            val drawnTokens = stack.drawMultipleTokens(14)
-            player.tokens = player.tokens ++ drawnTokens
-        }
+        controller.playingField.players.foreach(p => controller.addMultipleTokensToPlayer(p, stack, 14))
 
-        while (!winGame(pf.players) && gameInput != "end") {
-            pf = pf.updatePlayingField()
-            println(pf.toString())
+        while (!controller.winGame() && gameInput != "end") {
+            controller.setPlayingField(controller.playingField.updatePlayingField())
             println(currentPlayer.name + ", it's your turn!\n")
             println("Available commands:")
             println("group - Play a group of tokens")
@@ -83,59 +84,40 @@ class Tui {
             println("end - End the game\n")
 
             gameInput = readLine()
-            currentPlayer.commandHistory = currentPlayer.commandHistory :+ gameInput
+            currentPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ gameInput)
 
             gameInput match {
                 case "draw" => {
                     println("Drawing a token...")
-                    val drawnToken = stack.drawToken()
-                    currentPlayer.tokens = currentPlayer.tokens :+ drawnToken
-                    currentPlayer = passTurn(pf, currentPlayer)
+                    controller.addTokenToPlayer(currentPlayer, stack)
+                    currentPlayer = controller.passTurn(currentPlayer)
                 }
                 case "pass" => {
                     if (currentPlayer.commandHistory.size == 1) {
                         println("You cannot pass your turn without playing a token.")
                     } else {
-                        currentPlayer = passTurn(pf, currentPlayer)
+                        currentPlayer = controller.passTurn(currentPlayer)
                     }
                 }
                 case "row" => {
                     println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
-                    val rowInput = new Row(readLine().split(",").map(_.trim).toList)
-                    val removeTokens = pf.addTableRow(rowInput)
-                    currentPlayer.tokens = currentPlayer.tokens.filterNot(token => removeTokens.contains(token))
+                    val removeTokens = controller.addRowToTable(controller.createRow(readLine().split(",").map(_.trim).toList))
+                    removeTokens.foreach(t => controller.removeTokenFromPlayer(currentPlayer, t))
                 }
                 case "group" => {
                     println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
-                    val groupInput = new Group(readLine().split(",").map(_.trim).toList)
-                    val removeTokens = pf.addTableGroup(groupInput)
-                    currentPlayer.tokens = currentPlayer.tokens.filterNot(token => removeTokens.contains(token))
+                    val removeTokens = controller.addGroupToTable(controller.createGroup(readLine().split(",").map(_.trim).toList))
+                    removeTokens.foreach(t => controller.removeTokenFromPlayer(currentPlayer, t))
                 }
                 case "end" => println("Exiting the game...")
                 case _ => println("Invalid command.")
             }
         }
-        pf
     }
 
-    def passTurn(playingField: PlayingField, currentPlayer: Player): Player = {
-        val nextPlayer = playingField.nextPlayer(currentPlayer)
-        println(currentPlayer.name + " passed the turn to " + nextPlayer.name)
-        currentPlayer.commandHistory = List("")
-        nextPlayer
-    }
-
-    def winGame(players: List[Player]): Boolean = {
-        players.exists(player => player.tokens.isEmpty) match {
-            case true => {
-                println("Player " + players.find(_.tokens.isEmpty).get.name + " wins the game!")
-                true
-            }
-            case false => false
-        }
-    }
-    
     def showGoodbye(): String = {
         "Thank you for playing Rummikub! Goodbye!"
     }
+
+    override def update: Unit = println(controller.playingfieldToString)
 }
