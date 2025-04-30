@@ -2,6 +2,8 @@ package de.htwg.se.rummikub.controller
 
 import de.htwg.se.rummikub.model.{Player, PlayingField, TokenStack, Row, Group, Token, Joker}
 import de.htwg.se.rummikub.util.Observable
+import scala.io.StdIn.readLine
+
 
 class Controller(var playingField: PlayingField) extends Observable {
 
@@ -109,5 +111,48 @@ class Controller(var playingField: PlayingField) extends Observable {
         }
         playingField = updatedPlayingField
         group.groupTokens
+    }
+
+    def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
+        gameInput match {
+        case "draw" => 
+            println("Drawing a token...")
+            addTokenToPlayer(currentPlayer, stack)
+            passTurn(currentPlayer)
+        
+        case "pass" => 
+            if (currentPlayer.commandHistory.size == 1) {
+            println("You cannot pass your turn without playing a token.")
+            currentPlayer
+            } else {
+            passTurn(currentPlayer)
+            }
+            
+        case "row" => 
+            println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
+            val tokens = readLine().split(",").map(_.trim).toList
+            val removeTokens = addRowToTable(createRow(tokens))
+            removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
+            currentPlayer
+
+        case "group" => 
+            println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
+            val tokens = readLine().split(",").map(_.trim).toList
+            val removeTokens = addGroupToTable(createGroup(tokens))
+            removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
+            currentPlayer
+
+        case "end" => 
+            println("Exiting the game...")
+            currentPlayer
+
+        case _ => 
+            println("Invalid command.")
+            currentPlayer
+        }
+    }
+    def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
+        val players = names.map(createPlayer)
+        createPlayingField(amountPlayers, players)
     }
 }
