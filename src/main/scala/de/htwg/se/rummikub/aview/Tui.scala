@@ -58,7 +58,7 @@ class Tui(controller: Controller) extends Observer {
             case "help" => {
                 println(showHelpPage().mkString("\n") + "\n")
             }
-            case "quit" =>
+            case "quit" => println(showGoodbye())
             case _ =>
         }
     }
@@ -85,8 +85,9 @@ class Tui(controller: Controller) extends Observer {
 
             gameInput = readLine()
             currentPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ gameInput)
-
-            gameInput match {
+            currentPlayer = controller.processGameInput(gameInput, currentPlayer, stack)
+        }
+            /*gameInput match {
                 case "draw" => {
                     println("Drawing a token...")
                     controller.addTokenToPlayer(currentPlayer, stack)
@@ -111,6 +112,25 @@ class Tui(controller: Controller) extends Observer {
                 }
                 case "end" => println("Exiting the game...")
                 case _ => println("Invalid command.")
+            }
+        }*/
+        def inputCommands(input: String): Unit = {
+            input match {
+                case "new" => {
+                    println("Creating a new game...")
+
+                    println(askAmountOfPlayers())
+                    val amountPlayers = readLine().toInt
+
+                    println(askPlayerNames())
+                    val names = readLine().split(",").map(_.trim).toList
+
+                    controller.setupNewGame(amountPlayers, names)
+                }
+                case "start" => playGame()
+                case "help"  => println(showHelpPage().mkString("\n") + "\n")
+                case "quit"  => println(showGoodbye())
+                case _       => println("Unknown command. Type 'help' for available commands.")
             }
         }
     }
