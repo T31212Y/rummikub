@@ -22,7 +22,5 @@ object Rummikub {
       input = readLine()
       tui.inputCommands(input)
     }
-
-    println(tui.showGoodbye())
   }
 }
