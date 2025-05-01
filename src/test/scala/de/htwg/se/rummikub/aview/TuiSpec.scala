@@ -45,6 +45,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
     "show goodbye message" in {
       tui.showGoodbye() should include ("Thank you for playing Rummikub! Goodbye!")
     }
+
     "handle 'new' command" in {
       val in = new ByteArrayInputStream("2\nAlice,Bob\n".getBytes)
       Console.withIn(in) {
@@ -58,7 +59,6 @@ class TuiSpec extends AnyWordSpec with Matchers {
         output should include("Please enter the names of the players")
       }
     }
-
 
     "handle 'help' command input" in {
       val outContent = new ByteArrayOutputStream()
@@ -88,8 +88,9 @@ class TuiSpec extends AnyWordSpec with Matchers {
       }
 
       val output = outContent.toString
-      output shouldBe("")
+      output should be("")
     }
+
     "handle 'quit' command" in {
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
@@ -98,36 +99,13 @@ class TuiSpec extends AnyWordSpec with Matchers {
       val output = out.toString.trim
       output should include("Thank you for playing Rummikub! Goodbye!")
     }
+
+    def captureOutput(testCode: => Any): String = {
+      val outCapture = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(outCapture)) {
+        testCode
+      }
+      outCapture.toString
+    }
   }
 }
-
-
-
-    /*"create a new game on 'new' command" in {
-      val simulatedInput = "2\nAnki,Imma\n" 
-      Console.withIn(new ByteArrayInputStream(simulatedInput.getBytes())) {
-        val result = tui.inputCommands("new")
-        result.amountOfPlayers shouldBe 2
-        result.players.map(_.name) should contain allOf ("Anki", "Imma")
-      }
-    }
-
-    "start a game on 'start' command with simulated input" in {
-      val simulatedInput = "end\n"
-      Console.withIn(new ByteArrayInputStream(simulatedInput.getBytes())) {
-        captureOutput {
-          val result = tui.inputCommands("start")
-          result.players.map(_.name) should contain allElementsOf List("Anki", "Imma")
-        } should include ("Starting the game")
-      }
-    }
-
-  }
-  def captureOutput(testCode: => Any): String = {
-    val outCapture = new ByteArrayOutputStream()
-    Console.withOut(new PrintStream(outCapture)) {
-      testCode
-    }
-    outCapture.toString
-  }
-} */

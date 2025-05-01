@@ -28,7 +28,7 @@ class Tui(controller: Controller) extends Observer {
                "new - Create a new game",
                "start - Start the game",
                "quit - Exit the game"
-              )
+        )
     }
 
     def askAmountOfPlayers(): String = {
@@ -42,24 +42,20 @@ class Tui(controller: Controller) extends Observer {
     def inputCommands(input: String): Unit = {
         input match {
             case "new" => {
-                println("Creating a new game...")
+                    println("Creating a new game...")
 
-                println(askAmountOfPlayers())
-                val amountPlayers: Int = readLine().toInt
+                    println(askAmountOfPlayers())
+                    val amountPlayers = readLine().toInt
 
-                println(askPlayerNames())
-                val players = readLine().split(",").map(_.trim).toList.map(name => controller.createPlayer(name))
+                    println(askPlayerNames())
+                    val names = readLine().split(",").map(_.trim).toList
 
-                controller.createPlayingField(amountPlayers, players)
+                    controller.setupNewGame(amountPlayers, names)
             }
-            case "start" => {
-                playGame()
-            }
-            case "help" => {
-                println(showHelpPage().mkString("\n") + "\n")
-            }
-            case "quit" => println(showGoodbye())
-            case _ =>
+            case "start" => playGame()
+            case "help"  => println(showHelpPage().mkString("\n") + "\n")
+            case "quit"  => println(showGoodbye())
+            case _       =>
         }
     }
 
@@ -86,52 +82,6 @@ class Tui(controller: Controller) extends Observer {
             gameInput = readLine()
             currentPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ gameInput)
             currentPlayer = controller.processGameInput(gameInput, currentPlayer, stack)
-        }
-            /*gameInput match {
-                case "draw" => {
-                    println("Drawing a token...")
-                    controller.addTokenToPlayer(currentPlayer, stack)
-                    currentPlayer = controller.passTurn(currentPlayer)
-                }
-                case "pass" => {
-                    if (currentPlayer.commandHistory.size == 1) {
-                        println("You cannot pass your turn without playing a token.")
-                    } else {
-                        currentPlayer = controller.passTurn(currentPlayer)
-                    }
-                }
-                case "row" => {
-                    println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
-                    val removeTokens = controller.addRowToTable(controller.createRow(readLine().split(",").map(_.trim).toList))
-                    removeTokens.foreach(t => controller.removeTokenFromPlayer(currentPlayer, t))
-                }
-                case "group" => {
-                    println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
-                    val removeTokens = controller.addGroupToTable(controller.createGroup(readLine().split(",").map(_.trim).toList))
-                    removeTokens.foreach(t => controller.removeTokenFromPlayer(currentPlayer, t))
-                }
-                case "end" => println("Exiting the game...")
-                case _ => println("Invalid command.")
-            }
-        }*/
-        def inputCommands(input: String): Unit = {
-            input match {
-                case "new" => {
-                    println("Creating a new game...")
-
-                    println(askAmountOfPlayers())
-                    val amountPlayers = readLine().toInt
-
-                    println(askPlayerNames())
-                    val names = readLine().split(",").map(_.trim).toList
-
-                    controller.setupNewGame(amountPlayers, names)
-                }
-                case "start" => playGame()
-                case "help"  => println(showHelpPage().mkString("\n") + "\n")
-                case "quit"  => println(showGoodbye())
-                case _       => println("Unknown command. Type 'help' for available commands.")
-            }
         }
     }
 
