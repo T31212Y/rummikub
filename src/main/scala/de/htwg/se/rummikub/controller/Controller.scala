@@ -89,10 +89,8 @@ class Controller(var playingField: PlayingField) extends Observable {
         val updatedPlayingField = {
             if (playingField.amountOfPlayers == 2) {
                 playingField.copy(innerField2Players = playingField.innerField2Players.add(row.rowTokens))
-            } else if (playingField.amountOfPlayers > 2) {
-                playingField.copy(innerField34Players = playingField.innerField34Players.add(row.rowTokens))
             } else {
-                playingField
+                playingField.copy(innerField34Players = playingField.innerField34Players.add(row.rowTokens))
             }
         }
         playingField = updatedPlayingField
@@ -103,10 +101,8 @@ class Controller(var playingField: PlayingField) extends Observable {
         val updatedPlayingField = {
             if (playingField.amountOfPlayers == 2) {
                 playingField.copy(innerField2Players = playingField.innerField2Players.add(group.groupTokens))
-            } else if (playingField.amountOfPlayers > 2) {
-                playingField.copy(innerField34Players = playingField.innerField34Players.add(group.groupTokens))
             } else {
-                playingField
+                playingField.copy(innerField34Players = playingField.innerField34Players.add(group.groupTokens))
             }
         }
         playingField = updatedPlayingField
@@ -121,11 +117,11 @@ class Controller(var playingField: PlayingField) extends Observable {
             passTurn(currentPlayer)
         
         case "pass" => 
-            if (currentPlayer.commandHistory.size == 1) {
-            println("You cannot pass your turn without playing a token.")
-            currentPlayer
+            if (currentPlayer.commandHistory.size <= 1) {
+                println("You cannot pass your turn without playing a token.")
+                currentPlayer
             } else {
-            passTurn(currentPlayer)
+                passTurn(currentPlayer)
             }
             
         case "row" => 
