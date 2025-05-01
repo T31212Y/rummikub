@@ -32,101 +32,99 @@ case class PlayingField(
   def updatePlayingField(): PlayingField = {
     var pf = new PlayingField(amountOfPlayers, players)
     if (amountOfPlayers == 2) {
-      if (player1.tokens.size < cntTokens + 1) {
-        pf.boardP1.boardELRP12_1 = pf.boardP1.formatBoardRow(pf.player1.tokens)
-        pf.boardP1.boardELRP12_2 = pf.boardP1.formatEmptyBoardRow(pf.boardP1.size(pf.boardP1.boardELRP12_1) - 4)
-        pf.boardP1.boardEUD = pf.boardP1.createBoardFrameSingle(pf.player1.tokens)
-      } else {
-        pf.boardP1.boardELRP12_1 = pf.boardP1.formatBoardRow(pf.player1.tokens.take(cntTokens))
-        pf.boardP1.boardELRP12_2 = pf.boardP1.formatBoardRow(pf.player1.tokens.drop(cntTokens))
-        pf.boardP1.boardEUD = pf.boardP1.createBoardFrameSingle(pf.player1.tokens.take(cntTokens))
-      }
-
-      if (player2.tokens.size < cntTokens + 1) {
-        pf.boardP2.boardELRP12_1 = pf.boardP2.formatBoardRow(pf.player2.tokens)
-        pf.boardP2.boardELRP12_2 = pf.boardP2.formatEmptyBoardRow(pf.boardP2.size(pf.boardP2.boardELRP12_1) - 4)
-        pf.boardP2.boardEUD = pf.boardP2.createBoardFrameSingle(pf.player2.tokens)
-      } else {
-        pf.boardP2.boardELRP12_1 = pf.boardP2.formatBoardRow(pf.player2.tokens.take(cntTokens))
-        pf.boardP2.boardELRP12_2 = pf.boardP2.formatBoardRow(pf.player2.tokens.drop(cntTokens))
-        pf.boardP2.boardEUD = pf.boardP2.createBoardFrameSingle(pf.player2.tokens.take(cntTokens))
-      }
-
+      pf = pf.updatePlayer1With2Players()
+      pf = pf.updatePlayer2With23Players()
       pf.innerField2Players = new Table(cntRows - 4, pf.boardP1.size(pf.boardP1.wrapBoardRowSingle(pf.boardP1.boardELRP12_1)) - 2, this.innerField2Players.tokensOnTable)
-
     } else if (amountOfPlayers == 3) {
-      if (player1.tokens.size < cntTokens + 1) {
-        pf.boardP13.boardELRP12_1 = pf.boardP13.formatBoardRow(pf.player1.tokens)
-        pf.boardP13.boardELRP12_2 = pf.boardP13.formatEmptyBoardRow(pf.boardP13.size(pf.boardP13.boardELRP12_1) - 4)
-      } else {
-        pf.boardP13.boardELRP12_1 = pf.boardP13.formatBoardRow(pf.player1.tokens.take(cntTokens))
-        pf.boardP13.boardELRP12_2 = pf.boardP13.formatBoardRow(pf.player1.tokens.drop(cntTokens))
-      }
-
-      if (player3.tokens.size < cntTokens + 1) {
-        pf.boardP13.boardELRP34_1 = pf.boardP13.formatBoardRow(pf.player3.tokens)
-        pf.boardP13.boardELRP34_2 = pf.boardP13.formatEmptyBoardRow(pf.boardP13.size(pf.boardP13.boardELRP34_1) - 4)
-      } else {
-        pf.boardP13.boardELRP34_1 = pf.boardP13.formatBoardRow(pf.player3.tokens.take(cntTokens))
-        pf.boardP13.boardELRP34_2 = pf.boardP13.formatBoardRow(pf.player3.tokens.drop(cntTokens))
-      }
-
+      pf = pf.updatePlayer1With34Players()
+      pf = pf.updatePlayer3()
       pf.boardP13.boardEUD = pf.boardP13.createBoardFrameDouble(pf.player1.tokens.take(cntTokens), pf.player3.tokens.take(cntTokens))
+      
       pf.boardP2.maxLen = pf.boardP13.size(pf.boardP13.wrapBoardRowDouble(pf.boardP13.boardELRP12_1, pf.boardP13.boardELRP34_1)) - pf.boardP2.size(pf.boardP2.wrapBoardRowSingle(pf.boardP2.boardELRP12_1))
-
-      if (player2.tokens.size < cntTokens + 1) {
-        pf.boardP2.boardELRP12_1 = pf.boardP2.formatBoardRow(pf.player2.tokens)
-        pf.boardP2.boardELRP12_2 = pf.boardP2.formatEmptyBoardRow(pf.boardP2.size(pf.boardP2.boardELRP12_1) - 4)
-        pf.boardP2.boardEUD = pf.boardP2.createBoardFrameSingle(pf.player2.tokens)
-      } else {
-        pf.boardP2.boardELRP12_1 = pf.boardP2.formatBoardRow(pf.player2.tokens.take(cntTokens))
-        pf.boardP2.boardELRP12_2 = pf.boardP2.formatBoardRow(pf.player2.tokens.drop(cntTokens))
-        pf.boardP2.boardEUD = pf.boardP2.createBoardFrameSingle(pf.player2.tokens.take(cntTokens))
-      }
-
+      pf = pf.updatePlayer2With23Players()
       pf.innerField34Players = new Table(cntRows - 4, pf.boardP13.size(pf.boardP13.wrapBoardRowDouble(pf.boardP13.boardELRP12_1, pf.boardP13.boardELRP34_1)) - 2, this.innerField34Players.tokensOnTable)
-
     } else if (amountOfPlayers == 4) {
-      if (player1.tokens.size < cntTokens + 1) {
-        pf.boardP13.boardELRP12_1 = pf.boardP13.formatBoardRow(pf.player1.tokens)
-        pf.boardP13.boardELRP12_2 = pf.boardP13.formatEmptyBoardRow(pf.boardP13.size(pf.boardP13.boardELRP12_1) - 4)
-      } else {
-        pf.boardP13.boardELRP12_1 = pf.boardP13.formatBoardRow(pf.player1.tokens.take(cntTokens))
-        pf.boardP13.boardELRP12_2 = pf.boardP13.formatBoardRow(pf.player1.tokens.drop(cntTokens))
-      }
-
-      if (player3.tokens.size < cntTokens + 1) {
-        pf.boardP13.boardELRP34_1 = pf.boardP13.formatBoardRow(pf.player3.tokens)
-        pf.boardP13.boardELRP34_2 = pf.boardP13.formatEmptyBoardRow(pf.boardP13.size(pf.boardP13.boardELRP34_1) - 4)
-      } else {
-        pf.boardP13.boardELRP34_1 = pf.boardP13.formatBoardRow(pf.player3.tokens.take(cntTokens))
-        pf.boardP13.boardELRP34_2 = pf.boardP13.formatBoardRow(pf.player3.tokens.drop(cntTokens))
-      }
-
+      pf = pf.updatePlayer1With34Players()
+      pf = pf.updatePlayer3()
       pf.boardP13.boardEUD = pf.boardP13.createBoardFrameDouble(pf.player1.tokens.take(cntTokens), pf.player3.tokens.take(cntTokens))
-
-      if (player2.tokens.size < cntTokens + 1) {
-        pf.boardP24.boardELRP12_1 = pf.boardP24.formatBoardRow(pf.player2.tokens)
-        pf.boardP24.boardELRP12_2 = pf.boardP24.formatEmptyBoardRow(pf.boardP24.size(pf.boardP24.boardELRP12_1) - 4)
-      } else {
-        pf.boardP24.boardELRP12_1 = pf.boardP24.formatBoardRow(pf.player2.tokens.take(cntTokens))
-        pf.boardP24.boardELRP12_2 = pf.boardP24.formatBoardRow(pf.player2.tokens.drop(cntTokens))
-      }
-
-      if (player4.tokens.size < cntTokens + 1) {
-        pf.boardP24.boardELRP34_1 = pf.boardP24.formatBoardRow(pf.player4.tokens)
-        pf.boardP24.boardELRP34_2 = pf.boardP24.formatEmptyBoardRow(pf.boardP24.size(pf.boardP24.boardELRP34_1) - 4)
-      } else {
-        pf.boardP24.boardELRP34_1 = pf.boardP24.formatBoardRow(pf.player4.tokens.take(cntTokens))
-        pf.boardP24.boardELRP34_2 = pf.boardP24.formatBoardRow(pf.player4.tokens.drop(cntTokens))
-      }
-
+      
+      pf = pf.updatePlayer2With4Players()
+      pf = pf.updatePlayer4()
       pf.boardP24.boardEUD = pf.boardP24.createBoardFrameDouble(pf.player2.tokens.take(cntTokens), pf.player4.tokens.take(cntTokens))
 
       pf.innerField34Players = new Table(cntRows - 4, pf.boardP24.size(pf.boardP24.wrapBoardRowDouble(pf.boardP24.boardELRP12_1, pf.boardP24.boardELRP34_1)) - 2, this.innerField34Players.tokensOnTable)
-      
     }
     pf
+  }
+
+  def updatePlayer1With2Players(): PlayingField = {
+    if (player1.tokens.size < cntTokens + 1) {
+        boardP1.boardELRP12_1 = boardP1.formatBoardRow(player1.tokens)
+        boardP1.boardELRP12_2 = boardP1.formatEmptyBoardRow(boardP1.size(boardP1.boardELRP12_1) - 4)
+        boardP1.boardEUD = boardP1.createBoardFrameSingle(player1.tokens)
+      } else {
+        boardP1.boardELRP12_1 = boardP1.formatBoardRow(player1.tokens.take(cntTokens))
+        boardP1.boardELRP12_2 = boardP1.formatBoardRow(player1.tokens.drop(cntTokens))
+        boardP1.boardEUD = boardP1.createBoardFrameSingle(player1.tokens.take(cntTokens))
+      }
+      this
+  }
+
+  def updatePlayer2With23Players(): PlayingField = {
+    if (player2.tokens.size < cntTokens + 1) {
+        boardP2.boardELRP12_1 = boardP2.formatBoardRow(player2.tokens)
+        boardP2.boardELRP12_2 = boardP2.formatEmptyBoardRow(boardP2.size(boardP2.boardELRP12_1) - 4)
+        boardP2.boardEUD = boardP2.createBoardFrameSingle(player2.tokens)
+      } else {
+        boardP2.boardELRP12_1 = boardP2.formatBoardRow(player2.tokens.take(cntTokens))
+        boardP2.boardELRP12_2 = boardP2.formatBoardRow(player2.tokens.drop(cntTokens))
+        boardP2.boardEUD = boardP2.createBoardFrameSingle(player2.tokens.take(cntTokens))
+      }
+      this
+  }
+
+  def updatePlayer1With34Players(): PlayingField = {
+    if (player1.tokens.size < cntTokens + 1) {
+        boardP13.boardELRP12_1 = boardP13.formatBoardRow(player1.tokens)
+        boardP13.boardELRP12_2 = boardP13.formatEmptyBoardRow(boardP13.size(boardP13.boardELRP12_1) - 4)
+      } else {
+        boardP13.boardELRP12_1 = boardP13.formatBoardRow(player1.tokens.take(cntTokens))
+        boardP13.boardELRP12_2 = boardP13.formatBoardRow(player1.tokens.drop(cntTokens))
+      }
+      this
+  }
+
+  def updatePlayer3(): PlayingField = {
+     if (player3.tokens.size < cntTokens + 1) {
+        boardP13.boardELRP34_1 = boardP13.formatBoardRow(player3.tokens)
+        boardP13.boardELRP34_2 = boardP13.formatEmptyBoardRow(boardP13.size(boardP13.boardELRP34_1) - 4)
+      } else {
+        boardP13.boardELRP34_1 = boardP13.formatBoardRow(player3.tokens.take(cntTokens))
+        boardP13.boardELRP34_2 = boardP13.formatBoardRow(player3.tokens.drop(cntTokens))
+      }
+      this
+  }
+
+  def updatePlayer2With4Players(): PlayingField = {
+     if (player2.tokens.size < cntTokens + 1) {
+        boardP24.boardELRP12_1 = boardP24.formatBoardRow(player2.tokens)
+        boardP24.boardELRP12_2 = boardP24.formatEmptyBoardRow(boardP24.size(boardP24.boardELRP12_1) - 4)
+      } else {
+        boardP24.boardELRP12_1 = boardP24.formatBoardRow(player2.tokens.take(cntTokens))
+        boardP24.boardELRP12_2 = boardP24.formatBoardRow(player2.tokens.drop(cntTokens))
+      }
+      this
+  }
+
+  def updatePlayer4(): PlayingField = {
+    if (player4.tokens.size < cntTokens + 1) {
+        boardP24.boardELRP34_1 = boardP24.formatBoardRow(player4.tokens)
+        boardP24.boardELRP34_2 = boardP24.formatEmptyBoardRow(boardP24.size(boardP24.boardELRP34_1) - 4)
+      } else {
+        boardP24.boardELRP34_1 = boardP24.formatBoardRow(player4.tokens.take(cntTokens))
+        boardP24.boardELRP34_2 = boardP24.formatBoardRow(player4.tokens.drop(cntTokens))
+      }
+      this
   }
 
   def lineWithPlayerName(char: String, length: Int, p: String): String = {
