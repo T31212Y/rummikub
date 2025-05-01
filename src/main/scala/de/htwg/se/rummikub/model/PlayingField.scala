@@ -43,7 +43,7 @@ case class PlayingField(
       pf.boardP2.maxLen = pf.boardP13.size(pf.boardP13.wrapBoardRowDouble(pf.boardP13.boardELRP12_1, pf.boardP13.boardELRP34_1)) - pf.boardP2.size(pf.boardP2.wrapBoardRowSingle(pf.boardP2.boardELRP12_1))
       pf = pf.updatePlayer2With23Players()
       pf.innerField34Players = new Table(cntRows - 4, pf.boardP13.size(pf.boardP13.wrapBoardRowDouble(pf.boardP13.boardELRP12_1, pf.boardP13.boardELRP34_1)) - 2, this.innerField34Players.tokensOnTable)
-    } else if (amountOfPlayers == 4) {
+    } else {
       pf = pf.updatePlayer1With34Players()
       pf = pf.updatePlayer3()
       pf.boardP13.boardEUD = pf.boardP13.createBoardFrameDouble(pf.player1.tokens.take(cntTokens), pf.player3.tokens.take(cntTokens))
@@ -153,7 +153,7 @@ case class PlayingField(
       val edgeDown = lineWithPlayerName("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)), player2.name) + "\n"
 
       playingField = edgeUp + boardP13.toString() + innerField34Players.toString() + boardP2.toString() + edgeDown + "\n"
-    } else if (amountOfPlayers == 4) {
+    } else {
       val edgeUp = lineWith2PlayerNames("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)), player1.name, player3.name) + "\n"
       val edgeDown = lineWith2PlayerNames("*", boardP24.size(boardP24.wrapBoardRowDouble(boardP24.boardELRP12_1, boardP24.boardELRP34_1)), player2.name, player4.name) + "\n"
 
