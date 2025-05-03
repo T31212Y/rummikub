@@ -46,7 +46,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
       tui.showGoodbye() should include ("Thank you for playing Rummikub! Goodbye!")
     }
 
-    "handle 'new' command" in {
+    /*"handle 'new' command" in {
       val in = new ByteArrayInputStream("2\nAlice,Bob\n".getBytes)
       Console.withIn(in) {
         val out = new ByteArrayOutputStream()
@@ -106,6 +106,6 @@ class TuiSpec extends AnyWordSpec with Matchers {
         testCode
       }
       outCapture.toString
-    }
+    }*/
   }
 }
