@@ -37,6 +37,10 @@ jobs:
   run_tests:
     runs-on: ubuntu-latest
     steps:
+    - name: install sbt
+      uses: coursier/setup-action@v1
+      with:
+        apps: sbt
     - uses: actions/checkout@v2
     - name: Build Project and export Coverage
       env:
