@@ -27,6 +27,10 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: 'sbt'
+    - name: install sbt
+      uses: coursier/setup-action@v1
+      with:
+        apps: sbt
     - name: compile
       run: sbt compile
     - name: run tests
