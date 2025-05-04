@@ -16,9 +16,7 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 11
@@ -37,12 +35,12 @@ jobs:
   run_tests:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v4
     - name: install sbt
       uses: coursier/setup-action@v1
       with:
         apps: sbt
-    - uses: actions/checkout@v2
-    - name: Build Project and export Coverage
+    - name: build project and export coverage
       env:
         COVERALLS_REPO_TOKEN: ${{secrets.COVERALLS_REPO_TOKEN }}
       run: |
