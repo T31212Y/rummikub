@@ -78,11 +78,10 @@ class TuiSpec extends AnyWordSpec with Matchers {
       val outContent = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(outContent)) {
         tui.inputCommands("start")
+        val output = outContent.toString
+        output should (include("It's") or include("Player") or include("turn"))
+        tui.inputCommands("end")
       }
-
-      val output = outContent.toString
-      output should (include("It's") or include("Player") or include("turn"))
-      tui.inputCommands("end")
       tui.inputCommands("quit")
     }
 
