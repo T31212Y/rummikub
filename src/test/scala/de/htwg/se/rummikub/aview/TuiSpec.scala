@@ -74,17 +74,18 @@ class TuiSpec extends AnyWordSpec with Matchers {
       tui.inputCommands("quit")
     }
 
-    /*"handle 'start' command input" in {
+    "handle 'start' command input" in {
       val outContent = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(outContent)) {
         tui.inputCommands("start")
       }
 
       val output = outContent.toString
-      output should (include("It's") or include("Player") or include("turn")) // abhängig vom Output deiner playGame()-Methode
+      output should (include("It's") or include("Player") or include("turn"))
+      tui.inputCommands("quit")
     }
 
-    "handle unknown command input" in {
+    /*"handle unknown command input" in {
       val outContent = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(outContent)) {
         tui.inputCommands("exit")
