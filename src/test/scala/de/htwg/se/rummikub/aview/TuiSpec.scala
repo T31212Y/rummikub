@@ -46,6 +46,20 @@ class TuiSpec extends AnyWordSpec with Matchers {
       tui.showGoodbye() should include ("Thank you for playing Rummikub! Goodbye!")
     }
 
+    "handle 'new' command input" in {
+      val outContent = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(outContent)) {
+        tui.inputCommands("new")
+      }
+
+      tui.inputCommands("quit")
+
+      val output = outContent.toString
+      output should include("Creating a new game")
+      output should include("Please enter the number of players")
+      output should include("Please enter the names of the players")
+    } 
+
     /*"handle 'new' command" in {
       val in = new ByteArrayInputStream("2\nAlice,Bob\n".getBytes)
       Console.withIn(in) {
