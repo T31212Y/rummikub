@@ -62,7 +62,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
       tui.inputCommands("quit")
     }
 
-    /*"handle 'help' command input" in {
+    "handle 'help' command input" in {
       val outContent = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(outContent)) {
         tui.inputCommands("help")
@@ -71,9 +71,10 @@ class TuiSpec extends AnyWordSpec with Matchers {
       val output = outContent.toString
       output should include("Available commands:")
       output should include("new - Create a new game")
+      tui.inputCommands("quit")
     }
 
-    "handle 'start' command input" in {
+    /*"handle 'start' command input" in {
       val outContent = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(outContent)) {
         tui.inputCommands("start")
