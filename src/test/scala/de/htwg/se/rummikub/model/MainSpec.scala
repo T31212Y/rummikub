@@ -10,7 +10,7 @@ import de.htwg.se.rummikub.model.{run => runMain}
 
 class MainSpec extends AnyWordSpec {
   "Main" should {
-    /*"print the layout" in {
+    "print the layout" in {
         val output = new ByteArrayOutputStream()
         Console.withOut(new PrintStream(output)) {
           runMain()
@@ -49,6 +49,6 @@ class MainSpec extends AnyWordSpec {
 
         lines.mkString("\n") should be (expectedLayout)
         lines.length should be (28)
-    }*/
+    }
   }
 }
