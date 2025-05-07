@@ -48,7 +48,7 @@ class MainSpec extends AnyWordSpec {
         ).mkString("\n")
 
         lines.mkString("\n") should be (expectedLayout)
-        lines.length should be (26)
+        lines.length should be (28)
     }
   }
 }
