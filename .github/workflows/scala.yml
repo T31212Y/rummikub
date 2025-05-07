@@ -50,7 +50,6 @@ jobs:
       env:
         COVERALLS_REPO_TOKEN: ${{secrets.COVERALLS_REPO_TOKEN }}
         SBT_OPTS: -Xmx2G
-
       run: |
-        export CI_BRANCH="${GITHUB_REF#refs/heads/}"
+        $env:CI_BRANCH = "${GITHUB_REF#refs/heads/}"
         sbt clean coverage test coverageReport coveralls
