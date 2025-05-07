@@ -52,4 +52,4 @@ jobs:
         SBT_OPTS: -Xmx2G
       run: |
         $env:CI_BRANCH = "${GITHUB_REF#refs/heads/}"
-        sbt clean coverage test coverageReport coveralls
+        sbt clean coverage test coverageReport coverallsUpload
