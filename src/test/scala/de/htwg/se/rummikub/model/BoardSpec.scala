@@ -83,7 +83,7 @@ class BoardSpec extends AnyWordSpec {
 
         "should create a single board frame with tokens correctly" in {
             val board = new Board(2, 5, 2, 1, "up")
-            val row = List.fill(5)(Token(1, Color.RED))
+            val row = List.fill(5)(TokenFactory.createToken("Joker", 0, Color.RED))
             val frame = board.createBoardFrameSingle(row)
             frame should include("|  +----------------+  |")
         }
@@ -98,8 +98,8 @@ class BoardSpec extends AnyWordSpec {
 
         "should create a double board frame with tokens correctly" in {
             val board = new Board(2, 5, 2, 2, "up")
-            val row1 = List.fill(5)(Token(1, Color.RED))
-            val row2 = List.fill(5)(Token(2, Color.RED))
+            val row1 = List.fill(5)(TokenFactory.createToken("NumToken", 1, Color.RED))
+            val row2 = List.fill(5)(TokenFactory.createToken("NumToken", 2, Color.RED))
             val frame = board.createBoardFrameDouble(row1, row2)
             frame should include("|  +----------------+  +----------------+  |")
 
