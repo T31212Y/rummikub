@@ -5,13 +5,21 @@ import org.scalatest.wordspec.AnyWordSpec
 class TokenSpec extends AnyWordSpec {
     "Token" should {
         "have a valid color" in {
-        val token = Token(1, Color.RED)
-        List(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK) should contain (token.color)
+            val token = TokenFactory.createToken("NumToken", 1, Color.RED)
+            token match {
+                case numToken: NumToken =>
+                    Color.values should contain (numToken.color)
+                case _ => fail("Expected a NumToken")
+            }
         }
 
-        "have a valid number" in {
-            val token = Token(1, Color.RED)
-            token.number should (be >= 1 and be <= 13)
+        "have a valid number (1 to 13)" in {
+            val token = TokenFactory.createToken("NumToken", 1, Color.RED)
+            token match {
+                case numToken: NumToken =>
+                    numToken.number should (be >= 1 and be <= 13)
+                case _ => fail("Expected a NumToken")
+            }
         }
     }
 }
