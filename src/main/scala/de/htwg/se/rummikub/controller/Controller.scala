@@ -45,7 +45,7 @@ class Controller(var playingField: PlayingField) extends Observable {
         })
     }
 
-    def removeTokenFromPlayer(player: Player, token: Token | Joker): Unit = {
+    def removeTokenFromPlayer(player: Player, token: Token): Unit = {
         playingField = playingField.copy(players = playingField.players.map {
             case p if p.name == player.name => p.copy(tokens = p.tokens.filterNot(_.equals(token)))
             case p => p
@@ -85,7 +85,7 @@ class Controller(var playingField: PlayingField) extends Observable {
         }
     }
 
-    def addRowToTable(row: Row): List [Token | Joker] = {
+    def addRowToTable(row: Row): List [Token] = {
         val updatedPlayingField = {
             if (playingField.amountOfPlayers == 2) {
                 playingField.copy(innerField2Players = playingField.innerField2Players.add(row.rowTokens))
@@ -97,7 +97,7 @@ class Controller(var playingField: PlayingField) extends Observable {
         row.rowTokens
     }
 
-    def addGroupToTable(group: Group): List[Token | Joker] = {
+    def addGroupToTable(group: Group): List[Token] = {
         val updatedPlayingField = {
             if (playingField.amountOfPlayers == 2) {
                 playingField.copy(innerField2Players = playingField.innerField2Players.add(group.groupTokens))
@@ -128,14 +128,18 @@ class Controller(var playingField: PlayingField) extends Observable {
             println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
             val tokens = readLine().split(",").map(_.trim).toList
             val removeTokens = addRowToTable(createRow(tokens))
+            println(removeTokens)
             removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
+            println(currentPlayer.tokens)
             currentPlayer
 
         case "group" => 
             println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
             val tokens = readLine().split(",").map(_.trim).toList
             val removeTokens = addGroupToTable(createGroup(tokens))
+            println(removeTokens)
             removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
+            println(currentPlayer.tokens)
             currentPlayer
 
         case "end" => 

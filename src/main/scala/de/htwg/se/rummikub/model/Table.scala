@@ -1,6 +1,6 @@
 package de.htwg.se.rummikub.model
 
-case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token | Joker]] = List()) {
+case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = List()) {
 
     val emptyRow = "|" + (" " * length) + "|\n"
 
@@ -8,7 +8,7 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token | Jok
         tableRow.replaceAll("\u001B\\[[;\\d]*m", "")
     }
 
-    def add (e: List[Token | Joker]): Table = this.copy(tokensOnTable = this.tokensOnTable :+ e)
+    def add (e: List[Token]): Table = this.copy(tokensOnTable = this.tokensOnTable :+ e)
 
     override def toString: String = {
         if (tokensOnTable.isEmpty) {
