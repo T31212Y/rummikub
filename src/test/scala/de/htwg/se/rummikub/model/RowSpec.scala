@@ -10,13 +10,13 @@ class RowSpec extends AnyWordSpec {
         val token2 = "8:blue"
         val token3 = "9:blue"
         val row = Row(List(token1, token2, token3))
-        row.rowTokens should be (List(Token(7, Color.BLUE), Token(8, Color.BLUE), Token(9, Color.BLUE)))
+        row.rowTokens should be (List(TokenFactory.createToken("NumToken", 7, Color.BLUE), TokenFactory.createToken("NumToken", 8, Color.BLUE), TokenFactory.createToken("NumToken", 9, Color.BLUE)))
     }
 
     "add a token" in {
       val token = "1:red"
       val row = Row(List(token))
-      val tokenToAdd = Token(1, Color.RED)
+      val tokenToAdd = TokenFactory.createToken("NumToken", 1, Color.RED)
       row.addToken(tokenToAdd)
       row.getTokens should contain (tokenToAdd)
     }
@@ -26,7 +26,7 @@ class RowSpec extends AnyWordSpec {
       val token2 = "12:blue"
       val token3 = "13:blue"
       val row = Row(List(token1, token2, token3))
-      val tokenToRemove = Token(11, Color.BLUE)
+      val tokenToRemove = TokenFactory.createToken("NumToken", 11, Color.BLUE)
       row.removeToken(tokenToRemove)
       row.getTokens should not contain (tokenToRemove)
     }
@@ -36,7 +36,7 @@ class RowSpec extends AnyWordSpec {
       val token2 = "1:green"
       val token3 = "2:green"
       val row = Row(List(token1, token2, token3))
-      val tokenToGet = Token(13, Color.GREEN)
+      val tokenToGet = TokenFactory.createToken("NumToken", 13, Color.GREEN)
       row.getTokens should contain (tokenToGet)
     }
 
@@ -52,7 +52,7 @@ class RowSpec extends AnyWordSpec {
     "change string list to token list" in {
       val tokenStrings = List("1:red", "2:blue", "3:green", "4:black")
       val row = Row(tokenStrings)
-      row.changeStringListToTokenList(tokenStrings) should be (List(Token(1, Color.RED), Token(2, Color.BLUE), Token(3, Color.GREEN), Token(4, Color.BLACK)))
+      row.changeStringListToTokenList(tokenStrings) should be (List(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 2, Color.BLUE), TokenFactory.createToken("NumToken", 3, Color.GREEN), TokenFactory.createToken("NumToken", 4, Color.BLACK)))
     }
   }
 }
