@@ -2,24 +2,24 @@ package de.htwg.se.rummikub.controller
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import de.htwg.se.rummikub.model.{Color, Player, PlayingField, Token, TokenStack, Row, Group, Joker}
+import de.htwg.se.rummikub.model.{Color, Player, PlayingField, Token, TokenStack, Row, Group, Joker, TokenFactory}
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
 
 class ControllerSpec extends AnyWordSpec with Matchers {
     "A Controller" should {
 
         "detect win if player has no tokens" in {
-            val controller = new Controller(new PlayingField(2, List(new Player("Emilia", List(new Token(1, Color.RED))), new Player("Noah"))))
+            val controller = new Controller(new PlayingField(2, List(new Player("Emilia", List(TokenFactory.createToken("NumToken", 1, Color.RED))), new Player("Noah"))))
             controller.winGame() should be(true)
         }
 
         "not detect win when no player won yet" in {
-            val controller = new Controller(new PlayingField(2, List(new Player("Emilia", List(new Token(1, Color.RED))), new Player("Noah", List(new Token(4, Color.BLUE))))))
+            val controller = new Controller(new PlayingField(2, List(new Player("Emilia", List(TokenFactory.createToken("NumToken", 1, Color.RED))), new Player("Noah", List(TokenFactory.createToken("NumToken", 4, Color.BLUE))))))
             controller.winGame() should be(false)
         }
 
         "pass turn to next player" in {
-            val controller = new Controller(new PlayingField(2, List(new Player("Emilia", List(new Token(1, Color.RED))), new Player("Noah"))))
+            val controller = new Controller(new PlayingField(2, List(new Player("Emilia", List(TokenFactory.createToken("NumToken", 1, Color.RED))), new Player("Noah"))))
             val currentPlayer = controller.playingField.players.head
             val nextPlayer = controller.passTurn(currentPlayer)
             nextPlayer.name should be("Noah")
@@ -51,7 +51,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         }
 
         "remove a token from a player" in {
-            val token = new Token(1, Color.RED)
+            val token = TokenFactory.createToken("NumToken", 1, Color.RED)
             val player1 = new Player("Emilia", List(token))
             val player2 = new Player("Noah")
             val controller = new Controller(new PlayingField(2, List(player1, player2)))
@@ -73,32 +73,32 @@ class ControllerSpec extends AnyWordSpec with Matchers {
             val row = Row(List("1:red", "2:red", "3:red"))
             val controller = new Controller(new PlayingField(2, List(new Player("Emilia"), new Player("Noah"))))
             val addedTokens = controller.addRowToTable(row)
-            addedTokens should contain allOf(new Token(1, Color.RED), new Token(2, Color.RED), new Token(3, Color.RED))
-            controller.playingField.innerField2Players.tokensOnTable should contain (List(new Token(1, Color.RED), new Token(2, Color.RED), new Token(3, Color.RED)))
+            addedTokens should contain allOf(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 2, Color.RED), TokenFactory.createToken("NumToken", 3, Color.RED))
+            controller.playingField.innerField2Players.tokensOnTable should contain (List(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 2, Color.RED), TokenFactory.createToken("NumToken", 3, Color.RED)))
         }
 
         "add a row to the table for more than 2 players" in {
             val row = Row(List("1:red", "2:red", "3:red"))
             val controller = new Controller(new PlayingField(3, List(new Player("Emilia"), new Player("Noah"), new Player("Sophia"))))
             val addedTokens = controller.addRowToTable(row)
-            addedTokens should contain allOf(new Token(1, Color.RED), new Token(2, Color.RED), new Token(3, Color.RED))
-            controller.playingField.innerField34Players.tokensOnTable should contain (List(new Token(1, Color.RED), new Token(2, Color.RED), new Token(3, Color.RED)))
+            addedTokens should contain allOf(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 2, Color.RED), TokenFactory.createToken("NumToken", 3, Color.RED))
+            controller.playingField.innerField34Players.tokensOnTable should contain (List(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 2, Color.RED), TokenFactory.createToken("NumToken", 3, Color.RED)))
         }
 
         "add a group to the table" in {
             val group = Group(List("1:red", "1:blue", "1:black"))
             val controller = new Controller(new PlayingField(2, List(new Player("Emilia"), new Player("Noah"))))
             val addedTokens = controller.addGroupToTable(group)
-            addedTokens should contain allOf(new Token(1, Color.RED), new Token(1, Color.BLUE), new Token(1, Color.BLACK))
-            controller.playingField.innerField2Players.tokensOnTable should contain (List(new Token(1, Color.RED), new Token(1, Color.BLUE), new Token(1, Color.BLACK)))
+            addedTokens should contain allOf(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 1, Color.BLUE),TokenFactory.createToken("NumToken", 1, Color.BLACK))
+            controller.playingField.innerField2Players.tokensOnTable should contain (List(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 1, Color.BLUE), TokenFactory.createToken("NumToken", 1, Color.BLACK)))
         }
 
         "add a group to the table for more than 2 players" in {
             val group = Group(List("1:red", "1:blue", "1:black"))
             val controller = new Controller(new PlayingField(3, List(new Player("Emilia"), new Player("Noah"), new Player("Sophia"))))
             val addedTokens = controller.addGroupToTable(group)
-            addedTokens should contain allOf(new Token(1, Color.RED), new Token(1, Color.BLUE), new Token(1, Color.BLACK))
-            controller.playingField.innerField34Players.tokensOnTable should contain (List(new Token(1, Color.RED), new Token(1, Color.BLUE), new Token(1, Color.BLACK)))
+            addedTokens should contain allOf(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 1, Color.BLUE), TokenFactory.createToken("NumToken", 1, Color.BLACK))
+            controller.playingField.innerField34Players.tokensOnTable should contain (List(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 1, Color.BLUE), TokenFactory.createToken("NumToken", 1, Color.BLACK)))
         }
 
         "process game input for 'draw'" in {
@@ -113,7 +113,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         }
 
         "process game input for 'pass'" in {
-            val player = new Player("Emilia", List(new Token(1, Color.RED)), List("group", "row"))
+            val player = new Player("Emilia", List(TokenFactory.createToken("NumToken", 1, Color.RED)), List("group", "row"))
             val controller = new Controller(new PlayingField(2, List(player, new Player("Noah"))))
             val nextPlayer = controller.processGameInput("pass", player, TokenStack())
             nextPlayer.name should be("Noah")
@@ -136,22 +136,22 @@ class ControllerSpec extends AnyWordSpec with Matchers {
             val in = new ByteArrayInputStream("1:red, 1:blue, 1:black\n".getBytes)
             Console.withIn(in) {
                 val stack = TokenStack()
-                val player1 = new Player("Emilia", List(new Token(1, Color.RED), new Token(1, Color.BLUE), new Token(1, Color.BLACK)))
+                val player1 = new Player("Emilia", List(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 1, Color.BLUE), TokenFactory.createToken("NumToken", 1, Color.BLACK)))
                 val player2 = new Player("Noah")
                 val controller = new Controller(new PlayingField(2, List(player1, player2)))
                 controller.processGameInput("group", player1, stack)
-                controller.playingField.innerField2Players.tokensOnTable should contain(List(new Token(1, Color.RED), new Token(1, Color.BLUE), new Token(1, Color.BLACK)))
+                controller.playingField.innerField2Players.tokensOnTable should contain(List(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 1, Color.BLUE), TokenFactory.createToken("NumToken", 1, Color.BLACK)))
             }
         }
         "process game input for 'row'" in {
             val in = new ByteArrayInputStream("1:red, 2:red, 3:red\n".getBytes)
                 Console.withIn(in) {
                 val stack = TokenStack()
-                val player1 = new Player("Emilia", List(new Token(1, Color.RED), new Token(2, Color.RED), new Token(3, Color.RED)))
+                val player1 = new Player("Emilia", List(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 2, Color.RED), TokenFactory.createToken("NumToken", 3, Color.RED)))
                 val player2 = new Player("Noah")
                 val controller = new Controller(new PlayingField(2, List(player1, player2)))
                 controller.processGameInput("row", player1, stack)
-                controller.playingField.innerField2Players.tokensOnTable should contain (List(new Token(1, Color.RED), new Token(2, Color.RED), new Token(3, Color.RED)))
+                controller.playingField.innerField2Players.tokensOnTable should contain (List(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 2, Color.RED), TokenFactory.createToken("NumToken", 3, Color.RED)))
             }
         }
 
