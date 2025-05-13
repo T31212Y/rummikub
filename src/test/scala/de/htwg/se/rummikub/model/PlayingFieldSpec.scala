@@ -40,8 +40,8 @@ class PlayingFieldSpec extends AnyWordSpec {
     }
 
     "update the playing field correctly for 2 players" in {
-      val player1 = new Player("Emilia", List(Token(1, Color.RED), Token(2, Color.BLUE)))
-      val player2 = new Player("Noah", List(Token(3, Color.GREEN), Token(4, Color.BLACK)))
+      val player1 = new Player("Emilia", List(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken",2, Color.BLUE)))
+      val player2 = new Player("Noah", List(TokenFactory.createToken("NumToken", 3, Color.GREEN), TokenFactory.createToken("NumToken", 4, Color.BLACK)))
       val playingField = new PlayingField(2, List(player1, player2))
       val updatedField = playingField.updatePlayingField()
 
@@ -61,9 +61,9 @@ class PlayingFieldSpec extends AnyWordSpec {
     }
 
     "update the playing field correctly for 3 players" in {
-      val player1 = new Player("Emilia", List(Token(1, Color.RED), Token(2, Color.BLUE)))
-      val player2 = new Player("Noah", List(Token(3, Color.GREEN), Token(4, Color.BLACK)))
-      val player3 = new Player("Sophia", List(Token(5, Color.RED), Token(6, Color.BLUE)))
+      val player1 = new Player("Emilia", List(TokenFactory.createToken("NumToken",1, Color.RED), TokenFactory.createToken("NumToken", 2, Color.BLUE)))
+      val player2 = new Player("Noah", List(TokenFactory.createToken("NumToken", 3, Color.GREEN), TokenFactory.createToken("NumToken", 4, Color.BLACK)))
+      val player3 = new Player("Sophia", List(TokenFactory.createToken("NumToken", 5, Color.RED), TokenFactory.createToken("NumToken", 6, Color.BLUE)))
       val playingField = new PlayingField(3, List(player1, player2, player3))
       val updatedField = playingField.updatePlayingField()
 
@@ -84,10 +84,10 @@ class PlayingFieldSpec extends AnyWordSpec {
     }
 
     "update the playing field correctly for 4 players" in {
-      val player1 = new Player("Emilia", List(Token(1, Color.RED), Token(2, Color.BLUE)))
-      val player2 = new Player("Noah", List(Token(3, Color.GREEN), Token(4, Color.BLACK)))
-      val player3 = new Player("Sophia", List(Token(5, Color.RED), Token(6, Color.BLUE)))
-      val player4 = new Player("Liam", List(Token(7, Color.GREEN), Token(8, Color.BLACK)))
+      val player1 = new Player("Emilia", List(TokenFactory.createToken("NumToken", 1, Color.RED), TokenFactory.createToken("NumToken", 2, Color.BLUE)))
+      val player2 = new Player("Noah", List(TokenFactory.createToken("NumToken", 3, Color.GREEN), TokenFactory.createToken("NumToken", 4, Color.BLACK)))
+      val player3 = new Player("Sophia", List(TokenFactory.createToken("NumToken", 5, Color.RED), TokenFactory.createToken("NumToken", 6, Color.BLUE)))
+      val player4 = new Player("Liam", List(TokenFactory.createToken("NumToken", 7, Color.GREEN), TokenFactory.createToken("NumToken", 8, Color.BLACK)))
       val playingField = new PlayingField(4, List(player1, player2, player3, player4))
       val updatedField = playingField.updatePlayingField()
 
