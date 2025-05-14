@@ -84,14 +84,24 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         }
     }
 
-    def addRowToTable(row: Row): List [Token] = {
-        playingField = playingField.copy(innerField = playingField.innerField.add(row.rowTokens))
-        row.rowTokens
+    def addRowToTable(row: Row, currentPlayer: Player): List[Token] = {
+        if (row.rowTokens.forall(token => currentPlayer.tokens.contains(token))) {
+            playingField = playingField.copy(innerField = playingField.innerField.add(row.rowTokens))
+            row.rowTokens
+        } else {
+            println("You can only play tokens that are on your board.")
+            List.empty[Token]
+        }
     }
 
-    def addGroupToTable(group: Group): List[Token] = {
-        playingField = playingField.copy(innerField = playingField.innerField.add(group.groupTokens))
-        group.groupTokens
+    def addGroupToTable(group: Group, currentPlayer: Player): List[Token] = {
+        if (group.groupTokens.forall(token => currentPlayer.tokens.contains(token))) {
+            playingField = playingField.copy(innerField = playingField.innerField.add(group.groupTokens))
+            group.groupTokens
+        } else {
+            println("You can only play tokens that are on your board.")
+            List.empty[Token]
+        }
     }
 
     def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
@@ -112,14 +122,28 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         case "row" => 
             println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
             val tokens = readLine().split(",").map(_.trim).toList
-            val removeTokens = addRowToTable(createRow(tokens))
+            val removeTokens = addRowToTable(createRow(tokens), currentPlayer)
             removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
             currentPlayer
 
         case "group" => 
             println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
             val tokens = readLine().split(",").map(_.trim).toList
-            val removeTokens = addGroupToTable(createGroup(tokens))
+            val removeTokens = addGroupToTable(createGroup(tokens), currentPlayer)
+            removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
+            currentPlayer
+
+        case "addToRow" => 
+            println("Enter the tokens to add to the row (e.g. 'token1:color, token2:color, ...'):")
+            val tokens = readLine().split(",").map(_.trim).toList
+            val removeTokens = addRowToTable(createRow(tokens), currentPlayer)
+            removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
+            currentPlayer
+
+        case "addToGroup" => 
+            println("Enter the tokens to add to the group (e.g. 'token1:color, token2:color, ...'):")
+            val tokens = readLine().split(",").map(_.trim).toList
+            val removeTokens = addGroupToTable(createGroup(tokens), currentPlayer)
             removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
             currentPlayer
 
