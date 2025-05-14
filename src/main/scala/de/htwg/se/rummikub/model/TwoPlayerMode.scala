@@ -28,8 +28,8 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate {
         val boardP2 = playingField.boards(1)
 
         val updatedBoards = List(
-            updateBoardSinglePlayer(player1, boardP1),
-            updateBoardSinglePlayer(player2, boardP2)
+            updateBoardSinglePlayer(player1, boardP1).fold(boardP1)(identity),
+            updateBoardSinglePlayer(player2, boardP2).fold(boardP2)(identity)
         )
 
         val updatedInnerField = new Table(cntRows - 4, boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)) - 2, playingField.innerField.tokensOnTable)
@@ -37,7 +37,7 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate {
         playingField.copy(boards = updatedBoards, innerField = updatedInnerField)
     }
 
-    override def updateBoardSinglePlayer(player: Player, board: Board): Board = {
+    override def updateBoardSinglePlayer(player: Player, board: Board): Option[Board] = {
         if (player.tokens.size <= cntTokens) {
           board.boardELRP12_1 = board.formatBoardRow(player.tokens)
           board.boardELRP12_2 = board.formatEmptyBoardRow(board.size(board.boardELRP12_1) - 4)
@@ -47,7 +47,7 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate {
           board.boardELRP12_2 = board.formatBoardRow(player.tokens.drop(cntTokens))
           board.boardEUD = board.createBoardFrameSingle(player.tokens.take(cntTokens))
         }
-        board
+        Some(board)
     }
 
     override def updateBoardMultiPlayer(players: List[Player], board: Board): Option[Board] = None
