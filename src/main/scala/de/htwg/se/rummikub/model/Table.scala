@@ -10,6 +10,23 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = L
 
     def add (e: List[Token]): Table = this.copy(tokensOnTable = this.tokensOnTable :+ e)
 
+    def remove(tokens: List[String]): Table = {
+        val tokensToRemove = tokens.map { tokenString =>
+            val tokenParts = tokenString.split(":")
+            if (tokenParts(0) == "J") {
+                TokenFactory.createToken("Joker", 0, Color.valueOf(tokenParts(1)))
+            } else {
+                TokenFactory.createToken("NumToken", tokenParts(0).toInt, Color.valueOf(tokenParts(1)))
+            }
+        }
+
+        val updatedTokensOnTable = tokensOnTable.map { row =>
+            row.filterNot(token => tokensToRemove.contains(token))
+        }.filter(_.nonEmpty)
+
+        this.copy(tokensOnTable = updatedTokensOnTable)
+    }
+
     override def toString: String = {
         if (tokensOnTable.isEmpty) {
             emptyRow.repeat(cntRows)
