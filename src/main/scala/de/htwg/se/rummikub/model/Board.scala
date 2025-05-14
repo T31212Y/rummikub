@@ -8,8 +8,6 @@ case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsI
     var boardELRP34_2 = "| " + ("y " * (amtTokens - 1)) + "|"
     var boardEUD = "+" + ("-" * (2 * amtTokens - 1)) + "+"
 
-    //var maxLen = 90
-
     def size(board: String): Int = {
         deleteColorCodes(board).length
     }
