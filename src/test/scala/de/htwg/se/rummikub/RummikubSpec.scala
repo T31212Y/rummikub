@@ -23,7 +23,7 @@ class RummikubSpec extends AnyWordSpec with Matchers {
     "initialize the game correctly with default players" in {
       val controller = Rummikub.controller
       controller.playingField.players.map(_.name) should contain allOf ("Emilia", "Noah")
-      controller.playingField.amountOfPlayers should be(2)
+      controller.gameMode should be("TwoPlayerMode")
     }
 
     "process commands through the Tui" in {
