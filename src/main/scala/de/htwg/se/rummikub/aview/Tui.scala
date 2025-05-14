@@ -63,14 +63,14 @@ class Tui(controller: Controller) extends Observer {
         println("Starting the game...")
 
         var stack = controller.createTokenStack()
-        var currentPlayer = controller.playingField.player1
+        var currentPlayer = controller.playingField.players.head
         var gameInput = ""
 
         println("Drawing tokens for each player...")
         controller.playingField.players.foreach(p => controller.addMultipleTokensToPlayer(p, stack, 14))
 
         while (!controller.winGame() && gameInput != "end") {
-            controller.setPlayingField(controller.playingField.updatePlayingField())
+            controller.updatePlayingField()
             println(currentPlayer.name + ", it's your turn!\n")
             println("Available commands:")
             println("group - Play a group of tokens")

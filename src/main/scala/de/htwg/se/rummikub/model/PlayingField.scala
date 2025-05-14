@@ -1,7 +1,12 @@
 package de.htwg.se.rummikub.model
 
-case class PlayingField(
-        amountOfPlayers: Int, 
+case class PlayingField(players: List[Player], boards: List[Board], innerField: Table)
+
+
+
+
+
+/*        amountOfPlayers: Int, 
         players: List[Player],
         cntRows: Int = 20,
         cntTokens: Int = 24,
@@ -161,4 +166,4 @@ case class PlayingField(
     }
     playingField
   }
-}
+}*/

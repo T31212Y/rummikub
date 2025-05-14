@@ -1,23 +1,25 @@
 package de.htwg.se.rummikub.controller
 
-import de.htwg.se.rummikub.model.{Player, PlayingField, TokenStack, Row, Group, Token, Joker}
+import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.util.Observable
+
 import scala.io.StdIn.readLine
+import scala.compiletime.uninitialized
 
 
-class Controller(var playingField: PlayingField) extends Observable {
+class Controller(var gameMode: GameModeTemplate) extends Observable {
 
-    def createPlayingField(amountOfPlayers: Int, players: List[Player]): Unit = {
-        playingField = PlayingField(amountOfPlayers, players)
+    var playingField: PlayingField = uninitialized
+
+    def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
+        gameMode = GameModeFactory.createGameMode(amountPlayers, names)
+        val players = gameMode.createPlayers()
+        playingField = gameMode.createPlayingField(players)
         notifyObservers
     }
 
     def createTokenStack(): TokenStack = {
         TokenStack()
-    }
-
-    def createPlayer(name: String): Player = {
-        Player(name)
     }
 
     def createRow(r: List[String]): Row = {
@@ -28,13 +30,13 @@ class Controller(var playingField: PlayingField) extends Observable {
         Group(g)
     }
 
-    def setPlayingField(playingField: PlayingField): Unit = {
-        this.playingField = playingField
+    def updatePlayingField(): Unit = {
+        playingField = gameMode.updatePlayingField(playingField)
         notifyObservers
     }
 
     def playingfieldToString: String = {
-        playingField.toString().replace("x", " ").replace("y", " ")
+        gameMode.renderPlayingField(playingField)
     }
 
     def addTokenToPlayer(player: Player, stack: TokenStack): Unit = {
@@ -62,10 +64,6 @@ class Controller(var playingField: PlayingField) extends Observable {
     
     def passTurn(currentPlayer: Player): Player = {
         val nextPlayer = setNextPlayer(currentPlayer).copy(commandHistory = List(""))
-        playingField = playingField.copy(players = playingField.players.map {
-            case p if p.name == nextPlayer.name => nextPlayer
-            case p => p
-        })
         println(currentPlayer.name + " passed the turn to " + nextPlayer.name)
         nextPlayer
     }
@@ -74,6 +72,7 @@ class Controller(var playingField: PlayingField) extends Observable {
         val current = playingField.players.indexWhere(_.name == p.name)
         if (current == playingField.players.size - 1) playingField.players.head else playingField.players(current + 1)
     }
+
 
     def winGame(): Boolean = {
         playingField.players.exists(player => player.tokens.isEmpty) match {
@@ -86,26 +85,12 @@ class Controller(var playingField: PlayingField) extends Observable {
     }
 
     def addRowToTable(row: Row): List [Token] = {
-        val updatedPlayingField = {
-            if (playingField.amountOfPlayers == 2) {
-                playingField.copy(innerField2Players = playingField.innerField2Players.add(row.rowTokens))
-            } else {
-                playingField.copy(innerField34Players = playingField.innerField34Players.add(row.rowTokens))
-            }
-        }
-        playingField = updatedPlayingField
+        playingField = playingField.copy(innerField = playingField.innerField.add(row.rowTokens))
         row.rowTokens
     }
 
     def addGroupToTable(group: Group): List[Token] = {
-        val updatedPlayingField = {
-            if (playingField.amountOfPlayers == 2) {
-                playingField.copy(innerField2Players = playingField.innerField2Players.add(group.groupTokens))
-            } else {
-                playingField.copy(innerField34Players = playingField.innerField34Players.add(group.groupTokens))
-            }
-        }
-        playingField = updatedPlayingField
+        playingField = playingField.copy(innerField = playingField.innerField.add(group.groupTokens))
         group.groupTokens
     }
 
@@ -128,18 +113,14 @@ class Controller(var playingField: PlayingField) extends Observable {
             println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
             val tokens = readLine().split(",").map(_.trim).toList
             val removeTokens = addRowToTable(createRow(tokens))
-            println(removeTokens)
             removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
-            println(currentPlayer.tokens)
             currentPlayer
 
         case "group" => 
             println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
             val tokens = readLine().split(",").map(_.trim).toList
             val removeTokens = addGroupToTable(createGroup(tokens))
-            println(removeTokens)
             removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
-            println(currentPlayer.tokens)
             currentPlayer
 
         case "end" => 
@@ -150,9 +131,5 @@ class Controller(var playingField: PlayingField) extends Observable {
             println("Invalid command.")
             currentPlayer
         }
-    }
-    def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
-        val players = names.map(createPlayer)
-        createPlayingField(amountPlayers, players)
     }
 }
