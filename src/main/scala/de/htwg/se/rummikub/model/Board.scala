@@ -1,6 +1,6 @@
 package de.htwg.se.rummikub.model
 
-case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsInRow: Int, dest: String) {
+case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsInRow: Int, dest: String, maxLen: Int = 90) {
 
     var boardELRP12_1 = "| " + ("x " * (amtTokens - 1)) + "|"
     var boardELRP12_2 = "| " + ("x " * (amtTokens - 1)) + "|"
@@ -8,7 +8,7 @@ case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsI
     var boardELRP34_2 = "| " + ("y " * (amtTokens - 1)) + "|"
     var boardEUD = "+" + ("-" * (2 * amtTokens - 1)) + "+"
 
-    var maxLen = 90
+    //var maxLen = 90
 
     def size(board: String): Int = {
         deleteColorCodes(board).length
