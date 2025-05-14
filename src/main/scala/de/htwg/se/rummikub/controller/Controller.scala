@@ -185,7 +185,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         }
     }
 
-    def removePlacedTokens(currentPlayer: Player): Unit = {
+    /*def removePlacedTokens(currentPlayer: Player): Unit = {
         val placedTokens = currentPlayer.commandHistory.flatMap { command =>
             command.split(":")(1).split(",").map(_.trim).toList
         }
@@ -205,5 +205,6 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         })
 
         playingField = playingField.copy(innerField = playingField.innerField.remove(placedTokens))
-    }
+    }*/
+    
 }
