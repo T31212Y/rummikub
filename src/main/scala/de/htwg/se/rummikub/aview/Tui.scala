@@ -75,6 +75,8 @@ class Tui(controller: Controller) extends Observer {
             println("Available commands:")
             println("group - Play a group of tokens")
             println("row - Play a row of tokens")
+            println("addToRow - Add tokens to an existing row")
+            println("addToGroup - Add tokens to an existing group")
             println("draw - Draw a token from the stack and pass your turn")
             println("pass - Pass your turn")
             println("end - End the game\n")
