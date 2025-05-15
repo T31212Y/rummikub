@@ -14,4 +14,11 @@ enum Color(val value: Int) {
   }
 
   def reset: String = "\u001b[0m"
+
+  def name: String = this match {
+    case RED   => "red"
+    case BLUE  => "blue"
+    case GREEN => "green"
+    case BLACK => "black"
+  }  
 }

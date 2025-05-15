@@ -104,33 +104,47 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     }
 
     def addRowToTable(row: Row, currentPlayer: Player): List[Token] = {
-        if (row.rowTokens.forall(token => currentPlayer.tokens.contains(token))) {
-            playingField = playingField.copy(innerField = playingField.innerField.add(row.rowTokens))
-            playingField = playingField.copy(players = playingField.players.map {
-                case p if p.name == currentPlayer.name =>
-                    p.copy(commandHistory = p.commandHistory :+ s"row:${row.rowTokens.map(_.toString).mkString(",")}")
-                case p => p
-            })
-            row.rowTokens
+        val unmatched = row.rowTokens.filterNot(tokenInRow =>
+          currentPlayer.tokens.exists(playerToken => tokensMatch(tokenInRow, playerToken))
+        )
+      
+        if (unmatched.isEmpty) {
+          playingField = playingField.copy(innerField = playingField.innerField.add(row.rowTokens))
+          playingField = playingField.copy(players = playingField.players.map {
+            case p if p.name == currentPlayer.name =>
+              p.copy(commandHistory = p.commandHistory :+ s"row:${row.rowTokens.map(_.toString).mkString(",")}")
+            case p => p
+          })
+          row.rowTokens
         } else {
-            println("You can only play tokens that are on your board.")
-            List.empty[Token]
+          println(s"You can only play tokens that are on your board: ${unmatched.mkString(", ")}")
+          List.empty[Token]
+        }
+      }      
+
+    def addGroupToTable(group: Group, currentPlayer: Player): List[Token] = {
+        val unmatched = group.groupTokens.filterNot(tokenInGroup =>
+          currentPlayer.tokens.exists(playerToken => tokensMatch(tokenInGroup, playerToken))
+        )
+      
+        if (unmatched.isEmpty) {
+          playingField = playingField.copy(innerField = playingField.innerField.add(group.groupTokens))
+          playingField = playingField.copy(players = playingField.players.map {
+            case p if p.name == currentPlayer.name =>
+              p.copy(commandHistory = p.commandHistory :+ s"group:${group.groupTokens.map(_.toString).mkString(",")}")
+            case p => p
+          })
+          group.groupTokens
+        } else {
+          println(s"You can only play tokens that are on your board: ${unmatched.mkString(", ")}")
+          List.empty[Token]
         }
     }
 
-    def addGroupToTable(group: Group, currentPlayer: Player): List[Token] = {
-        if (group.groupTokens.forall(token => currentPlayer.tokens.contains(token))) {
-            playingField = playingField.copy(innerField = playingField.innerField.add(group.groupTokens))
-            playingField = playingField.copy(players = playingField.players.map {
-                case p if p.name == currentPlayer.name =>
-                    p.copy(commandHistory = p.commandHistory :+ s"group:${group.groupTokens.map(_.toString).mkString(",")}")
-                case p => p
-            })
-            group.groupTokens
-        } else {
-            println("You can only play tokens that are on your board.")
-            List.empty[Token]
-        }
+    def tokensMatch(token1: Token, token2: Token): Boolean = (token1, token2) match {
+        case (NumToken(n1, c1), NumToken(n2, c2)) => n1 == n2 && c1 == c2
+        case (_: Joker, _: Joker) => true
+        case _ => false
     }
 
     def endTurn(currentPlayer: Player): Player = {
@@ -149,15 +163,16 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
         gameInput match {
-          case "draw" =>
-              if(currentPlayer.validateFirstMove()) {
-                  println("You cannot draw a token after making a valid first move.")
-                  currentPlayer
+          case "draw" => {
+            if (currentPlayer.validateFirstMove()) {
+                println("You cannot draw a token after making a valid first move.")
+                currentPlayer
               } else {
                 println("Drawing a token...")
                 addTokenToPlayer(currentPlayer, stack)
                 passTurn(currentPlayer)
               }
+            }
 
             case "pass" =>
                 if (currentPlayer.commandHistory.isEmpty || !currentPlayer.validateFirstMove()) {
