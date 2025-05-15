@@ -1,23 +1,28 @@
 package de.htwg.se.rummikub.model
 
-object TokenFactory {
-  def createToken(kind: String, number: Int, color: Color) = kind match {
-      case "Joker" => new Joker(color)
-      case "NumToken" => new NumToken(number, color)
-  }
+trait TokenFactory {
+  def createNumToken(number: Int, color: Color): Token
+  def createJoker(color: Color): Token
+  def generateAllTokens(): List[Token]
+}
 
-  def generateAllTokens(): List[Token] = {
+
+class StandardTokenFactory extends TokenFactory {
+  override def createNumToken(number: Int, color: Color): Token = new NumToken(number, color)
+  override def createJoker(color: Color): Token = new Joker(color)
+
+  override def generateAllTokens(): List[Token] = {
     val colors = List(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK)
     val numbers = 1 to 13
     val tokens = for {
       color <- colors
       number <- numbers
       _ <- 1 to 2
-    } yield createToken("NumToken", number, color)
+    } yield createNumToken(number, color)
 
     tokens.toList ++ List(
-        createToken("Joker", 0, Color.RED),
-        createToken("Joker", 0, Color.BLACK)
+        createJoker(Color.RED),
+        createJoker(Color.BLACK)
     )
   }
 }
