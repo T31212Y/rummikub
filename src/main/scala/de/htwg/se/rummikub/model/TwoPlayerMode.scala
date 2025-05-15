@@ -11,13 +11,10 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate {
     }
 
     override def createPlayingField(players: List[Player]): PlayingField = {
+        val builder = new StandardPlayingFieldBuilder
+        val director = new TwoPlayerFieldDirector(builder)
 
-        val boardP1 = new Board(cntEdgeSpaces, cntTokens, 2, 1, "up")
-        val boardP2 = new Board(cntEdgeSpaces, cntTokens, 2, 1, "down")
-
-        val innerField = new Table(cntRows - 4, boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)) - 2)
-
-        PlayingField(players, List(boardP1, boardP2), innerField)
+        director.construct(players)
     }
 
     override def updatePlayingField(playingField: PlayingField): PlayingField = {
