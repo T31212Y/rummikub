@@ -51,7 +51,8 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         }
 
         "remove a token from a player" in {
-            val token = TokenFactory.createToken("NumToken", 1, Color.RED)
+            val tokenFactory = new StandardTokenFactory
+            val token = tokenFactory.createNumToken(1, Color.RED)
             val player1 = new Player("Emilia", List(token))
             val player2 = new Player("Noah")
             val controller = new Controller(GameModeFactory.createGameMode(2, List(player1.name, player2.name)))
@@ -113,7 +114,8 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         }
 
         "process game input for 'pass'" in {
-            val player = new Player("Emilia", List(TokenFactory.createToken("NumToken", 1, Color.RED)), List("group", "row"))
+            val tokenFactory = new StandardTokenFactory
+            val player = new Player("Emilia", List(tokenFactory.createNumToken(1, Color.RED)), List("group", "row"))
             val controller = new Controller(GameModeFactory.createGameMode(2, List(player.name, "Noah")))
             val nextPlayer = controller.processGameInput("pass", player, TokenStack())
             nextPlayer.name should be("Noah")

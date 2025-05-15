@@ -8,21 +8,24 @@ class TokenFactorySpec extends AnyWordSpec with Matchers {
   "The TokenFactory" should {
 
     "create a NumToken with correct values" in {
-      val token = TokenFactory.createToken("NumToken", 5, Color.RED)
+      val tokenFactory = new StandardTokenFactory
+      val token = tokenFactory.createNumToken(5, Color.RED)
       token shouldBe a [NumToken]
       token.asInstanceOf[NumToken].color shouldBe Color.RED
       token.asInstanceOf[NumToken].number shouldBe 5
     }
 
     "create a Joker with correct color" in {
-      val joker = TokenFactory.createToken("Joker", 0, Color.BLACK)
+      val tokenFactory = new StandardTokenFactory
+      val joker = tokenFactory.createJoker(Color.BLACK)
       joker shouldBe a [Joker]
       joker.asInstanceOf[Joker].color shouldBe Color.BLACK
     }
 
     "generate all tokens correctly" in {
-      val tokens = TokenFactory.generateAllTokens()
-      tokens.length shouldBe (13 * 4 * 2 + 2) 
+      val tokenFactory = new StandardTokenFactory
+      val tokens = tokenFactory.generateAllTokens()
+      tokens.length shouldBe (13 * 4 * 2 + 2)
       tokens.count(_.isInstanceOf[NumToken]) shouldBe 104
       tokens.count(_.isInstanceOf[Joker]) shouldBe 2
 
