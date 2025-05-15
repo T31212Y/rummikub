@@ -11,13 +11,10 @@ case class ThreePlayerMode(playerNames: List[String]) extends GameModeTemplate {
     }
 
     override def createPlayingField(players: List[Player]): PlayingField = {
+        val builder = new StandardPlayingFieldBuilder
+        val director = new ThreePlayerFieldDirector(builder)
 
-        val boardP13 = new Board(cntEdgeSpaces, cntTokens, 3, 2, "up")
-        val boardP2 = new Board(cntEdgeSpaces, cntTokens, 3, 1, "down")
-
-        val innerField = new Table(cntRows - 4, boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)) - 2)
-
-        PlayingField(players, List(boardP13, boardP2), innerField)
+        director.construct(players)
     }
 
     override def updatePlayingField(playingField: PlayingField): PlayingField = {
