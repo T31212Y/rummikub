@@ -149,10 +149,15 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
         gameInput match {
-            case "draw" =>
+          case "draw" =>
+              if(currentPlayer.validateFirstMove()) {
+                  println("You cannot draw a token after making a valid first move.")
+                  currentPlayer
+              } else {
                 println("Drawing a token...")
                 addTokenToPlayer(currentPlayer, stack)
                 passTurn(currentPlayer)
+              }
 
             case "pass" =>
                 if (currentPlayer.commandHistory.isEmpty || !currentPlayer.validateFirstMove()) {
