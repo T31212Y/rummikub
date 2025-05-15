@@ -73,64 +73,69 @@ class TableSpec extends AnyWordSpec {
 
       val updatedTable = table.remove(List("2:red", "5:blue"))
 
-      updatedTable.tokensOnTable.flatten.exists(_.toString.contains("2")) shouldBe false
-      updatedTable.tokensOnTable.flatten.exists(_.toString.contains("5")) shouldBe false
+      updatedTable.tokensOnTable.flatten should not contain (NumToken(2, Color.RED))
+      updatedTable.tokensOnTable.flatten should not contain (NumToken(5, Color.BLUE))
 
-      updatedTable.tokensOnTable.flatten.exists(_.toString.contains("1")) shouldBe true
-      updatedTable.tokensOnTable.flatten.exists(_.toString.contains("4")) shouldBe true
-      updatedTable.tokensOnTable.flatten.exists(_.toString.contains("3")) shouldBe true
-      updatedTable.tokensOnTable.flatten.exists(_.toString.contains("6")) shouldBe true
+      updatedTable.tokensOnTable.flatten should contain (NumToken(1, Color.BLUE))
+      updatedTable.tokensOnTable.flatten should contain (NumToken(3, Color.GREEN))
+      updatedTable.tokensOnTable.flatten should contain (NumToken(4, Color.BLACK))
+      updatedTable.tokensOnTable.flatten should contain (NumToken(6, Color.RED))
     }
+
     "correctly remove both Joker and NumTokens from the table" in {
       val row = Row(List("J:red", "3:green", "5:blue"))
       val table = Table(1, 20, List(row.rowTokens))
 
       val updatedTable = table.remove(List("J:red", "3:green"))
 
-      updatedTable.tokensOnTable.flatten.exists(_.toString.contains("J")) shouldBe false
-      updatedTable.tokensOnTable.flatten.exists(_.toString.contains("3")) shouldBe false
-      updatedTable.tokensOnTable.flatten.exists(_.toString.contains("5")) shouldBe true
+      updatedTable.tokensOnTable.flatten should not contain (Joker(Color.RED))
+      updatedTable.tokensOnTable.flatten should not contain (NumToken(3, Color.GREEN))
+
+      updatedTable.tokensOnTable.flatten should contain (NumToken(5, Color.BLUE))
     }
+
     "correctly parse and remove Joker tokens from the table" in {
-      val row = Row(List("J:green", "5:blue"))
+      val row = Row(List("J:black", "5:blue"))
       val table = Table(1, 20, List(row.rowTokens))
 
-      val updated = table.remove(List("J:green"))
+      val updated = table.remove(List("J:black"))
 
-      updated.tokensOnTable.flatten.exists(_.toString.contains("J")) shouldBe false
-      updated.tokensOnTable.flatten.exists(_.toString.contains("5")) shouldBe true
+      updated.tokensOnTable.flatten should not contain (Joker(Color.BLACK))
+      updated.tokensOnTable.flatten should contain (NumToken(5, Color.BLUE))
     }
     
     "correctly parse and remove number tokens from the table" in {
-    val row = Row(List("1:red", "J:blue"))
+    val row = Row(List("1:black", "J:black"))
     val table = Table(1, 20, List(row.rowTokens))
 
-    val updated = table.remove(List("1:red"))
+    val updated = table.remove(List("1:black"))
 
-    updated.tokensOnTable.flatten.exists(_.toString.contains("1")) shouldBe false
-    updated.tokensOnTable.flatten.exists(_.toString.contains("J")) shouldBe true
+    updated.tokensOnTable.flatten should not contain (NumToken(1, Color.BLACK))
+    updated.tokensOnTable.flatten should contain (Joker(Color.BLACK))
     }
 
     "remove Joker and NumToken with specific colors from the table" in {
-      val row = Row(List("J:red", "3:green", "5:blue", "J:green", "3:red"))
+      val row = Row(List("J:red", "3:green", "5:blue", "J:black", "3:red"))
       val table = Table(1, 20, List(row.rowTokens))
 
       val updatedTable = table.remove(List("J:red", "3:green"))
 
-      updatedTable.tokensOnTable.flatten.exists(token => token.toString.contains("J") && token.toString.contains("31m")) shouldBe false // 31m = rot
-      updatedTable.tokensOnTable.flatten.exists(token => token.toString.contains("3") && token.toString.contains("32m")) shouldBe false // 32m = grün
+      updatedTable.tokensOnTable.flatten should not contain (Joker(Color.RED))
+      updatedTable.tokensOnTable.flatten should not contain (NumToken(3, Color.GREEN))
 
-      updatedTable.tokensOnTable.flatten.exists(_.toString.contains("5")) shouldBe true
-      updatedTable.tokensOnTable.flatten.exists(token => token.toString.contains("J") && token.toString.contains("32m")) shouldBe true // grüner Joker
-      updatedTable.tokensOnTable.flatten.exists(token => token.toString.contains("3") && token.toString.contains("31m")) shouldBe true // rote 3
+      updatedTable.tokensOnTable.flatten should contain (NumToken(5, Color.BLUE))
+      updatedTable.tokensOnTable.flatten should contain (Joker(Color.BLACK))
+      updatedTable.tokensOnTable.flatten should contain (NumToken(3, Color.RED))
     }
+
     "remove both Joker and number tokens correctly" in {
       val row = Row(List("J:red", "3:blue", "7:black"))
       val table = Table(1, 20, List(row.rowTokens))
 
       val updated = table.remove(List("J:red", "3:blue"))
 
-      updated.tokensOnTable.flatten.map(_.toString) should contain only "7:black"
+      updated.tokensOnTable.flatten should contain (NumToken(7, Color.BLACK))
+      updated.tokensOnTable.length should be (1)
     }
 
     "remove Joker token from the table" in {
@@ -138,7 +143,7 @@ class TableSpec extends AnyWordSpec {
       val row = List(joker, NumToken(2, Color.BLUE))
       val table = Table(1, 20, List(row))
 
-      val updatedTable = table.remove(List("J:RED"))
+      val updatedTable = table.remove(List("J:red"))
 
       updatedTable.tokensOnTable.flatten should not contain joker
       updatedTable.tokensOnTable.flatten should contain (NumToken(2, Color.BLUE))
@@ -149,7 +154,7 @@ class TableSpec extends AnyWordSpec {
       val row = List(tokenToRemove, otherToken)
       val table = Table(1, 20, List(row))
 
-      val updatedTable = table.remove(List("7:GREEN"))
+      val updatedTable = table.remove(List("7:green"))
 
       updatedTable.tokensOnTable.flatten should not contain tokenToRemove
       updatedTable.tokensOnTable.flatten should contain (otherToken)

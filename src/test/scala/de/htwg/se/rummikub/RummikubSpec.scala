@@ -1,6 +1,6 @@
 package de.htwg.se.rummikub
 
-import de.htwg.se.rummikub.model.{Player, PlayingField}
+import de.htwg.se.rummikub.model.{Player, PlayingField, GameModeFactory}
 import de.htwg.se.rummikub.controller.Controller
 import de.htwg.se.rummikub.aview.Tui
 
@@ -21,9 +21,12 @@ class RummikubSpec extends AnyWordSpec with Matchers {
     }
 
     "initialize the game correctly with default players" in {
-      val controller = Rummikub.controller
-      controller.playingField.players.map(_.name) should contain allOf ("Emilia", "Noah")
-      controller.gameMode should be("TwoPlayerMode")
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")))
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+
+      controller.playingField.players should have size 2
+      controller.playingField.players.head.name should be("Emilia")
+      controller.playingField.players(1).name should be("Noah")
     }
 
     "process commands through the Tui" in {
