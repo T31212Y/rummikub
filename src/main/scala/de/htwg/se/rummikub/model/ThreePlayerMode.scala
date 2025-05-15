@@ -14,6 +14,7 @@ case class ThreePlayerMode(playerNames: List[String]) extends GameModeTemplate {
 
         val boardP13 = new Board(cntEdgeSpaces, cntTokens, 3, 2, "up")
         val boardP2 = new Board(cntEdgeSpaces, cntTokens, 3, 1, "down")
+
         val innerField = new Table(cntRows - 4, boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)) - 2)
 
         PlayingField(players, List(boardP13, boardP2), innerField)
@@ -28,7 +29,7 @@ case class ThreePlayerMode(playerNames: List[String]) extends GameModeTemplate {
         val boardP2 = playingField.boards(1)
 
         val updatedBoardP13 = updateBoardMultiPlayer(List(player1, player3), boardP13).fold(boardP13)(identity)
-        val updatedBoardP2 = updateBoardSinglePlayer(player2, boardP2.copy(maxLen = boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)) - boardP2.size(boardP2.wrapBoardRowSingle(boardP2.boardELRP12_1)))).fold(boardP2)(identity)
+        val updatedBoardP2 = updateBoardSinglePlayer(player2, boardP2.copy(maxLen = 116)).fold(boardP2)(identity)
 
         val updatedBoards = List(
             updatedBoardP13,
