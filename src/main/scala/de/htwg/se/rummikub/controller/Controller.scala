@@ -204,27 +204,4 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
                 currentPlayer
         }
     }
-
-    /*def removePlacedTokens(currentPlayer: Player): Unit = {
-        val placedTokens = currentPlayer.commandHistory.flatMap { command =>
-            command.split(":")(1).split(",").map(_.trim).toList
-        }
-
-        val tokensToReturn = placedTokens.map { tokenString =>
-            val tokenParts = tokenString.split(":")
-            if (tokenParts(0) == "J") {
-                TokenFactory.createToken("Joker", 0, Color.valueOf(tokenParts(1)))
-            } else {
-                TokenFactory.createToken("NumToken", tokenParts(0).toInt, Color.valueOf(tokenParts(1)))
-            }
-        }
-
-        playingField = playingField.copy(players = playingField.players.map {
-            case p if p.name == currentPlayer.name => p.copy(tokens = p.tokens ++ tokensToReturn, commandHistory = List())
-            case p => p
-        })
-
-        playingField = playingField.copy(innerField = playingField.innerField.remove(placedTokens))
-    }*/
-    
 }
