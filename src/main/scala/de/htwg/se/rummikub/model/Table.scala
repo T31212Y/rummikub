@@ -15,9 +15,17 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = L
             val tokenParts = tokenString.split(":")
             val tokenFactory = new StandardTokenFactory
             if (tokenParts(0) == "J") {
-                tokenFactory.createJoker(Color.valueOf(tokenParts(1)))
+                tokenFactory.createJoker(tokenParts(1) match {
+                    case "red" => Color.RED
+                    case "black" => Color.BLACK
+                })
             } else {
-                tokenFactory.createNumToken(tokenParts(0).toInt, Color.valueOf(tokenParts(1)))
+                tokenFactory.createNumToken(tokenParts(0).toInt, tokenParts(1) match {
+                    case "red" => Color.RED
+                    case "blue" => Color.BLUE
+                    case "green" => Color.GREEN
+                    case "black" => Color.BLACK
+                })
             }
         }
 
