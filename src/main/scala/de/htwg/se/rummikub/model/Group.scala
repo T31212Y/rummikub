@@ -7,18 +7,19 @@ case class Group(group: List[String]) {
   def changeStringListToTokenList(group: List[String]): List[Token] = {
     group.map { tokenString =>
       val tokenParts = tokenString.split(":")
+      val tokenFactory = new StandardTokenFactory
 
       if (tokenParts(0) == "J") {
         tokenParts(1) match {
-          case "red" => TokenFactory.createToken("Joker", 0, Color.RED)
-          case "black" => TokenFactory.createToken("Joker", 0, Color.BLACK)
+          case "red" => tokenFactory.createJoker(Color.RED)
+          case "black" => tokenFactory.createJoker(Color.BLACK)
         }
       } else {
         tokenParts(1) match {
-          case "red" => TokenFactory.createToken("NumToken", tokenParts(0).toInt, Color.RED)
-          case "blue" => TokenFactory.createToken("NumToken", tokenParts(0).toInt, Color.BLUE)
-          case "green" => TokenFactory.createToken("NumToken", tokenParts(0).toInt, Color.GREEN)
-          case "black" => TokenFactory.createToken("NumToken", tokenParts(0).toInt, Color.BLACK)
+          case "red" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.RED)
+          case "blue" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLUE)
+          case "green" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.GREEN)
+          case "black" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLACK)
         }
       }
     }

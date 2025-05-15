@@ -13,10 +13,11 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = L
     def remove(tokens: List[String]): Table = {
         val tokensToRemove = tokens.map { tokenString =>
             val tokenParts = tokenString.split(":")
+            val tokenFactory = new StandardTokenFactory
             if (tokenParts(0) == "J") {
-                TokenFactory.createToken("Joker", 0, Color.valueOf(tokenParts(1)))
+                tokenFactory.createJoker(Color.valueOf(tokenParts(1)))
             } else {
-                TokenFactory.createToken("NumToken", tokenParts(0).toInt, Color.valueOf(tokenParts(1)))
+                tokenFactory.createNumToken(tokenParts(0).toInt, Color.valueOf(tokenParts(1)))
             }
         }
 

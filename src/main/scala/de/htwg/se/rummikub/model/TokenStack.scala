@@ -3,7 +3,8 @@ package de.htwg.se.rummikub.model
 import scala.util.Random
 
 case class TokenStack() {
-  val allTokens = TokenFactory.generateAllTokens()
+  private val tokenFactory: TokenFactory = new StandardTokenFactory
+  val allTokens = tokenFactory.generateAllTokens()
 
   var tokens: List[Token] = Random.shuffle(allTokens)
 
