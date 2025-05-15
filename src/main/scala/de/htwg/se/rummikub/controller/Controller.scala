@@ -30,8 +30,8 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         Group(g)
     }
 
-    def updatePlayingField(): Unit = {
-        playingField = gameMode.updatePlayingField(playingField)
+    def setPlayingField(pf: PlayingField): Unit = {
+        this.playingField = pf
         notifyObservers
     }
 
