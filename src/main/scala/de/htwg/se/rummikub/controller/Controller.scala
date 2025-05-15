@@ -10,7 +10,7 @@ import scala.compiletime.uninitialized
 class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     var playingField: PlayingField = uninitialized
-    private var validFirstMoveThisTurn: Boolean = false
+    var validFirstMoveThisTurn: Boolean = false
 
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
         gameMode = GameModeFactory.createGameMode(amountPlayers, names)
