@@ -49,15 +49,15 @@ class Tui(controller: Controller) extends GameView with Observer {
         }
     }
 
-    private def askAmountOfPlayers(): String = {
+    def askAmountOfPlayers(): String = {
         "Please enter the number of players (2-4):"
     }
 
-    private def askPlayerNames(): String = {
+    def askPlayerNames(): String = {
         "Please enter the names of the players (comma-separated):"
     }
 
-    private def inputCommands(input: String): Unit = {
+    def inputCommands(input: String): Unit = {
         input match {
             case "new" => {
                     println("Creating a new game...")
