@@ -5,11 +5,11 @@ import de.htwg.se.rummikub.util.Observer
 
 import scala.io.StdIn.readLine
 
-class Tui(controller: Controller) extends Observer {
+class Tui(controller: Controller) extends GameView with Observer {
 
     controller.add(this)
 
-    def showWelcome(): Vector[String] = {
+    override def showWelcome(): Vector[String] = {
         Vector("Welcome to",
         " ____                                _  _            _      _",
         "|  _ \\  _   _  _ __ ___   _ __ ___  (_)| | __ _   _ | |__  | |",
@@ -19,11 +19,11 @@ class Tui(controller: Controller) extends Observer {
         )
     }
 
-    def showHelp(): String = {
+    override def showHelp(): String = {
         "Type 'help' for a list of commands."
     }
-    
-    def showHelpPage(): Vector[String] = {
+
+    override def showHelpPage(): Vector[String] = {
         Vector("Available commands:",
                "new - Create a new game",
                "start - Start the game",
@@ -31,15 +31,33 @@ class Tui(controller: Controller) extends Observer {
         )
     }
 
-    def askAmountOfPlayers(): String = {
+    override def showGoodbye(): String = {
+        "Thank you for playing Rummikub! Goodbye!"
+    }
+
+    override def start(): Unit = {
+        var input = ""
+
+        println(showWelcome().mkString("\n") + "\n")
+        controller.setupNewGame(2, List("Emilia", "Noah"))
+
+        while (input != "quit") {
+            println(showHelp() + "\n")
+            println("Please enter a command:")
+            input = readLine()
+            inputCommands(input)
+        }
+    }
+
+    private def askAmountOfPlayers(): String = {
         "Please enter the number of players (2-4):"
     }
 
-    def askPlayerNames(): String = {
+    private def askPlayerNames(): String = {
         "Please enter the names of the players (comma-separated):"
     }
 
-    def inputCommands(input: String): Unit = {
+    private def inputCommands(input: String): Unit = {
         input match {
             case "new" => {
                     println("Creating a new game...")
@@ -59,7 +77,7 @@ class Tui(controller: Controller) extends Observer {
         }
     }
 
-    def playGame(): Unit = {
+    private def playGame(): Unit = {
         println("Starting the game...")
 
         var stack = controller.createTokenStack()
@@ -70,7 +88,7 @@ class Tui(controller: Controller) extends Observer {
         controller.playingField.players.foreach(p => controller.addMultipleTokensToPlayer(p, stack, 14))
 
         while (!controller.winGame() && gameInput != "end") {
-            controller.updatePlayingField()
+            controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
             println(currentPlayer.name + ", it's your turn!\n")
             println("Available commands:")
             println("group - Play a group of tokens")
@@ -85,10 +103,6 @@ class Tui(controller: Controller) extends Observer {
             currentPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ gameInput)
             currentPlayer = controller.processGameInput(gameInput, currentPlayer, stack)
         }
-    }
-
-    def showGoodbye(): String = {
-        "Thank you for playing Rummikub! Goodbye!"
     }
 
     override def update: Unit = println(controller.playingfieldToString)
