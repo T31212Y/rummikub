@@ -10,6 +10,7 @@ import scala.compiletime.uninitialized
 class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     var playingField: PlayingField = uninitialized
+    private var validFirstMoveThisTurn: Boolean = false
 
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
         gameMode = GameModeFactory.createGameMode(amountPlayers, names)
@@ -62,17 +63,22 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         })
     }
     
-    def passTurn(currentPlayer: Player): Player = {
-        val nextPlayer = setNextPlayer(currentPlayer).copy(commandHistory = List())
-        println(currentPlayer.name + " passed the turn to " + nextPlayer.name)
-        nextPlayer
+    def passTurn(currentPlayer: Player, allowWithoutFirstMove: Boolean = false): Player = {
+        if (!allowWithoutFirstMove && (currentPlayer.commandHistory.isEmpty || !currentPlayer.validateFirstMove())) {
+            println("The first move must have a total of at least 30 points. You cannot end your turn.")
+            currentPlayer
+        } else {
+            val nextPlayer = setNextPlayer(currentPlayer).copy(commandHistory = List())
+            println(s"${currentPlayer.name} ended their turn. It's now ${nextPlayer.name}'s turn.")
+            validFirstMoveThisTurn = false
+            nextPlayer
+        }
     }
 
     def setNextPlayer(p: Player): Player = {
         val current = playingField.players.indexWhere(_.name == p.name)
         if (current == playingField.players.size - 1) playingField.players.head else playingField.players(current + 1)
     }
-
 
     def winGame(): Boolean = {
         playingField.players.exists(player => player.tokens.isEmpty) match {
@@ -84,60 +90,39 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         }
     }
 
-    def validateFirstMove(currentPlayer: Player): Boolean = {
-        val totalPoints = currentPlayer.commandHistory.collect {
-            case command if command.startsWith("row:") || command.startsWith("group:") =>
-                val tokens = command.split(":")(1).split(",").map(_.trim)
-                tokens.collect {
-                    case tokenString if tokenString.contains(":") =>
-                        val parts = tokenString.split(":")
-                        if (parts(0).forall(_.isDigit)) parts(0).toInt else 0
-                }.sum
-        }.sum
-
-        if (totalPoints < 30) {
-            println("The first move must have a total of at least 30 points.")
-            false
-        } else {
-            true
-        }
-    }
-
-    def addRowToTable(row: Row, currentPlayer: Player): List[Token] = {
+    def addRowToTable(row: Row, currentPlayer: Player): (List[Token], Player) = {
         val unmatched = row.rowTokens.filterNot(tokenInRow =>
           currentPlayer.tokens.exists(playerToken => tokensMatch(tokenInRow, playerToken))
         )
       
-        if (unmatched.isEmpty) {
-          playingField = playingField.copy(innerField = playingField.innerField.add(row.rowTokens))
-          playingField = playingField.copy(players = playingField.players.map {
-            case p if p.name == currentPlayer.name =>
-              p.copy(commandHistory = p.commandHistory :+ s"row:${row.rowTokens.map(_.toString).mkString(",")}")
-            case p => p
-          })
-          row.rowTokens
+        if (unmatched.nonEmpty) {
+            println(s"You can only play tokens that are on your board: ${unmatched.mkString(", ")}")
+            (List.empty, currentPlayer)
         } else {
-          println(s"You can only play tokens that are on your board: ${unmatched.mkString(", ")}")
-          List.empty[Token]
+            val updatedPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ s"row:${row.rowTokens.mkString(",")}").addToFirstMoveTokens(row.rowTokens)
+        
+            playingField = playingField.copy(innerField = playingField.innerField.add(row.rowTokens), players = playingField.players.map(p =>
+                                                                                                        if (p.name == currentPlayer.name) updatedPlayer else p
+                                                                                                    ))
+            (row.rowTokens, updatedPlayer)
         }
-      }      
+    }
 
-    def addGroupToTable(group: Group, currentPlayer: Player): List[Token] = {
+    def addGroupToTable(group: Group, currentPlayer: Player): (List[Token], Player) = {
         val unmatched = group.groupTokens.filterNot(tokenInGroup =>
           currentPlayer.tokens.exists(playerToken => tokensMatch(tokenInGroup, playerToken))
         )
-      
-        if (unmatched.isEmpty) {
-          playingField = playingField.copy(innerField = playingField.innerField.add(group.groupTokens))
-          playingField = playingField.copy(players = playingField.players.map {
-            case p if p.name == currentPlayer.name =>
-              p.copy(commandHistory = p.commandHistory :+ s"group:${group.groupTokens.map(_.toString).mkString(",")}")
-            case p => p
-          })
-          group.groupTokens
+
+        if (unmatched.nonEmpty) {
+            println(s"You can only play tokens that are on your board: ${unmatched.mkString(", ")}")
+            (List.empty, currentPlayer)
         } else {
-          println(s"You can only play tokens that are on your board: ${unmatched.mkString(", ")}")
-          List.empty[Token]
+            val updatedPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ s"group:${group.groupTokens.mkString(",")}").addToFirstMoveTokens(group.groupTokens)
+
+            playingField = playingField.copy(innerField = playingField.innerField.add(group.groupTokens), players = playingField.players.map(p =>
+                                                                                                        if (p.name == currentPlayer.name) updatedPlayer else p
+                                                                                                    ))
+            (group.groupTokens, updatedPlayer)
         }
     }
 
@@ -147,57 +132,52 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         case _ => false
     }
 
-    def endTurn(currentPlayer: Player): Player = {
-        if (currentPlayer.commandHistory.isEmpty) {
-            println("You must play at least one token before ending your turn.")
-            currentPlayer
-        } else if (!currentPlayer.validateFirstMove()) {
-            println("The first move must have a total of at least 30 points. You cannot end your turn.")
-            currentPlayer
-        } else {
-            val nextPlayer = passTurn(currentPlayer)
-            println(s"${currentPlayer.name} ended their turn. It's now ${nextPlayer.name}'s turn.")
-            nextPlayer
-        }
-    }
-
     def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
         gameInput match {
           case "draw" => {
-            if (currentPlayer.validateFirstMove()) {
+            if (validFirstMoveThisTurn || currentPlayer.validateFirstMove()) {
                 println("You cannot draw a token after making a valid first move.")
                 currentPlayer
               } else {
                 println("Drawing a token...")
                 addTokenToPlayer(currentPlayer, stack)
-                passTurn(currentPlayer)
+                passTurn(currentPlayer, true)
               }
             }
 
-            case "pass" =>
-                if (currentPlayer.commandHistory.isEmpty || !currentPlayer.validateFirstMove()) {
-                    println("You cannot pass your turn without making a valid first move of at least 30 points.")
-                    currentPlayer
-                } else {
-                    passTurn(currentPlayer)
-                }
+            case "pass" => passTurn(currentPlayer)
 
             case "row" =>
                 println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
                 val tokens = readLine().split(",").map(_.trim).toList
-                val removeTokens = addRowToTable(createRow(tokens), currentPlayer)
-                removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
-                currentPlayer
+                val (removeTokens, updatedPlayer) = addRowToTable(createRow(tokens), currentPlayer)
+                removeTokens.foreach(t => removeTokenFromPlayer(updatedPlayer, t))
+
+                if (!updatedPlayer.validateFirstMove()) {
+                    println("Your move is not valid for the first move requirement.")
+                } else {
+                    validFirstMoveThisTurn = true
+                }
+
+                updatedPlayer
 
             case "group" =>
                 println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
                 val tokens = readLine().split(",").map(_.trim).toList
-                val removeTokens = addGroupToTable(createGroup(tokens), currentPlayer)
-                removeTokens.foreach(t => removeTokenFromPlayer(currentPlayer, t))
-                currentPlayer
+                val (removeTokens, updatedPlayer) = addGroupToTable(createGroup(tokens), currentPlayer)
+                removeTokens.foreach(t => removeTokenFromPlayer(updatedPlayer, t))
+
+                if (!updatedPlayer.validateFirstMove()) {
+                    println("Your move is not valid for the first move requirement.")
+                } else {
+                    validFirstMoveThisTurn = true
+                }
+
+                updatedPlayer
 
             case "end" =>
-                endTurn(currentPlayer)
+                println("Exiting the game...")
+                currentPlayer
 
             case _ =>
                 println("Invalid command.")
