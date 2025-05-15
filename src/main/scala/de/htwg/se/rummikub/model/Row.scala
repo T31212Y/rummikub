@@ -2,37 +2,38 @@ package de.htwg.se.rummikub.model
  
 case class Row(row: List[String]) {
 
-    var rowTokens: List[Token | Joker] = changeStringListToTokenList(row)
+    var rowTokens: List[Token] = changeStringListToTokenList(row)
 
-    def changeStringListToTokenList(row: List[String]): List[Token | Joker] = {
+    def changeStringListToTokenList(row: List[String]): List[Token] = {
         row.map { tokenString =>
             val tokenParts = tokenString.split(":")
+            val tokenFactory = new StandardTokenFactory
 
             if (tokenParts(0) == "J") {
                 tokenParts(1) match {
-                    case "red" => Joker(Color.RED)
-                    case "black" => Joker(Color.BLACK)
+                    case "red" => tokenFactory.createJoker(Color.RED)
+                    case "black" => tokenFactory.createJoker(Color.BLACK)
                 }
             } else  {
                 tokenParts(1) match {
-                    case "red" => Token(tokenParts(0).toInt, Color.RED)
-                    case "blue" => Token(tokenParts(0).toInt, Color.BLUE)
-                    case "green" => Token(tokenParts(0).toInt, Color.GREEN)
-                    case "black" => Token(tokenParts(0).toInt, Color.BLACK)
+                    case "red" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.RED)
+                    case "blue" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLUE)
+                    case "green" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.GREEN)
+                    case "black" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLACK)
                 }
             }
         }
     }
 
-    def addToken(token: Token | Joker): Unit = {
+    def addToken(token: Token): Unit = {
         rowTokens = rowTokens :+ token
     }
     
-    def removeToken(token: Token| Joker): Unit = {
+    def removeToken(token: Token): Unit = {
         rowTokens = rowTokens.filterNot(_.equals(token))
     }
     
-    def getTokens: List[Token| Joker] = rowTokens
+    def getTokens: List[Token] = rowTokens
     
     override def toString: String = {
         rowTokens.map(_.toString).mkString(" ")

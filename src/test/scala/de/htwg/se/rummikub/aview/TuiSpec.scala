@@ -3,7 +3,7 @@ package de.htwg.se.rummikub.aview
 import de.htwg.se.rummikub.controller.Controller
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.se.rummikub.model.{Color, Player, PlayingField, Token}
+import de.htwg.se.rummikub.model._
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
 
@@ -11,7 +11,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
 
   "A Tui" should {
 
-    val controller = new Controller(new PlayingField(2, List(new Player("Emilia"), new Player("Noah"))))
+    val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")))
     val tui = new Tui(controller)
 
     "show welcome message" in {

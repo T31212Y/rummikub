@@ -1,6 +1,6 @@
 package de.htwg.se.rummikub.model
 
-case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token | Joker]] = List()) {
+case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = List()) {
 
     val emptyRow = "|" + (" " * length) + "|\n"
 
@@ -8,7 +8,33 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token | Jok
         tableRow.replaceAll("\u001B\\[[;\\d]*m", "")
     }
 
-    def add (e: List[Token | Joker]): Table = this.copy(tokensOnTable = this.tokensOnTable :+ e)
+    def add (e: List[Token]): Table = this.copy(tokensOnTable = this.tokensOnTable :+ e)
+
+    def remove(tokens: List[String]): Table = {
+        val tokensToRemove = tokens.map { tokenString =>
+            val tokenParts = tokenString.split(":")
+            val tokenFactory = new StandardTokenFactory
+            if (tokenParts(0) == "J") {
+                tokenFactory.createJoker(tokenParts(1) match {
+                    case "red" => Color.RED
+                    case "black" => Color.BLACK
+                })
+            } else {
+                tokenFactory.createNumToken(tokenParts(0).toInt, tokenParts(1) match {
+                    case "red" => Color.RED
+                    case "blue" => Color.BLUE
+                    case "green" => Color.GREEN
+                    case "black" => Color.BLACK
+                })
+            }
+        }
+
+        val updatedTokensOnTable = tokensOnTable.map { row =>
+            row.filterNot(token => tokensToRemove.contains(token))
+        }.filter(_.nonEmpty)
+
+        this.copy(tokensOnTable = updatedTokensOnTable)
+    }
 
     override def toString: String = {
         if (tokensOnTable.isEmpty) {

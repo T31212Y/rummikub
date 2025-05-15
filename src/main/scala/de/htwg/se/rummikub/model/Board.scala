@@ -1,6 +1,6 @@
 package de.htwg.se.rummikub.model
 
-case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsInRow: Int, dest: String) {
+case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsInRow: Int, dest: String, maxLen: Int = 90) {
 
     var boardELRP12_1 = "| " + ("x " * (amtTokens - 1)) + "|"
     var boardELRP12_2 = "| " + ("x " * (amtTokens - 1)) + "|"
@@ -8,17 +8,14 @@ case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsI
     var boardELRP34_2 = "| " + ("y " * (amtTokens - 1)) + "|"
     var boardEUD = "+" + ("-" * (2 * amtTokens - 1)) + "+"
 
-    var maxLen = 90
-
     def size(board: String): Int = {
         deleteColorCodes(board).length
     }
 
-    def formatBoardRow(row: List[Token | Joker]): String = {
+    def formatBoardRow(row: List[Token]): String = {
         val paddedRow = row.padTo(amtTokens, "")
         val formattedNumbers = paddedRow.map {
         case t: Token => t.toString()
-        case j: Joker => j.toString()
         case _           => "  "
         }.mkString(" ")
 
@@ -50,7 +47,7 @@ case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsI
         s"$left$board$right"
     }
 
-    def createBoardFrameSingle(row: List[Token | Joker]): String = {
+    def createBoardFrameSingle(row: List[Token]): String = {
         val board = deleteColorCodes(formatBoardRow(row))
 
         val count = board.length - 2
@@ -59,7 +56,7 @@ case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsI
         wrapBoardRowSingle(frame)
     }
 
-    def createBoardFrameDouble(row1: List[Token | Joker], row2: List[Token | Joker]): String = {
+    def createBoardFrameDouble(row1: List[Token], row2: List[Token]): String = {
         val board1 = deleteColorCodes(formatBoardRow(row1))
         val board2 = deleteColorCodes(formatBoardRow(row2))
 

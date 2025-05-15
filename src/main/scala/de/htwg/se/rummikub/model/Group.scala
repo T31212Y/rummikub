@@ -2,29 +2,30 @@ package de.htwg.se.rummikub.model
 
 case class Group(group: List[String]) {
 
-  var groupTokens: List[Token | Joker] = changeStringListToTokenList(group)
+  var groupTokens: List[Token] = changeStringListToTokenList(group)
 
-  def changeStringListToTokenList(group: List[String]): List[Token | Joker] = {
+  def changeStringListToTokenList(group: List[String]): List[Token] = {
     group.map { tokenString =>
       val tokenParts = tokenString.split(":")
+      val tokenFactory = new StandardTokenFactory
 
       if (tokenParts(0) == "J") {
         tokenParts(1) match {
-          case "red" => Joker(Color.RED)
-          case "black" => Joker(Color.BLACK)
+          case "red" => tokenFactory.createJoker(Color.RED)
+          case "black" => tokenFactory.createJoker(Color.BLACK)
         }
       } else {
         tokenParts(1) match {
-          case "red" => Token(tokenParts(0).toInt, Color.RED)
-          case "blue" => Token(tokenParts(0).toInt, Color.BLUE)
-          case "green" => Token(tokenParts(0).toInt, Color.GREEN)
-          case "black" => Token(tokenParts(0).toInt, Color.BLACK)
+          case "red" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.RED)
+          case "blue" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLUE)
+          case "green" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.GREEN)
+          case "black" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLACK)
         }
       }
     }
   }
 
-  def addToken(token: Token | Joker): Unit = {
+  def addToken(token: Token): Unit = {
     groupTokens = groupTokens :+ token
   }
 
@@ -32,7 +33,7 @@ case class Group(group: List[String]) {
     groupTokens = groupTokens.filterNot(_.equals(token))
   }
 
-  def getTokens: List[Token | Joker] = groupTokens
+  def getTokens: List[Token] = groupTokens
 
   override def toString: String = {
     groupTokens.map(_.toString).mkString(" ")
