@@ -14,8 +14,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
         gameMode = GameModeFactory.createGameMode(amountPlayers, names)
-        val players = gameMode.createPlayers()
-        playingField = gameMode.createPlayingField(players)
+        playingField = gameMode.runGameSetup()
         notifyObservers
     }
 
