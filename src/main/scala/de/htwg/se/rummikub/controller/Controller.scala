@@ -135,7 +135,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
         gameInput match {
           case "draw" => {
-            if (validFirstMoveThisTurn || currentPlayer.validateFirstMove()) {
+            if (validFirstMoveThisTurn) {
                 println("You cannot draw a token after making a valid first move.")
                 currentPlayer
               } else {
