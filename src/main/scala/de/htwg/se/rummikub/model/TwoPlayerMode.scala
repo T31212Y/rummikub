@@ -40,4 +40,8 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(pla
 
         s"$edgeUp${boardP1.toString()}${innerField.toString()}${boardP2.toString()}$edgeDown\n".replace("x", " ").replace("y", " ")
     }
+
+    override def updateBoardMultiPlayer(players: List[Player], board: Board): Option[Board] = None
+
+    override def lineWith2PlayerNames(char: String, length: Int, player1: String, player2: String): Option[String] = None
 }
