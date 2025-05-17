@@ -44,4 +44,8 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
 
         s"$edgeUp${boardP13.toString()}${innerField.toString()}${boardP24.toString()}$edgeDown\n".replace("x", " ").replace("y", " ")
     }
+
+    override def updateBoardSinglePlayer(player: Player, board: Board): Option[Board] = None
+
+    override def lineWithPlayerName(char: String, length: Int, player: String): Option[String] = None
 }

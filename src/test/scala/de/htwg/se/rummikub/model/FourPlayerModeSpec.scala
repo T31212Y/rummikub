@@ -51,7 +51,7 @@ class FourPlayerModeSpec extends AnyWordSpec {
 
     "update a single board for a player (should return None)" in {
       val player = Player("Anna")
-      val board = new Board(24, 14, 2, 2, "default", 10)
+      val board = new Board(15, 24, 2, 1, "up")
       val updated = mode.updateBoardSinglePlayer(player, board)
       updated shouldBe None
     }
