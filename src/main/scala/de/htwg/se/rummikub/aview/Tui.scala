@@ -81,12 +81,19 @@ class Tui(controller: Controller) extends GameView with Observer {
         println("Starting the game...")
 
         var stack = controller.createTokenStack()
-        var currentPlayer = controller.playingField.players.head
+        var currentPlayer = controller.playingField match {
+            case Some(field) if field.players.nonEmpty => field.players.head
+            case _ =>
+                println("No players available.")
+                return
+        }
         var gameInput = ""
 
         println("Drawing tokens for each player...")
-        controller.playingField.players.foreach(p => controller.addMultipleTokensToPlayer(p, stack, 14))
-
+        controller.playingField.map(_.players).getOrElse(List()).foreach { player =>
+            controller.addMultipleTokensToPlayer(player, stack, 14)
+        }
+        
         while (!controller.winGame() && gameInput != "end") {
             controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
             println(currentPlayer.name + ", it's your turn!\n")
