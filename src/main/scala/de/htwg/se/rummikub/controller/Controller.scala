@@ -4,12 +4,10 @@ import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.util.Observable
 
 import scala.io.StdIn.readLine
-import scala.compiletime.uninitialized
-
 
 class Controller(var gameMode: GameModeTemplate) extends Observable {
 
-    var playingField: PlayingField = uninitialized
+    var playingField: Option[PlayingField] = None
     var validFirstMoveThisTurn: Boolean = false
 
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
@@ -30,7 +28,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         Group(g)
     }
 
-    def setPlayingField(pf: PlayingField): Unit = {
+    def setPlayingField(pf: Option[PlayingField]): Unit = {
         this.playingField = pf
         notifyObservers
     }
@@ -41,25 +39,31 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     def addTokenToPlayer(player: Player, stack: TokenStack): Unit = {
         val tokenToAdd = stack.drawToken()
-        playingField = playingField.copy(players = playingField.players.map {
-            case p if p.name == player.name => p.copy(tokens = p.tokens :+ tokenToAdd)
-            case p => p
-        })
+        playingField = playingField.map { field =>
+            field.copy(players = field.players.map {
+                case p if p.name == player.name => p.copy(tokens = p.tokens :+ tokenToAdd)
+                case p => p
+            })
+        }
     }
 
     def removeTokenFromPlayer(player: Player, token: Token): Unit = {
-        playingField = playingField.copy(players = playingField.players.map {
-            case p if p.name == player.name => p.copy(tokens = p.tokens.filterNot(_.equals(token)))
-            case p => p
-        })
+        playingField = playingField.map { field =>
+            field.copy(players = field.players.map {
+                case p if p.name == player.name => p.copy(tokens = p.tokens.filterNot(_.equals(token)))
+                case p => p
+            })
+        }
     }
 
     def addMultipleTokensToPlayer(player: Player, stack: TokenStack, amt: Int): Unit = {
         val tokensToAdd = stack.drawMultipleTokens(amt)
-        playingField = playingField.copy(players = playingField.players.map {
-            case p if p.name == player.name => p.copy(tokens = p.tokens ++ tokensToAdd)
-            case p => p
-        })
+        playingField = playingField.map { field =>
+            field.copy(players = field.players.map {
+                case p if p.name == player.name => p.copy(tokens = p.tokens ++ tokensToAdd)
+                case p => p
+            })
+        }
     }
     
     def passTurn(currentPlayer: Player, allowWithoutFirstMove: Boolean = false): Player = {
@@ -75,17 +79,24 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     }
 
     def setNextPlayer(p: Player): Player = {
-        val current = playingField.players.indexWhere(_.name == p.name)
-        if (current == playingField.players.size - 1) playingField.players.head else playingField.players(current + 1)
+        playingField.flatMap(field => {
+            val current = field.players.indexWhere(_.name == p.name)
+            if (current == -1 || field.players.isEmpty) None
+            else if (current == field.players.size - 1) Some(field.players.head)
+            else Some(field.players(current + 1))
+        }).getOrElse(p)
     }
 
     def winGame(): Boolean = {
-        playingField.players.exists(player => player.tokens.isEmpty) match {
-            case true => {
-                println("Player " + playingField.players.find(_.tokens.isEmpty).get.name + " wins the game!")
-                true
-            }
-            case false => false
+        playingField match {
+            case Some(field) =>
+                field.players.find(_.tokens.isEmpty) match {
+                    case Some(winner) =>
+                        println(s"Player ${winner.name} wins the game!")
+                        true
+                    case None => false
+                }
+            case None => false
         }
     }
 
@@ -100,9 +111,11 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         } else {
             val updatedPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ s"row:${row.rowTokens.mkString(",")}").addToFirstMoveTokens(row.rowTokens)
         
-            playingField = playingField.copy(innerField = playingField.innerField.add(row.rowTokens), players = playingField.players.map(p =>
-                                                                                                        if (p.name == currentPlayer.name) updatedPlayer else p
-                                                                                                    ))
+            playingField = playingField.map( field =>
+                field.copy(innerField = field.innerField.add(row.rowTokens), players = field.players.map(p =>
+                    if (p.name == currentPlayer.name) updatedPlayer else p
+                ))
+            )
             (row.rowTokens, updatedPlayer)
         }
     }
@@ -118,9 +131,11 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         } else {
             val updatedPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ s"group:${group.groupTokens.mkString(",")}").addToFirstMoveTokens(group.groupTokens)
 
-            playingField = playingField.copy(innerField = playingField.innerField.add(group.groupTokens), players = playingField.players.map(p =>
-                                                                                                        if (p.name == currentPlayer.name) updatedPlayer else p
-                                                                                                    ))
+            playingField = playingField.map( field =>
+                field.copy(innerField = field.innerField.add(group.groupTokens), players = field.players.map(p =>
+                    if (p.name == currentPlayer.name) updatedPlayer else p
+                ))
+            )
             (group.groupTokens, updatedPlayer)
         }
     }
