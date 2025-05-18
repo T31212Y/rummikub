@@ -6,7 +6,7 @@ abstract class GameModeTemplate(playerNames: List[String]) {
     val cntTokens: Int = 24
     val cntEdgeSpaces: Int = 15
 
-    def runGameSetup(): PlayingField = {
+    def runGameSetup(): Option[PlayingField] = {
         val players = createPlayers()
         val playingField = createPlayingField(players)
         val updatedPlayingField = updatePlayingField(playingField)
@@ -18,14 +18,14 @@ abstract class GameModeTemplate(playerNames: List[String]) {
         playerNames.map(name => Player(name))
     }
 
-    def createPlayingField(players: List[Player]): PlayingField
-    def updatePlayingField(playingField: PlayingField): PlayingField
+    def createPlayingField(players: List[Player]): Option[PlayingField]
+    def updatePlayingField(playingField: Option[PlayingField]): Option[PlayingField]
 
-    def render(playingField: PlayingField): Unit = {
+    def render(playingField: Option[PlayingField]): Unit = {
         println(renderPlayingField(playingField))
     }
 
-    def renderPlayingField(playingField: PlayingField): String
+    def renderPlayingField(playingField: Option[PlayingField]): String
 
     def updateBoardSinglePlayer(player: Player, board: Board): Option[Board] = {
         if (player.tokens.size <= cntTokens) {
