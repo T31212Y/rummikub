@@ -10,10 +10,17 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     var playingField: Option[PlayingField] = None
     var validFirstMoveThisTurn: Boolean = false
+    var gameState: Option[GameState] = None
+
 
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
         gameMode = GameModeFactory.createGameMode(amountPlayers, names)
         playingField = gameMode.runGameSetup()
+
+        gameState = playingField.map { field =>
+            GameState(field.innerField, field.players.toVector, field.boards.toVector, 0)
+        }
+
         notifyObservers
     }
 
@@ -199,12 +206,16 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
                 currentPlayer
         }
     }
-    def getState: GameState = GameState(playingField, validFirstMoveThisTurn)
+
+    def getState: GameState = gameState.getOrElse(
+        GameState(Table(6, 30), Vector.empty, Vector.empty, 0)
+    )
 
     def setStateInternal(state: GameState): Unit = {
-        this.playingField = state.playingField
-        this.validFirstMoveThisTurn = state.validFirstMoveThisTurn
+        this.gameState = Some(state)
+        this.playingField = Some(
+            PlayingField(state.players.toList, state.boards.toList, state.table)
+        )
         notifyObservers
     }
-
 }
