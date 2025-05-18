@@ -2,6 +2,7 @@ package de.htwg.se.rummikub.controller
 
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.util.Observable
+import de.htwg.se.rummikub.state.GameState
 
 import scala.io.StdIn.readLine
 import scala.compiletime.uninitialized
@@ -183,4 +184,12 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
                 currentPlayer
         }
     }
+    def getState: GameState = GameState(playingField, validFirstMoveThisTurn)
+
+    def setStateInternal(state: GameState): Unit = {
+        this.playingField = state.playingField
+        this.validFirstMoveThisTurn = state.validFirstMoveThisTurn
+        notifyObservers
+    }
+
 }
