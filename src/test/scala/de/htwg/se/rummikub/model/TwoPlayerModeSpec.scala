@@ -20,14 +20,15 @@ class TwoPlayerModeSpec extends AnyWordSpec {
 
     "create a PlayingField with two players" in {
       val pf = mode.createPlayingField(players)
-      pf.players.size should be(2)
-      pf.players.map(_.name) should contain allElementsOf playerNames
+      pf.get.players.size should be(2)
+      pf.get.players.map(_.name) should contain allElementsOf playerNames
     }
 
     "update the PlayingField and keep two boards" in {
       val pf = mode.createPlayingField(players)
-      val updated = mode.updatePlayingField(pf)
-      updated.boards.size should be(2)
+      val updatedOpt = mode.updatePlayingField(pf)
+      updatedOpt.isDefined shouldBe true
+      updatedOpt.get.boards.size should be(2)
     }
 
     "update a single board for a player" in {
