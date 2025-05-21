@@ -3,15 +3,15 @@ package de.htwg.se.rummikub.controller
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.util.Observable
 import de.htwg.se.rummikub.state.GameState
+import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
+import de.htwg.se.rummikub.util.{Command, UndoManager}
 
 import scala.io.StdIn.readLine
+import de.htwg.se.rummikub.util.commands.AddRowCommand
 
-class Controller(var gameMode: GameModeTemplate) extends Observable {
+class Controller(var state: GameState, val gameMode: GameModeTemplate) extends Observable {
 
-    var playingField: Option[PlayingField] = None
-    var validFirstMoveThisTurn: Boolean = false
-    var gameState: Option[GameState] = None
-
+    val undoManager = new UndoManager
 
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
         gameMode = GameModeFactory.createGameMode(amountPlayers, names)
@@ -109,7 +109,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     }
 
     def addRowToTable(row: Row, currentPlayer: Player): (List[Token], Player) = {
-        val unmatched = row.rowTokens.filterNot(tokenInRow =>
+        val unmatched = row.tokens.filterNot(tokenInRow =>
           currentPlayer.tokens.exists(playerToken => tokensMatch(tokenInRow, playerToken))
         )
       
@@ -117,19 +117,19 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             println(s"You can only play tokens that are on your board: ${unmatched.mkString(", ")}")
             (List.empty, currentPlayer)
         } else {
-            val updatedPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ s"row:${row.rowTokens.mkString(",")}").addToFirstMoveTokens(row.rowTokens)
+            val updatedPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ s"row:${row.tokens.mkString(",")}").addToFirstMoveTokens(row.tokens)
         
             playingField = playingField.map( field =>
-                field.copy(innerField = field.innerField.add(row.rowTokens), players = field.players.map(p =>
+                field.copy(innerField = field.innerField.add(row.tokens), players = field.players.map(p =>
                     if (p.name == currentPlayer.name) updatedPlayer else p
                 ))
             )
-            (row.rowTokens, updatedPlayer)
+            (row.tokens, updatedPlayer)
         }
     }
 
     def addGroupToTable(group: Group, currentPlayer: Player): (List[Token], Player) = {
-        val unmatched = group.groupTokens.filterNot(tokenInGroup =>
+        val unmatched = group.tokens.filterNot(tokenInGroup =>
           currentPlayer.tokens.exists(playerToken => tokensMatch(tokenInGroup, playerToken))
         )
 
@@ -137,22 +137,17 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             println(s"You can only play tokens that are on your board: ${unmatched.mkString(", ")}")
             (List.empty, currentPlayer)
         } else {
-            val updatedPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ s"group:${group.groupTokens.mkString(",")}").addToFirstMoveTokens(group.groupTokens)
+            val updatedPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ s"group:${group.tokens.mkString(",")}").addToFirstMoveTokens(group.tokens)
 
             playingField = playingField.map( field =>
-                field.copy(innerField = field.innerField.add(group.groupTokens), players = field.players.map(p =>
+                field.copy(innerField = field.innerField.add(group.tokens), players = field.players.map(p =>
                     if (p.name == currentPlayer.name) updatedPlayer else p
                 ))
             )
-            (group.groupTokens, updatedPlayer)
+            (group.tokens, updatedPlayer)
         }
     }
 
-    def tokensMatch(token1: Token, token2: Token): Boolean = (token1, token2) match {
-        case (NumToken(n1, c1), NumToken(n2, c2)) => n1 == n2 && c1 == c2
-        case (_: Joker, _: Joker) => true
-        case _ => false
-    }
 
     def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
         gameInput match {
@@ -172,9 +167,11 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             case "row" =>
                 println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
                 val tokens = readLine().split(",").map(_.trim).toList
-                val (removeTokens, updatedPlayer) = addRowToTable(createRow(tokens), currentPlayer)
-                removeTokens.foreach(t => removeTokenFromPlayer(updatedPlayer, t))
+                val row = createRow(tokens)
 
+                executeAddRow(row, currentPlayer, stack)
+
+                val updatedPlayer = getState.currentPlayer
                 if (!updatedPlayer.validateFirstMove()) {
                     println("Your move is not valid for the first move requirement.")
                 } else {
@@ -197,6 +194,14 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
                 updatedPlayer
 
+            case "undo" =>
+                undo()
+                currentPlayer
+
+            case "redo" =>
+                redo()
+                currentPlayer
+
             case "end" =>
                 println("Exiting the game...")
                 currentPlayer
@@ -218,4 +223,16 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         )
         notifyObservers
     }
+
+    def executeAddRow(row: Row, player: Player, stack: TokenStack): Unit = {
+        val cmd = new AddRowCommand(this, row, player, stack)
+        undoManager.doStep(cmd)
+        notifyObservers
+    }
+
+    def currentPlayer: Player = state.currentPlayer
+    def currentField: PlayingField = state.playingField
+
+    def undo(): Unit = undoManager.undoStep()
+    def redo(): Unit = undoManager.redoStep()
 }
