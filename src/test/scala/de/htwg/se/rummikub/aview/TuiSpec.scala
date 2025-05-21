@@ -11,7 +11,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
 
   "A Tui" should {
 
-    val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")))
+    val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
     val tui = new Tui(controller)
 
     "show welcome message" in {
