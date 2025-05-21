@@ -14,7 +14,7 @@ case class TokenStack() {
   }
 
   def drawMultipleTokens(n: Int): List[Token] = {
-    (1 to n).map(_ => drawToken()).toList
+    (1 to n).flatMap(_ => drawToken()).toList
   }
 
   def removeToken(token: Token): List[Token] = {
