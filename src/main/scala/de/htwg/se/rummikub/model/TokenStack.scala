@@ -8,13 +8,14 @@ case class TokenStack() {
 
   var tokens: List[Token] = Random.shuffle(allTokens)
 
-  def drawToken(): Option[Token] = tokens.headOption.map { token =>
+  def drawToken(): Token = {
+    val token = tokens.head
     tokens = tokens.tail
     token
   }
 
   def drawMultipleTokens(n: Int): List[Token] = {
-    (1 to n).flatMap(_ => drawToken()).toList
+    (1 to n).map(_ => drawToken()).toList
   }
 
   def removeToken(token: Token): List[Token] = {

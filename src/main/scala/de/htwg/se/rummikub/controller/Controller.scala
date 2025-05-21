@@ -18,7 +18,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     val undoManager = new UndoManager
 
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
-        gameMode = GameModeFactory.createGameMode(amountPlayers, names)
+        gameMode = GameModeFactory.createGameMode(amountPlayers, names).get
         playingField = gameMode.runGameSetup()
 
         gameState = playingField.map { field =>
