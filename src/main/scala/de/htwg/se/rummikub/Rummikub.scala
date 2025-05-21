@@ -7,7 +7,7 @@ import de.htwg.se.rummikub.model.GameModeFactory
 import scala.io.StdIn.readLine
 
 object Rummikub {
-  val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")))
+  val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
   val view: GameView = new Tui(controller)
 
   def main(args: Array[String]): Unit = {
