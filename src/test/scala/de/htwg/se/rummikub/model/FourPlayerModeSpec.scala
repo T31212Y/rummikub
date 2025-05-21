@@ -19,14 +19,18 @@ class FourPlayerModeSpec extends AnyWordSpec {
     }
 
     "create a PlayingField with four players" in {
-      val pf = mode.createPlayingField(players)
+      val pfOpt = mode.createPlayingField(players)
+      pfOpt.isDefined shouldBe true
+      val pf = pfOpt.get
       pf.players.size should be(4)
       pf.players.map(_.name) should contain allElementsOf playerNames
     }
 
     "update the PlayingField and keep two boards" in {
       val pf = mode.createPlayingField(players)
-      val updated = mode.updatePlayingField(pf)
+      val updatedOpt = mode.updatePlayingField(pf)
+      updatedOpt.isDefined shouldBe true
+      val updated = updatedOpt.get
       updated.boards.size should be(2)
     }
 
