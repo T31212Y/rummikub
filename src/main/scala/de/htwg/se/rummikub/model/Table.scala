@@ -31,6 +31,14 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = L
         this.copy(tokensOnTable = updatedTokensOnTable)
     }
 
+    def getRow(index: Int): Option[List[Token]] = {
+        tokensOnTable.lift(index)
+    }
+
+    def getGroup(index: Int): Option[List[Token]] = {
+        tokensOnTable.lift(index)
+    }
+
     override def toString: String = {
         if (tokensOnTable.isEmpty) {
             emptyRow.repeat(cntRows)
