@@ -6,12 +6,11 @@ import de.htwg.se.rummikub.util.Command
 import de.htwg.se.rummikub.state.GameState
 
 class AddRowCommand(controller: Controller, row: Row, player: Player, stack: TokenStack) extends Command {
-  var oldState: Option[GameState] = None
+
+  private val oldState: Option[GameState] = Some(controller.getState)
   var removedTokens: List[Token] = List()
 
   override def doStep(): Unit = {
-    oldState = controller.gameState
-
     val (tokensRemoved, updatedPlayer) = controller.addRowToTable(row, player)
     tokensRemoved.foreach(t => controller.removeTokenFromPlayer(updatedPlayer, t))
     removedTokens = tokensRemoved
