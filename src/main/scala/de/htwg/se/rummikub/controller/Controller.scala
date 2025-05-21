@@ -9,7 +9,11 @@ import de.htwg.se.rummikub.util.{Command, UndoManager}
 import scala.io.StdIn.readLine
 import de.htwg.se.rummikub.util.commands.AddRowCommand
 
-class Controller(var state: GameState, val gameMode: GameModeTemplate) extends Observable {
+class Controller(var gameMode: GameModeTemplate) extends Observable {
+
+    var playingField: Option[PlayingField] = None
+    var validFirstMoveThisTurn: Boolean = false
+    var gameState: Option[GameState] = None
 
     val undoManager = new UndoManager
 
@@ -229,9 +233,6 @@ class Controller(var state: GameState, val gameMode: GameModeTemplate) extends O
         undoManager.doStep(cmd)
         notifyObservers
     }
-
-    def currentPlayer: Player = state.currentPlayer
-    def currentField: PlayingField = state.playingField
 
     def undo(): Unit = undoManager.undoStep()
     def redo(): Unit = undoManager.redoStep()

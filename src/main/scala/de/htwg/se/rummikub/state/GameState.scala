@@ -1,34 +1,33 @@
 package de.htwg.se.rummikub.state
 
 import de.htwg.se.rummikub.model._
-import de.htwg.se.rummikub.util.Command
 
 case class GameState(
-    playingField: PlayingField,
-    players: Vector[Player],
-    currentPlayerIndex: Int,
-    round: Int,
-    firstMoveTokens: List[Token] = Nil,
-    commandHistory: List[Command] = Nil,
-    hasPlayed: Boolean = false
+  table: Table,
+  players: Vector[Player],
+  boards: Vector[Board],
+  currentPlayerIndex: Int
 ) {
+
   def currentPlayer: Player = players(currentPlayerIndex)
 
-  def updatePlayer(index: Int, player: Player): GameState =
-    copy(players = players.updated(index, player))
+  def currentBoard: Board = boards(currentPlayerIndex)
 
-  def updateCurrentPlayer(player: Player): GameState =
-    updatePlayer(currentPlayerIndex, player)
+  def updateCurrentPlayer(updatedPlayer: Player): GameState =
+    copy(players = players.updated(currentPlayerIndex, updatedPlayer))
 
-  def nextPlayer: GameState =
-    copy(currentPlayerIndex = (currentPlayerIndex + 1) % players.size)
+  def updateCurrentBoard(updatedBoard: Board): GameState =
+    copy(boards = boards.updated(currentPlayerIndex, updatedBoard))
 
-  def withPlayingField(newField: PlayingField): GameState =
-    copy(playingField = newField)
+  def updatePlayerById(id: String, updated: Player): GameState =
+    copy(players = players.map(p => if (p.name == id) updated else p))
 
-  def withCommandHistory(newHistory: List[Command]): GameState =
-    copy(commandHistory = newHistory)
+  def updateBoardByIndex(index: Int, updated: Board): GameState =
+    copy(boards = boards.updated(index, updated))
 
-  def resetFirstMove: GameState =
-    copy(firstMoveTokens = Nil)
+  def updateTable(newTable: Table): GameState =
+    copy(table = newTable)
+
+  def nextTurn(): GameState =
+    copy(currentPlayerIndex = (currentPlayerIndex + 1) % players.length)
 }

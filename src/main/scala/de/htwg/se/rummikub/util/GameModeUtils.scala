@@ -4,6 +4,7 @@ import de.htwg.se.rummikub.model._
 
 object GameModeUtils {
 
+    val cntRows = 20
     val cntTokens = 24
 
     def updateBoardSinglePlayer(player: Player, board: Board): Option[Board] = {
@@ -49,4 +50,6 @@ object GameModeUtils {
         val len = length - player1.length - player2.length - 10
         Some(char.repeat(5) + player1 + char * len + player2 + char.repeat(5))
     }
+
+    def cleanRenderOutput(input: String): String = input.replace("x", " ").replace("y", " ")
 }

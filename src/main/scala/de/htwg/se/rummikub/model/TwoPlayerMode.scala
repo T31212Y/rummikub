@@ -1,17 +1,10 @@
 package de.htwg.se.rummikub.model
 
-import de.htwg.se.rummikub.util.GameModeUtils._
-
-case object TwoPlayerModeStrategy extends GameModeStrategy {
-
-    val cntRows = 20
-
-    override def createPlayers(playerNames: List[String]): List[Player] = {
-        playerNames.take(2).map(Player(_))
-    }
+case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
 
     override def createPlayingField(players: List[Player]): Option[PlayingField] = {
-        if (players.size < 2) {
+        if (players.isEmpty) {
+            println("Cannot create playing field: No players provided.")
             None
         } else {
             val builder = new StandardPlayingFieldBuilder
