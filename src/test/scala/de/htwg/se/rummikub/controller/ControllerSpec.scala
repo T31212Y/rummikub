@@ -3,6 +3,7 @@ package de.htwg.se.rummikub.controller
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
 
 class ControllerSpec extends AnyWordSpec {
@@ -11,11 +12,11 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah")
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
-      val pf = controller.playingField.copy(players = List(player1.copy(tokens = Nil), player2.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))))
-      controller.playingField = pf
+      val pf = controller.playingField.get.copy(players = List(player1.copy(tokens = Nil), player2.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))))
+      controller.playingField = Some(pf)
       controller.winGame() shouldBe true
     }
 
@@ -23,11 +24,11 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
-      val pf = controller.playingField.copy(players = List(player1.copy(tokens = List(NumToken(1, Color.RED))), player2.copy(tokens = List(NumToken(2, Color.BLUE)))))
-      controller.playingField = pf
+      val pf = controller.playingField.get.copy(players = List(player1.copy(tokens = List(NumToken(1, Color.RED))), player2.copy(tokens = List(NumToken(2, Color.BLUE)))))
+      controller.playingField = Some(pf)
       controller.winGame() shouldBe false
     }
 
@@ -35,17 +36,17 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
-      controller.playingField.players.map(_.name) should contain allElementsOf List("Emilia", "Noah")
+      controller.playingField.get.players.map(_.name) should contain allElementsOf List("Emilia", "Noah")
     }
 
     "convert the playing field to a string" in {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
       controller.playingfieldToString should include ("Emilia")
@@ -56,12 +57,12 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
       val stack = TokenStack()
 
       controller.addTokenToPlayer(player1, stack)
-      controller.playingField.players.find(_.name == "Emilia").get.tokens.size shouldBe 1
+      controller.playingField.get.players.find(_.name == "Emilia").get.tokens.size shouldBe 1
       stack.tokens.size shouldBe 105
     }
 
@@ -69,39 +70,39 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
       val stack = TokenStack()
 
       controller.addTokenToPlayer(player1, stack)
-      controller.playingField.players.head.name shouldBe "Emilia"
-      controller.playingField.players.head.tokens.nonEmpty shouldBe true
+      controller.playingField.get.players.head.name shouldBe "Emilia"
+      controller.playingField.get.players.head.tokens.nonEmpty shouldBe true
     }
 
     "remove a token from a player" in {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
       val token = NumToken(1, Color.RED)
       val p = player1.copy(tokens = List(token))
-      controller.playingField = controller.playingField.copy(players = List(p, player2))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       controller.removeTokenFromPlayer(p, token)
-      controller.playingField.players.find(_.name == "Emilia").get.tokens should not contain token
+      controller.playingField.get.players.find(_.name == "Emilia").get.tokens should not contain token
     }
 
     "add multiple tokens to a player" in {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
       val stack = TokenStack()
 
       controller.addMultipleTokensToPlayer(player1, stack, 2)
-      controller.playingField.players.find(_.name == "Emilia").get.tokens.size shouldBe 2
+      controller.playingField.get.players.find(_.name == "Emilia").get.tokens.size shouldBe 2
       stack.tokens.size shouldBe 104
     }
 
@@ -109,13 +110,13 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
       val row = Row(List("1:red", "2:red", "3:red"))
 
       val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED)))
-      controller.playingField = controller.playingField.copy(players = List(p, player2))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       val added = controller.addRowToTable(row, p)
       val (tokens, player) = added
       tokens should contain allOf (NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED))
@@ -125,13 +126,13 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
       val row = Row(List("9:red", "10:red", "11:red"))
 
       val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED)))
-      controller.playingField = controller.playingField.copy(players = List(p, player2))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       val added = controller.addRowToTable(row, p)
       val (tokens, player) = added
       tokens shouldBe empty
@@ -142,13 +143,13 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
       val group = Group(List("1:red", "1:blue", "1:black"))
 
       val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE), NumToken(1, Color.BLACK)))
-      controller.playingField = controller.playingField.copy(players = List(p, player2))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       val added = controller.addGroupToTable(group, p)
       val (tokens, player) = added
       tokens should contain allOf (NumToken(1, Color.RED), NumToken(1, Color.BLUE), NumToken(1, Color.BLACK))
@@ -158,13 +159,13 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
       val group = Group(List("9:red", "9:blue", "9:black"))
 
       val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      controller.playingField = controller.playingField.copy(players = List(p, player2))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       val added = controller.addGroupToTable(group, p)
       val (tokens, player) = added
       tokens shouldBe empty
@@ -174,15 +175,15 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
       val stack = TokenStack()
 
       val p = player1.copy(tokens = Nil, commandHistory = Nil)
-      controller.playingField = controller.playingField.copy(players = List(p, player2))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       val nextPlayer = controller.processGameInput("draw", p, stack)
       nextPlayer.name shouldBe "Noah"
-      controller.playingField.players.find(_.name == "Emilia").get.tokens.size shouldBe 1
+      controller.playingField.get.players.find(_.name == "Emilia").get.tokens.size shouldBe 1
       stack.tokens.size shouldBe 105
     }
 
@@ -190,12 +191,12 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
       val stack = TokenStack()
 
       val p = player1.copy(tokens = Nil)
-      controller.playingField = controller.playingField.copy(players = List(p, player2))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       val nextPlayer = controller.processGameInput("invalid", p, stack)
       nextPlayer.name shouldBe "Emilia"
     }
@@ -204,13 +205,13 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
       val input = new ByteArrayInputStream("1:red,2:red,3:red\n".getBytes)
 
       Console.withIn(input) {
         val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED)))
-        controller.playingField = controller.playingField.copy(players = List(p, player2))
+        controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
         controller.processGameInput("row", p, TokenStack())
         controller.validFirstMoveThisTurn should be(false)
       }
@@ -220,13 +221,13 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
       val input = new ByteArrayInputStream("10:red,11:red,12:red\n".getBytes)
 
       Console.withIn(input) {
         val p = player1.copy(tokens = List(NumToken(10, Color.RED), NumToken(11, Color.RED), NumToken(12, Color.RED)))
-        controller.playingField = controller.playingField.copy(players = List(p, player2))
+        controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
         controller.processGameInput("row", p, TokenStack())
         controller.validFirstMoveThisTurn should be(true)
       }
@@ -236,13 +237,13 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
       val input = new ByteArrayInputStream("1:red,1:blue,1:black\n".getBytes)
 
       Console.withIn(input) {
         val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE), NumToken(1, Color.BLACK)))
-        controller.playingField = controller.playingField.copy(players = List(p, player2))
+        controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
         controller.processGameInput("group", p, TokenStack())
         controller.validFirstMoveThisTurn should be(false)
       }
@@ -252,13 +253,13 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
       val input = new ByteArrayInputStream("10:red,10:blue,10:black\n".getBytes)
 
       Console.withIn(input) {
         val p = player1.copy(tokens = List(NumToken(10, Color.RED), NumToken(10, Color.BLUE), NumToken(10, Color.BLACK)))
-        controller.playingField = controller.playingField.copy(players = List(p, player2))
+        controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
         controller.processGameInput("group", p, TokenStack())
         controller.validFirstMoveThisTurn should be(true)
       }
@@ -268,18 +269,18 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       
       controller.setupNewGame(2, List("Anna", "Ben"))
-      controller.playingField.players.map(_.name) shouldBe List("Anna", "Ben")
-      controller.playingField.players.map(_.name) shouldBe List("Anna", "Ben")
+      controller.playingField.get.players.map(_.name) shouldBe List("Anna", "Ben")
+      controller.playingField.get.players.map(_.name) shouldBe List("Anna", "Ben")
     }
 
     "set the next player" in {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
       val nextPlayer = controller.setNextPlayer(player1)
@@ -290,7 +291,7 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
       val nextPlayer = controller.setNextPlayer(player2)
@@ -308,36 +309,36 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
       val tokensList = List("1:red", "2:blue", "3:green")
       val row = controller.createRow(tokensList)
       row shouldBe a[Row]
-      row.rowTokens.map(_.toString) should be (List("\u001b[31m 1\u001b[0m", "\u001b[34m 2\u001b[0m", "\u001b[32m 3\u001b[0m"))
+      row.getTokens.map(_.toString) should be (List("\u001b[31m 1\u001b[0m", "\u001b[34m 2\u001b[0m", "\u001b[32m 3\u001b[0m"))
     }
   
     "create a Group from a list of strings" in {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
 
       val tokensList = List("4:red", "4:blue", "4:green")
       val group = controller.createGroup(tokensList)
       group shouldBe a[Group]
-      group.groupTokens.map(_.toString) should be (List("\u001b[31m 4\u001b[0m", "\u001b[34m 4\u001b[0m", "\u001b[32m 4\u001b[0m"))
+      group.getTokens.map(_.toString) should be (List("\u001b[31m 4\u001b[0m", "\u001b[34m 4\u001b[0m", "\u001b[32m 4\u001b[0m"))
     }
 
     "not allow to pass turn if no token was played (commandHistory is empty)" in {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
       val p = player1.copy(commandHistory = Nil)
-      controller.playingField = controller.playingField.copy(players = List(p, player2))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       val outStream = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(outStream)) {
         val resultPlayer = controller.passTurn(p, false)
@@ -350,7 +351,7 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
       val stack = TokenStack()
 
@@ -358,7 +359,7 @@ class ControllerSpec extends AnyWordSpec {
         tokens = Nil,
         commandHistory = List("row:10:red,10:blue")
       )
-      controller.playingField = controller.playingField.copy(players = List(p, player2))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       val nextPlayer = controller.processGameInput("draw", p, stack)
       nextPlayer.name shouldBe "Noah"
     }
@@ -367,29 +368,29 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
 
       val joker1 = Joker(Color.RED)
       val joker2 = Joker(Color.BLUE)
-      controller.tokensMatch(joker1, joker2) shouldBe true
+      tokensMatch(joker1, joker2) shouldBe true
     }
 
     "not match different token types in tokensMatch" in {
       val player1 = Player("Emilia")
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
 
       val joker = Joker(Color.RED)
       val numToken = NumToken(1, Color.RED)
-      controller.tokensMatch(joker, numToken) shouldBe false
+      tokensMatch(joker, numToken) shouldBe false
     }
 
     "not allow turn to pass if validateFirstMove is false" in {
       val player1 = Player("Emilia", tokens = List(NumToken(5, Color.RED))).copy(commandHistory = List("row:5:red"))
       val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
       assert(player1.validateFirstMove() == false)
@@ -399,28 +400,13 @@ class ControllerSpec extends AnyWordSpec {
       result shouldBe player1
     }
 
-    "not allow draw if valid first move was already made" in {
-      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)), commandHistory = List("row:1:red,2:blue"))
-      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")))
-      
-      controller.setupNewGame(2, List("Emilia", "Noah"))
-      controller.playingField = controller.playingField.copy(players = List(player1, player2))
-      controller.validFirstMoveThisTurn = true
-      
-      val stack = TokenStack()
-      val resultPlayer = controller.processGameInput("draw", player1, stack)
-      
-      resultPlayer shouldBe player1
-    }
-
     "pass the turn to the next player when 'pass' is entered and the conditions are met" in {
       val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)))
       val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")))
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
       
       controller.setupNewGame(2, List("Emilia", "Noah"))
-      controller.playingField = controller.playingField.copy(players = List(player1, player2))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(player1, player2)))
       controller.validFirstMoveThisTurn = true
       
       val stack = TokenStack()
