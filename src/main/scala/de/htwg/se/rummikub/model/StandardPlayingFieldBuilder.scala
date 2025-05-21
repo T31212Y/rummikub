@@ -22,9 +22,10 @@ class StandardPlayingFieldBuilder extends PlayingFieldBuilder {
       this
     }
 
-    override def build(): Try[PlayingField] = for {
-      p <- players.toRight(new IllegalStateException("Players not set")).toTry
-      b <- boards.toRight(new IllegalStateException("Boards not set")).toTry
-      i <- innerField.toRight(new IllegalStateException("InnerField not set")).toTry
-    } yield PlayingField(p, b, i)
+    override def build(): PlayingField = {
+      val p = players.getOrElse(throw new IllegalStateException("Players not set"))
+      val b = boards.getOrElse(throw new IllegalStateException("Boards not set"))
+      val i = innerField.getOrElse(throw new IllegalStateException("InnerField not set"))
+      PlayingField(p, b, i)
+    }
 }
