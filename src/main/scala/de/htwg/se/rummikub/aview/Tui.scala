@@ -79,8 +79,14 @@ class Tui(controller: Controller) extends GameView with Observer {
 
     private def playGame(): Unit = {
         println("Starting the game...")
-
+        
         var stack = controller.createTokenStack()
+
+        println("Drawing tokens for each player...")
+        controller.playingField.map(_.players).getOrElse(List()).foreach { player =>
+            controller.addMultipleTokensToPlayer(player, stack, 14)
+        }
+
         var currentPlayer = controller.playingField match {
             case Some(field) if field.players.nonEmpty => field.players.head
             case _ =>
@@ -88,11 +94,6 @@ class Tui(controller: Controller) extends GameView with Observer {
                 return
         }
         var gameInput = ""
-
-        println("Drawing tokens for each player...")
-        controller.playingField.map(_.players).getOrElse(List()).foreach { player =>
-            controller.addMultipleTokensToPlayer(player, stack, 14)
-        }
         
         while (!controller.winGame() && gameInput != "end") {
             controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
@@ -100,8 +101,6 @@ class Tui(controller: Controller) extends GameView with Observer {
             println("Available commands:")
             println("group - Play a group of tokens")
             println("row - Play a row of tokens")
-            println("addToRow - Add tokens to an existing row")
-            println("addToGroup - Add tokens to an existing group")
             println("draw - Draw a token from the stack and pass your turn")
             println("undo - Undo last move")
             println("redo - Redo last undone move")
