@@ -23,4 +23,10 @@ case class Player(name: String, tokens: List[Token] = List(), commandHistory: Li
   def addToFirstMoveTokens(newTokens: List[Token]): Player = {
     this.copy(firstMoveTokens = this.firstMoveTokens ++ newTokens)
   }
+
+  def deepCopy: Player = this.copy(
+    tokens = this.tokens.map(identity),
+    firstMoveTokens = this.firstMoveTokens.map(identity),
+    commandHistory = this.commandHistory.map(identity)
+  )
 }
