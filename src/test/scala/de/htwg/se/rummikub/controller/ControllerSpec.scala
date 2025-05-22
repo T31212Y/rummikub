@@ -416,17 +416,12 @@ class ControllerSpec extends AnyWordSpec {
     }
 
     "passTurn should switch to next player and reset commandHistory if first move is valid" in {
-      val playerNames = List("Emilia", "Noah")
-      val controller = new Controller(GameModeFactory.createGameMode(2, playerNames).get)
-      controller.setupNewGame(2, playerNames)
-
-      val pf = controller.playingField.get
-      val emilia = pf.players.head.copy(
-        tokens = List(NumToken(10, Color.RED), NumToken(10, Color.BLUE), NumToken(10, Color.GREEN)),
-        commandHistory = List("row:10:red,10:blue,10:green")
-      )
-      val noah = pf.players(1)
-      controller.playingField = Some(pf.copy(players = List(emilia, noah)))
+      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)))
+      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+        
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(player1, player2)))
       controller.currentPlayerIndex = 0
 
       val emiliaFromField = controller.playingField.get.players.head
