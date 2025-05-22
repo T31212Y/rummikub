@@ -18,6 +18,11 @@ class TwoPlayerModeSpec extends AnyWordSpec {
       players.map(_.name) should contain allElementsOf playerNames
     }
 
+    "return None if createPlayingField is called with empty player list" in {
+      val pf = mode.createPlayingField(Nil)
+      pf shouldBe None
+    }
+
     "create a PlayingField with two players" in {
       val pf = mode.createPlayingField(players)
       pf.get.players.size should be(2)
@@ -31,6 +36,18 @@ class TwoPlayerModeSpec extends AnyWordSpec {
       updatedOpt.get.boards.size should be(2)
     }
 
+    "update the PlayingField and print error if less than 2 players" in {
+      val pf = mode.createPlayingField(players)
+      val pfWithOne = pf.map(f => f.copy(players = f.players.take(1)))
+      val out = new java.io.ByteArrayOutputStream()
+      Console.withOut(out) {
+        val updated = mode.updatePlayingField(pfWithOne)
+        updated.isDefined shouldBe true
+        updated.get.players.size shouldBe 1
+      }
+      out.toString should include ("Not enough players to update.")
+    }
+
     "update a single board for a player" in {
       val player = Player("Azra")
       val board = new Board(24, 14, 2, 2, "default", 10)
@@ -38,7 +55,7 @@ class TwoPlayerModeSpec extends AnyWordSpec {
       updated.isDefined shouldBe true
     }
 
-    "update multiple boards for players" in {
+    "update multiple boards for players returns None" in {
       val board = new Board(24, 14, 2, 2, "default", 10)
       val updated = mode.updateBoardMultiPlayer(players, board)
       updated shouldBe None
@@ -51,6 +68,10 @@ class TwoPlayerModeSpec extends AnyWordSpec {
       str should include ("Moritz")
     }
 
+    "renderPlayingField returns error string if None" in {
+      mode.renderPlayingField(None) should include ("No playing field available")
+    }
+
     "lineWithPlayerName should return a formatted line" in {
       val line = mode.lineWithPlayerName("*", 20, "Azra")
       line.isDefined shouldBe true
@@ -60,19 +81,20 @@ class TwoPlayerModeSpec extends AnyWordSpec {
     "lineWith2PlayerNames should return None" in {
       mode.lineWith2PlayerNames("*", 20, "Azra", "Moritz") shouldBe None
     }
+
     "A player's board should split tokens correctly when more than cntTokens are present" in {
-        val stack = new TokenStack()
-        val manyTokens = stack.drawMultipleTokens(30)
-        val player = Player("Azra", manyTokens)
-        val board = new Board(24, 14, 2, 2, "default", 10)
+      val stack = new TokenStack()
+      val manyTokens = stack.drawMultipleTokens(30)
+      val player = Player("Azra", manyTokens)
+      val board = new Board(24, 14, 2, 2, "default", 10)
 
-        val updatedOpt = mode.updateBoardSinglePlayer(player, board)
-        updatedOpt.isDefined shouldBe true
+      val updatedOpt = mode.updateBoardSinglePlayer(player, board)
+      updatedOpt.isDefined shouldBe true
 
-        val updatedBoard = updatedOpt.get
-        updatedBoard.boardELRP12_1 shouldBe board.formatBoardRow(manyTokens.take(mode.cntTokens))
-        updatedBoard.boardELRP12_2 shouldBe board.formatBoardRow(manyTokens.drop(mode.cntTokens))
-        updatedBoard.boardEUD shouldBe board.createBoardFrameSingle(manyTokens.take(mode.cntTokens))
+      val updatedBoard = updatedOpt.get
+      updatedBoard.boardELRP12_1 shouldBe board.formatBoardRow(manyTokens.take(mode.cntTokens))
+      updatedBoard.boardELRP12_2 shouldBe board.formatBoardRow(manyTokens.drop(mode.cntTokens))
+      updatedBoard.boardEUD shouldBe board.createBoardFrameSingle(manyTokens.take(mode.cntTokens))
     }
   }
 }
