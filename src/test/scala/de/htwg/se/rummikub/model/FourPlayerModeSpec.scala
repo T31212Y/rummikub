@@ -79,5 +79,22 @@ class FourPlayerModeSpec extends AnyWordSpec {
     "lineWithPlayerName should return None" in {
       mode.lineWithPlayerName("*", 20, "Anna") shouldBe None
     }
+
+
+    "return None when creating a playing field with empty player list" in {
+      val pfOpt = mode.createPlayingField(Nil)
+      pfOpt shouldBe None
+    }
+
+    "return the same field if updatePlayingField is called with less than 4 players" in {
+      val pf = mode.createPlayingField(players.take(2))
+      val updatedOpt = mode.updatePlayingField(pf)
+      updatedOpt.isDefined shouldBe true
+      updatedOpt.get.players.size shouldBe 2
+    }
+
+    "renderPlayingField should return a message if None is given" in {
+      mode.renderPlayingField(None) should include ("No playing field available")
+    }
   }
 }
