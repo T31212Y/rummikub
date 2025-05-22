@@ -7,7 +7,7 @@ import de.htwg.se.rummikub.state.GameState
 
 class AddGroupCommand(controller: Controller, group: Group, player: Player, stack: TokenStack) extends Command {
 
-  private val oldState: Option[GameState] = Some(controller.getState)
+  var oldState: Option[GameState] = Some(controller.getState)
   var removedTokens: List[Token] = List()
 
   override def doStep(): Unit = {
