@@ -50,5 +50,19 @@ class MainSpec extends AnyWordSpec {
         lines.mkString("\n") should be (expectedLayout)
         lines.length should be (28)
     }
+    "print an error if game mode creation fails" in {
+      val output = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(output)) {
+
+        val gameModeTry = GameModeFactory.createGameMode(1, List("Azra"))
+        gameModeTry match {
+          case scala.util.Failure(exception) =>
+            println(s"Failed to create game mode: ${exception.getMessage}")
+          case _ =>
+        }
+      }
+      output.toString should include ("Failed to create game mode")
+      output.toString should include ("Invalid number of players")
+    }
   }
 }
