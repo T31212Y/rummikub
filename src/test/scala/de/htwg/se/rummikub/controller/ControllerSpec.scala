@@ -435,17 +435,6 @@ class ControllerSpec extends AnyWordSpec {
       }
     }
 
-    "setNextPlayer should wrap around to first player" in {
-      val playerNames = List("Emilia", "Noah")
-      val controller = new Controller(GameModeFactory.createGameMode(2, playerNames).get)
-      controller.setupNewGame(2, playerNames)
-      controller.currentPlayerIndex = 1
-      val pf = controller.playingField.get
-      val nextPlayer = controller.setNextPlayer(pf.players(1))
-      nextPlayer.name shouldBe "Emilia"
-      controller.currentPlayerIndex shouldBe 0
-    }
-
     "undo and redo should not throw" in {
       val playerNames = List("Emilia", "Noah")
       val controller = new Controller(GameModeFactory.createGameMode(2, playerNames).get)
@@ -520,6 +509,112 @@ class ControllerSpec extends AnyWordSpec {
       val stack = TokenStack()
       val result = controller.processGameInput("foobar", player, stack)
       result shouldBe player
+    }
+
+    "setNextPlayer should return the given player if playingField is None" in {
+      val player = Player("Emilia")
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = None
+
+      val result = controller.setNextPlayer(player)
+      result shouldBe player
+    }
+
+    "winGame should return false if playingField is None" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = None
+
+      controller.winGame() shouldBe false
+    }
+
+    "processGameInput should call undo and return the current player for 'undo' command" in {
+      val player1 = Player("Emilia")
+      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
+      val players = List(player1, player2)
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
+      controller.setupNewGame(2, players.map(_.name))
+      val stack = TokenStack()
+
+      var undoCalled = false
+      val testController = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get) {
+        override def undo(): Unit = { undoCalled = true }
+      }
+      testController.setupNewGame(2, players.map(_.name))
+
+      val result = testController.processGameInput("undo", player1, stack)
+      undoCalled shouldBe true
+      result shouldBe player1
+    }
+
+    "processGameInput should call redo and return the current player for 'redo' command" in {
+      val player1 = Player("Emilia")
+      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
+      val players = List(player1, player2)
+      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
+      controller.setupNewGame(2, players.map(_.name))
+      val stack = TokenStack()
+
+      var redoCalled = false
+      val testController = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get) {
+        override def redo(): Unit = { redoCalled = true }
+      }
+      testController.setupNewGame(2, players.map(_.name))
+
+      val result = testController.processGameInput("redo", player1, stack)
+      redoCalled shouldBe true
+      result shouldBe player1
+    }
+
+    "getState should return an empty GameState if playingField is None" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = None
+
+      val state = controller.getState
+      state.table shouldBe Table(16, 90, List.empty)
+      state.players shouldBe empty
+      state.boards shouldBe empty
+      state.currentPlayerIndex shouldBe 0
+    }
+
+    "setNextPlayer should return the first player if current player is not found" in {
+      val player1 = Player("Emilia")
+      val player2 = Player("Noah")
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val pf = controller.playingField.get
+      controller.playingField = Some(pf.copy(players = List(player1, player2)))
+
+      val unknownPlayer = Player("Unbekannt")
+      val result = controller.setNextPlayer(unknownPlayer)
+      result shouldBe player1
+      controller.currentPlayerIndex shouldBe 0
+    }
+
+    "setNextPlayer should return the first player if current player is the last in the list" in {
+      val player1 = Player("Emilia")
+      val player2 = Player("Noah")
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val pf = controller.playingField.get
+      controller.playingField = Some(pf.copy(players = List(player1, player2)))
+
+      val result = controller.setNextPlayer(player2)
+      result shouldBe player1
+      controller.currentPlayerIndex shouldBe 0
+    }
+
+    "setNextPlayer should return the next player in the list" in {
+      val player1 = Player("Emilia")
+      val player2 = Player("Noah")
+      val player3 = Player("Lina")
+      val controller = new Controller(GameModeFactory.createGameMode(3, List("Emilia", "Noah", "Lina")).get)
+      controller.setupNewGame(3, List("Emilia", "Noah", "Lina"))
+      val pf = controller.playingField.get
+      controller.playingField = Some(pf.copy(players = List(player1, player2, player3)))
+
+      val result = controller.setNextPlayer(player1)
+      result shouldBe player2
+      controller.currentPlayerIndex shouldBe 1
     }
   }
 }
