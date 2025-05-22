@@ -85,5 +85,47 @@ class TuiSpec extends AnyWordSpec with Matchers {
       }
       tui.inputCommands("quit")
     }
+
+    "handle 'quit' command input" in {
+      val outContent = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(outContent)) {
+        tui.inputCommands("quit")
+      }
+      outContent.toString should include ("Thank you for playing Rummikub! Goodbye!")
+    }
+
+    "ignore unknown command input" in {
+      val outContent = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(outContent)) {
+        tui.inputCommands("foobar")
+      }
+      outContent.toString should not include ("Exception")
+    }
+
+    "print error if no players are available when starting the game" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List()).get)
+      val tui = new Tui(controller)
+      controller.playingField = Some(PlayingField(Nil, Nil, null)) 
+
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+        tui.inputCommands("start")
+      }
+      out.toString should include ("No players available.")
+    }
+
+    "not throw if playingField is None when starting the game" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val tui = new Tui(controller)
+      controller.playingField = None 
+
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+
+        tui.inputCommands("start")
+      }
+    
+      succeed
+    }
   }
 }
