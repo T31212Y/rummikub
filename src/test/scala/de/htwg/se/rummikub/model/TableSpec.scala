@@ -159,5 +159,37 @@ class TableSpec extends AnyWordSpec {
       updatedTable.tokensOnTable.flatten should not contain tokenToRemove
       updatedTable.tokensOnTable.flatten should contain (otherToken)
     }
+
+    "getRow should return the correct row as Option" in {
+      val row1 = Row(List("1:blue", "2:red", "3:green"))
+      val row2 = Row(List("4:black", "5:blue", "6:red"))
+      val table = Table(2, 20, List(row1.getTokens, row2.getTokens))
+      table.getRow(0) shouldBe Some(row1.getTokens)
+      table.getRow(1) shouldBe Some(row2.getTokens)
+      table.getRow(2) shouldBe None
+    }
+
+    "getGroup should return the correct group as Option" in {
+      val row1 = Row(List("1:blue", "2:red", "3:green"))
+      val row2 = Row(List("4:black", "5:blue", "6:red"))
+      val table = Table(2, 20, List(row1.getTokens, row2.getTokens))
+      table.getGroup(0) shouldBe Some(row1.getTokens)
+      table.getGroup(1) shouldBe Some(row2.getTokens)
+      table.getGroup(2) shouldBe None
+    }
+
+    "toString should return only empty rows if table is empty" in {
+      val table = Table(3, 10)
+      table.toString shouldBe (("|          |\n" * 3))
+    }
+
+    "toString should return formatted rows and fill up with empty rows" in {
+      val row = Row(List("1:blue", "2:red"))
+      val table = Table(3, 15, List(row.getTokens))
+      val lines = table.toString.split("\n")
+      lines.length shouldBe 3
+      lines.head should include ("1")
+      lines.head should include ("2")
+    }
   }
 }
