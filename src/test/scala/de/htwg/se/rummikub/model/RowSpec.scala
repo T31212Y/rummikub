@@ -11,7 +11,7 @@ class RowSpec extends AnyWordSpec {
         val token3 = "9:blue"
         val row = Row(List(token1, token2, token3))
         val tokenFactory = new StandardTokenFactory
-        row.rowTokens should be (List(tokenFactory.createNumToken(7, Color.BLUE), tokenFactory.createNumToken(8, Color.BLUE), tokenFactory.createNumToken(9, Color.BLUE)))
+        row.getTokens should be (List(tokenFactory.createNumToken(7, Color.BLUE), tokenFactory.createNumToken(8, Color.BLUE), tokenFactory.createNumToken(9, Color.BLUE)))
     }
 
     "add a token" in {
@@ -50,7 +50,7 @@ class RowSpec extends AnyWordSpec {
       val token3 = "J:red"
       val token4 = "J:black"
       val row = Row(List(token1, token2, token3, token4))
-      row.toString should be (row.rowTokens.map(_.toString).mkString(" "))
+      row.toString should be (row.getTokens.map(_.toString).mkString(" "))
     }
 
     "change string list to token list" in {

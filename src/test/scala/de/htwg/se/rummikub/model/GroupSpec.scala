@@ -11,7 +11,7 @@ class GroupSpec extends AnyWordSpec {
             val token3 = "1:green"
             val group = Group(List(token1, token2, token3))
             val tokenFactory = new StandardTokenFactory
-            group.groupTokens should be (List(tokenFactory.createNumToken(1, Color.RED), tokenFactory.createNumToken(1, Color.BLUE), tokenFactory.createNumToken(1, Color.GREEN)))
+            group.getTokens should be (List(tokenFactory.createNumToken(1, Color.RED), tokenFactory.createNumToken(1, Color.BLUE), tokenFactory.createNumToken(1, Color.GREEN)))
         }
 
         "add a token" in {
@@ -50,7 +50,7 @@ class GroupSpec extends AnyWordSpec {
             val token3 = "J:red"
             val token4 = "J:black"
             val group = Group(List(token1, token2, token3, token4))
-            group.toString should be (group.groupTokens.map(_.toString).mkString(" "))
+            group.toString should be (group.getTokens.map(_.toString).mkString(" "))
         }
     }
 }

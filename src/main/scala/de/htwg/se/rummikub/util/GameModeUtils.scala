@@ -1,31 +1,11 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.util
 
-abstract class GameModeTemplate(playerNames: List[String]) {
+import de.htwg.se.rummikub.model._
 
-    val cntRows: Int = 20
-    val cntTokens: Int = 24
-    val cntEdgeSpaces: Int = 15
+object GameModeUtils {
 
-    def runGameSetup(): Option[PlayingField] = {
-        val players = createPlayers()
-        val playingField = createPlayingField(players)
-        val updatedPlayingField = updatePlayingField(playingField)
-        render(playingField)
-        updatedPlayingField
-    }
-
-    def createPlayers(): List[Player] = {
-        playerNames.map(name => Player(name))
-    }
-
-    def createPlayingField(players: List[Player]): Option[PlayingField]
-    def updatePlayingField(playingField: Option[PlayingField]): Option[PlayingField]
-
-    def render(playingField: Option[PlayingField]): Unit = {
-        println(renderPlayingField(playingField))
-    }
-
-    def renderPlayingField(playingField: Option[PlayingField]): String
+    val cntRows = 20
+    val cntTokens = 24
 
     def updateBoardSinglePlayer(player: Player, board: Board): Option[Board] = {
         if (player.tokens.size <= cntTokens) {
@@ -70,4 +50,6 @@ abstract class GameModeTemplate(playerNames: List[String]) {
         val len = length - player1.length - player2.length - 10
         Some(char.repeat(5) + player1 + char * len + player2 + char.repeat(5))
     }
+
+    def cleanRenderOutput(input: String): String = input.replace("x", " ").replace("y", " ")
 }

@@ -19,15 +19,35 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "create a PlayingField with three players" in {
-      val pf = mode.createPlayingField(players)
+      val pfOpt = mode.createPlayingField(players)
+      pfOpt.isDefined shouldBe true
+      val pf = pfOpt.get
       pf.players.size should be(3)
       pf.players.map(_.name) should contain allElementsOf playerNames
     }
 
+    "return None if createPlayingField is called with empty player list" in {
+      mode.createPlayingField(Nil) shouldBe None
+    }
+
     "update the PlayingField and keep two boards" in {
       val pf = mode.createPlayingField(players)
-      val updated = mode.updatePlayingField(pf)
+      val updatedOpt = mode.updatePlayingField(pf)
+      updatedOpt.isDefined shouldBe true
+      val updated = updatedOpt.get
       updated.boards.size should be(2)
+    }
+
+    "update the PlayingField and print error if less than 3 players" in {
+      val pf = mode.createPlayingField(players)
+      val pfWithTwo = pf.map(f => f.copy(players = f.players.take(2)))
+      val out = new java.io.ByteArrayOutputStream()
+      Console.withOut(out) {
+        val updated = mode.updatePlayingField(pfWithTwo)
+        updated.isDefined shouldBe true
+        updated.get.players.size shouldBe 2
+      }
+      out.toString should include ("Not enough players to update.")
     }
 
     "update a single board for a player" in {
@@ -98,6 +118,10 @@ class ThreePlayerModeSpec extends AnyWordSpec {
       str should include ("Charlie")
     }
 
+    "renderPlayingField returns error string if None" in {
+      mode.renderPlayingField(None) should include ("No playing field available")
+    }
+
     "lineWithPlayerName should return a formatted line" in {
       val line = mode.lineWithPlayerName("*", 20, "Alice")
       line.isDefined shouldBe true
@@ -110,20 +134,20 @@ class ThreePlayerModeSpec extends AnyWordSpec {
       line.get should include ("Alice")
       line.get should include ("Charlie")
     }
+
     "A player's board should split tokens correctly when more than cntTokens are present" in {
-        val stack = new TokenStack()
-        val manyTokens = stack.drawMultipleTokens(30)
-        val player = Player("Azra", manyTokens)
-        val board = new Board(24, 14, 3, 1, "down")
+      val stack = new TokenStack()
+      val manyTokens = stack.drawMultipleTokens(30)
+      val player = Player("Azra", manyTokens)
+      val board = new Board(24, 14, 3, 1, "down")
 
-        val updatedOpt = mode.updateBoardSinglePlayer(player, board)
-        updatedOpt.isDefined shouldBe true
+      val updatedOpt = mode.updateBoardSinglePlayer(player, board)
+      updatedOpt.isDefined shouldBe true
 
-        val updatedBoard = updatedOpt.get
-        updatedBoard.boardELRP12_1 shouldBe board.formatBoardRow(manyTokens.take(mode.cntTokens))
-        updatedBoard.boardELRP12_2 shouldBe board.formatBoardRow(manyTokens.drop(mode.cntTokens))
-        updatedBoard.boardEUD shouldBe board.createBoardFrameSingle(manyTokens.take(mode.cntTokens))
+      val updatedBoard = updatedOpt.get
+      updatedBoard.boardELRP12_1 shouldBe board.formatBoardRow(manyTokens.take(mode.cntTokens))
+      updatedBoard.boardELRP12_2 shouldBe board.formatBoardRow(manyTokens.drop(mode.cntTokens))
+      updatedBoard.boardEUD shouldBe board.createBoardFrameSingle(manyTokens.take(mode.cntTokens))
     }
-
   }
 }

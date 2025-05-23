@@ -1,5 +1,7 @@
 package de.htwg.se.rummikub.model
 
+import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
+
 case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = List()) {
 
     val emptyRow = "|" + (" " * length) + "|\n"
@@ -10,30 +12,31 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = L
 
     def add (e: List[Token]): Table = this.copy(tokensOnTable = this.tokensOnTable :+ e)
 
-    def remove(tokens: List[String]): Table = {
-        val tokensToRemove = tokens.map { tokenString =>
-            val tokenParts = tokenString.split(":")
-            val tokenFactory = new StandardTokenFactory
-            if (tokenParts(0) == "J") {
-                tokenFactory.createJoker(tokenParts(1) match {
-                    case "red" => Color.RED
-                    case "black" => Color.BLACK
-                })
-            } else {
-                tokenFactory.createNumToken(tokenParts(0).toInt, tokenParts(1) match {
-                    case "red" => Color.RED
-                    case "blue" => Color.BLUE
-                    case "green" => Color.GREEN
-                    case "black" => Color.BLACK
-                })
-            }
-        }
+    def remove(tokensToRemove: List[Token]): Table = {
+        val removalBuffer = scala.collection.mutable.ListBuffer.from(tokensToRemove)
 
         val updatedTokensOnTable = tokensOnTable.map { row =>
-            row.filterNot(token => tokensToRemove.contains(token))
+            row.foldLeft(List.empty[Token]) { (acc, token) =>
+                val indexOpt = removalBuffer.indexWhere(t => tokensMatch(t, token))
+
+                if (indexOpt != -1) {
+                    removalBuffer.remove(indexOpt)
+                    acc
+                } else {
+                    acc :+ token
+                }
+            }
         }.filter(_.nonEmpty)
 
         this.copy(tokensOnTable = updatedTokensOnTable)
+    }
+
+    def getRow(index: Int): Option[List[Token]] = {
+        tokensOnTable.lift(index)
+    }
+
+    def getGroup(index: Int): Option[List[Token]] = {
+        tokensOnTable.lift(index)
     }
 
     override def toString: String = {

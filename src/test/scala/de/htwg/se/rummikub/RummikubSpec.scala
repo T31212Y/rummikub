@@ -21,12 +21,12 @@ class RummikubSpec extends AnyWordSpec with Matchers {
     }
 
     "initialize the game correctly with default players" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")))
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
       controller.setupNewGame(2, List("Emilia", "Noah"))
 
-      controller.playingField.players should have size 2
-      controller.playingField.players.head.name should be("Emilia")
-      controller.playingField.players(1).name should be("Noah")
+      controller.playingField.get.players should have size 2
+      controller.playingField.get.players.head.name should be("Emilia")
+      controller.playingField.get.players(1).name should be("Noah")
     }
 
     "process commands through the Tui" in {
