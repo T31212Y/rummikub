@@ -1,3 +1,44 @@
 package de.htwg.se.rummikub.model
 
-case class Group(group: List[String]) extends TokenStructure(group)
+case class Group(group: List[Token]) extends TokenStructure(group) {
+
+    override def isValid: Boolean = {
+        if (tokens.size < 3 || tokens.size > 4) return false
+
+        val (jokers, nonJokers) = tokens.partition {
+        case _: Joker => true
+        case _        => false
+        }
+
+        val numTokens = nonJokers.collect {
+        case NumToken(n, c) => (n, c)
+        }
+
+        if (numTokens.isEmpty) return false
+
+        val distinctNumbers = numTokens.map(_._1).distinct
+        if (distinctNumbers.size != 1) return false
+
+        val usedColors = numTokens.map(_._2).toSet
+
+        val allColors = Set(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK)
+        val availableColorsForJokers = allColors -- usedColors
+
+        if (availableColorsForJokers.size < jokers.size) return false
+
+        true
+    }
+
+    def jokerValues: Option[Int] = {
+        val numTokens = tokens.collect { case NumToken(n, _) => n }.distinct
+        if (numTokens.size == 1) Some(numTokens.head) else None
+    }
+
+    override def points: Int = {
+        val jVal = jokerValues.getOrElse(0)
+        tokens.map {
+        case NumToken(n, _) => n
+        case _: Joker       => jVal
+        }.sum
+    }
+}
