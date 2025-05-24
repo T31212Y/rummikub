@@ -33,11 +33,11 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         TokenStack()
     }
 
-    def createRow(r: List[String]): Row = {
+    def createRow(r: List[Token]): Row = {
         Row(r)
     }
 
-    def createGroup(g: List[String]): Group = {
+    def createGroup(g: List[Token]): Group = {
         Group(g)
     }
 
@@ -174,6 +174,27 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         }
     }
 
+    def changeStringListToTokenList(list: List[String]): List[Token] = { 
+        list.map { tokenString =>
+            val tokenParts = tokenString.split(":")
+            val tokenFactory = new StandardTokenFactory
+
+            if (tokenParts(0) == "J") {
+                tokenParts(1) match {
+                    case "red" => tokenFactory.createJoker(Color.RED)
+                    case "black" => tokenFactory.createJoker(Color.BLACK)
+                }
+            } else  {
+                tokenParts(1) match {
+                    case "red" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.RED)
+                    case "blue" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLUE)
+                    case "green" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.GREEN)
+                    case "black" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLACK)
+                }
+            }
+        }
+    }
+
 
     def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
         gameInput match {
@@ -189,34 +210,45 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             case "row" =>
                 println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
                 val tokens = readLine().split(",").map(_.trim).toList
-                val row = createRow(tokens)
+                val row = createRow(changeStringListToTokenList(tokens))
 
-                executeAddRow(row, currentPlayer, stack)
-
-                val updatedPlayer = getState.currentPlayer
-                if (!updatedPlayer.validateFirstMove()) {
-                    println("Your move is not valid for the first move requirement.")
+                if (!row.isValid) {
+                    println("It's not a valid row!")
+                    currentPlayer
                 } else {
-                    validFirstMoveThisTurn = true
-                }
+                    executeAddRow(row, currentPlayer, stack)
 
-                updatedPlayer
+                    val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, row.tokens)
+                    if (!updatedPlayer.validateFirstMove()) {
+                        println("Your move is not valid for the first move requirement.")
+                    } else {
+                        validFirstMoveThisTurn = true
+                    }
+
+                    updatedPlayer
+                }
 
             case "group" =>
                 println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
                 val tokens = readLine().split(",").map(_.trim).toList
-                val group = createGroup(tokens)
+                val group = createGroup(changeStringListToTokenList(tokens))
 
-                executeAddGroup(group, currentPlayer, stack)
-
-                val updatedPlayer = getState.currentPlayer
-                if (!updatedPlayer.validateFirstMove()) {
-                    println("Your move is not valid for the first move requirement.")
+                if (!group.isValid) {
+                    println("It's not a valid group!")
+                    currentPlayer
                 } else {
-                    validFirstMoveThisTurn = true
-                }
 
-                updatedPlayer
+                    executeAddGroup(group, currentPlayer, stack)
+
+                    val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, group.tokens)
+                    if (!updatedPlayer.validateFirstMove()) {
+                        println("Your move is not valid for the first move requirement.")
+                    } else {
+                        validFirstMoveThisTurn = true
+                    }
+
+                    updatedPlayer
+                }
 
             case "undo" =>
                 undo()
@@ -275,4 +307,17 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     def undo(): Unit = undoManager.undoStep()
     def redo(): Unit = undoManager.redoStep()
+
+    private def getUpdatedPlayerAfterMove(currentPlayer: Player, newTokens: List[Token]): Player = {
+        val updatedPlayer = currentPlayer.addToFirstMoveTokens(newTokens)
+
+        playingField = playingField.map { field =>
+            val updatedPlayers = field.players.map {
+            case p if p.name == updatedPlayer.name => updatedPlayer
+            case p => p
+            }
+            field.copy(players = updatedPlayers)
+        }
+        updatedPlayer
+    }
 }
