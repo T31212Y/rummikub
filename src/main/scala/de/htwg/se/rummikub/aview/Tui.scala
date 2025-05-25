@@ -101,6 +101,8 @@ class Tui(controller: Controller) extends GameView with Observer {
             println("Available commands:")
             println("group - Play a group of tokens")
             println("row - Play a row of tokens")
+            println("appendToRow - Append a token to an existing row")
+            println("appendToGroup - Append a token to an existing group")
             println("draw - Draw a token from the stack and pass your turn")
             println("undo - Undo last move")
             println("redo - Redo last undone move")

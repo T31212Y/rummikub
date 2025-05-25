@@ -5,7 +5,7 @@ import de.htwg.se.rummikub.util.Observable
 import de.htwg.se.rummikub.state.GameState
 import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 import de.htwg.se.rummikub.util.{Command, UndoManager}
-import de.htwg.se.rummikub.util.commands.{AddRowCommand, AddGroupCommand}
+import de.htwg.se.rummikub.util.commands.{AddRowCommand, AddGroupCommand, AppendTokenCommand}
 
 import scala.io.StdIn.readLine
 
@@ -197,7 +197,6 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         }
     }
 
-
     def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
         gameInput match {
             case "draw" => {
@@ -259,6 +258,28 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
                     updatedPlayer
                 }
+            
+            case "appendToRow" =>
+                println("Enter the token to append (e.g. 'token1:color'):")
+                val input = readLine().trim
+                val token = changeStringListToTokenList(List(input)).head
+
+                println("Enter the row's index (starting with 0):")
+                val index = readLine().trim.toInt
+
+                executeAppendToRow(token, index, currentPlayer)
+                currentPlayer
+
+            case "appendToGroup" =>
+                println("Enter the token to append (e.g. 'token1:color'):")
+                val input = readLine().trim
+                val token = changeStringListToTokenList(List(input)).head
+
+                println("Enter the group's index (starting with 0):")
+                val index = readLine().trim.toInt
+
+                executeAppendToGroup(token, index, currentPlayer)
+                currentPlayer
 
             case "undo" =>
                 undo()
@@ -318,6 +339,16 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     def executeAddGroup(group: Group, player: Player, stack: TokenStack): Unit = {
         val cmd = new AddGroupCommand(this, group, player, stack)
+        undoManager.doStep(cmd)
+    }
+
+    def executeAppendToRow(token: Token, rowIndex: Int, player: Player): Unit = {
+        val cmd = new AppendTokenCommand(this, token, rowIndex, isRow = true, player)
+        undoManager.doStep(cmd)
+    }
+
+    def executeAppendToGroup(token: Token, groupIndex: Int, player: Player): Unit = {
+        val cmd = new AppendTokenCommand(this, token, groupIndex, isRow = false, player)
         undoManager.doStep(cmd)
     }
 
