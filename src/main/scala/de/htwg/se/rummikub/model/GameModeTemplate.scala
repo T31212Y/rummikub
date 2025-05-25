@@ -10,7 +10,6 @@ abstract class GameModeTemplate(playerNames: List[String]) {
         val players = createPlayers()
         val playingField = createPlayingField(players)
         val updatedPlayingField = updatePlayingField(playingField)
-        render(playingField)
         updatedPlayingField
     }
 
