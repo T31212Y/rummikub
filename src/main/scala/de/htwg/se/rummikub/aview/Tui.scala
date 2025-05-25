@@ -107,6 +107,8 @@ class Tui(controller: Controller) extends GameView with Observer {
             println("pass - Pass your turn")
             println("end - End the game\n")
 
+            controller.beginTurn(currentPlayer)
+
             gameInput = readLine()
             currentPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ gameInput)
             currentPlayer = controller.processGameInput(gameInput, currentPlayer, stack)
