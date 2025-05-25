@@ -15,6 +15,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     var validFirstMoveThisTurn: Boolean = false
     var gameState: Option[GameState] = None
     var currentPlayerIndex: Int = 0
+    var turnStartState: Option[GameState] = None
 
     val undoManager = new UndoManager
 
@@ -90,6 +91,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             val nextPlayer = setNextPlayer(currentPlayer).copy(commandHistory = List())
             println(s"${currentPlayer.name} ended their turn. It's now ${nextPlayer.name}'s turn.")
             validFirstMoveThisTurn = false
+            turnStartState = None
             nextPlayer
         }
     }
@@ -199,10 +201,18 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
         gameInput match {
             case "draw" => {
-                undo()
+                turnStartState match {
+                    case Some(previousState) =>
+                        setStateInternal(previousState)
+                    case None =>
+                }
+
+                val updatedPlayer = getState.players(currentPlayerIndex)
+
                 println("Drawing a token...")
-                addTokenToPlayer(currentPlayer, stack)
-                passTurn(currentPlayer, true)
+                addTokenToPlayer(updatedPlayer, stack)
+
+                passTurn(updatedPlayer, true)
             }
 
             case "pass" => passTurn(currentPlayer)
@@ -265,6 +275,12 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             case _ =>
                 println("Invalid command.")
                 currentPlayer
+        }
+    }
+
+    def beginTurn(currentPlayer: Player): Unit = {
+        if (currentPlayer.commandHistory.isEmpty) {
+            turnStartState = Some(getState)
         }
     }
 
