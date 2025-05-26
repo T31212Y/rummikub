@@ -185,6 +185,9 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
                 tokenParts(1) match {
                     case "red" => tokenFactory.createJoker(Color.RED)
                     case "black" => tokenFactory.createJoker(Color.BLACK)
+                    case _ => {
+                        throw new IllegalArgumentException(s"Invalid joker color: ${tokenParts(1)}")
+                    }
                 }
             } else  {
                 tokenParts(1) match {
@@ -192,6 +195,9 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
                     case "blue" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLUE)
                     case "green" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.GREEN)
                     case "black" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLACK)
+                    case _ => {
+                        throw new IllegalArgumentException(s"Invalid token color: ${tokenParts(1)}")
+                    }
                 }
             }
         }
