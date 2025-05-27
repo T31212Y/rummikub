@@ -7,8 +7,6 @@ import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 import de.htwg.se.rummikub.util.{Command, UndoManager}
 import de.htwg.se.rummikub.util.commands.{AddRowCommand, AddGroupCommand, AppendTokenCommand}
 
-import scala.io.StdIn.readLine
-
 class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     var playingField: Option[PlayingField] = None
@@ -138,14 +136,17 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             )
 
             val updatedPlayer = currentPlayer.copy(tokens = remainingTokens, commandHistory = currentPlayer.commandHistory :+ s"row:${row.tokens.mkString(",")}").addToFirstMoveTokens(row.tokens)
+            val updatedTable = playingField.get.innerField.add(row.tokens)
 
-            playingField = playingField.map { field =>
-                val updatedPlayers = field.players.map {
+            val updatedPlayers = playingField.get.players.map {
                     case p if p.name == currentPlayer.name => updatedPlayer
                     case p => p
-                }
-                field.copy(innerField = field.innerField.add(row.tokens), players = updatedPlayers)
             }
+
+            val newState = getState.updateCurrentPlayer(updatedPlayer).updateTable(updatedTable).updatePlayers(updatedPlayers.toVector)
+
+            setStateInternal(newState)
+
             (row.tokens, updatedPlayer)
         }
     }
@@ -164,14 +165,17 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             )
 
             val updatedPlayer = currentPlayer.copy(tokens = remainingTokens, commandHistory = currentPlayer.commandHistory :+ s"group:${group.tokens.mkString(",")}").addToFirstMoveTokens(group.tokens)
+            val updatedTable = playingField.get.innerField.add(group.tokens)
 
-            playingField = playingField.map { field =>
-                val updatedPlayers = field.players.map {
+            val updatedPlayers = playingField.get.players.map {
                     case p if p.name == currentPlayer.name => updatedPlayer
                     case p => p
-                }
-                field.copy(innerField = field.innerField.add(group.tokens), players = updatedPlayers)
             }
+
+            val newState = getState.updateCurrentPlayer(updatedPlayer).updateTable(updatedTable).updatePlayers(updatedPlayers.toVector)
+
+            setStateInternal(newState)
+
             (group.tokens, updatedPlayer)
         }
     }
@@ -200,49 +204,6 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
                     }
                 }
             }
-        }
-    }
-
-    def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
-        gameInput match {
-            case "appendToRow" =>
-                println("Enter the token to append (e.g. 'token1:color'):")
-                val input = readLine().trim
-                val token = changeStringListToTokenList(List(input)).head
-
-                println("Enter the row's index (starting with 0):")
-                val index = readLine().trim.toInt
-
-                executeAppendToRow(token, index, currentPlayer)
-                currentPlayer
-
-            case "appendToGroup" =>
-                println("Enter the token to append (e.g. 'token1:color'):")
-                val input = readLine().trim
-                val token = changeStringListToTokenList(List(input)).head
-
-                println("Enter the group's index (starting with 0):")
-                val index = readLine().trim.toInt
-
-                executeAppendToGroup(token, index, currentPlayer)
-                currentPlayer
-
-            case "undo" =>
-                undo()
-                currentPlayer
-
-            case "redo" =>
-                redo()
-                currentPlayer
-
-            case "end" =>
-                println("Exiting the game...")
-                endGame()
-                currentPlayer
-
-            case _ =>
-                println("Invalid command.")
-                currentPlayer
         }
     }
 
@@ -380,6 +341,38 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         validFirstMoveThisTurn = true
 
         (updatedPlayer, "Group successfully placed.")
+    }
+
+    def appendTokenToRow(tokenString: String, index: Int): (Player, String) = {
+        val tokenList = changeStringListToTokenList(List(tokenString))
+
+        if (tokenList.isEmpty)
+            return (getState.currentPlayer, "Invalid token input.")
+
+        val token = tokenList.head
+        val currentPlayer = getState.currentPlayer
+
+        executeAppendToRow(token, index, currentPlayer)
+
+        val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, List(token))
+
+        (updatedPlayer, s"Token appended to row at index $index.")
+    }
+
+    def appendTokenToGroup(tokenString: String, index: Int): (Player, String) = {
+        val tokenList = changeStringListToTokenList(List(tokenString))
+
+        if (tokenList.isEmpty)
+            return (getState.currentPlayer, "Invalid token input.")
+
+        val token = tokenList.head
+        val currentPlayer = getState.currentPlayer
+
+        executeAppendToGroup(token, index, currentPlayer)
+
+        val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, List(token))
+
+        (updatedPlayer, s"Token appended to group at index $index.")
     }
     
     def endGame(): Unit = {
