@@ -37,6 +37,10 @@ case class GameState(
   def updatePlayerIndex(newIndex: Int): GameState =
     copy(currentPlayerIndex = newIndex)
 
+  def updatePlayers(newPlayers: Vector[Player]): GameState = {
+    copy(players = newPlayers)
+  }
+
   def nextTurn(): GameState =
     copy(currentPlayerIndex = (currentPlayerIndex + 1) % players.length)
 }
