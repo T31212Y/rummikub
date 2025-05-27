@@ -86,32 +86,28 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         (updatedPlayer, updatedStack)
     }
     
-    def passTurn(currentPlayer: Player, allowWithoutFirstMove: Boolean = false): Player = {
+    def passTurn(state: GameState, allowWithoutFirstMove: Boolean = false): (GameState, String) = {
+        val currentPlayer = state.currentPlayer
+
         if (!allowWithoutFirstMove && (currentPlayer.commandHistory.isEmpty || !currentPlayer.validateFirstMove())) {
-            println("The first move must have a total of at least 30 points. You cannot end your turn.")
-            currentPlayer
+            val message = "The first move must have a total of at least 30 points. You cannot end your turn."
+            (state, message)
         } else {
-            val nextPlayer = setNextPlayer(currentPlayer).copy(commandHistory = List())
-            println(s"${currentPlayer.name} ended their turn. It's now ${nextPlayer.name}'s turn.")
+            val nextState = setNextPlayer(state)
             validFirstMoveThisTurn = false
             turnStartState = None
-            nextPlayer
+            val message = s"${currentPlayer.name} ended their turn. It's now ${nextState.currentPlayer.name}'s turn."
+            (nextState, message)
         }
     }
 
-    def setNextPlayer(p: Player): Player = {
-        playingField match {
-            case Some(field) =>
-                val current = field.players.indexWhere(_.name == p.name)
-                val nextIndex = if (current == -1 || field.players.isEmpty) 0
-                                else if (current == field.players.size - 1) 0
-                                else current + 1
+    def setNextPlayer(state: GameState): GameState = {
+        val current = state.currentPlayerIndex
+        val nextIndex = if (state.players.isEmpty) 0
+                        else (current + 1) % state.players.size
 
-                currentPlayerIndex = nextIndex
-                field.players(nextIndex)
-            case None =>
-                p
-        }
+        val cleared = state.players(nextIndex).copy(commandHistory = List())
+        state.updatePlayerIndex(nextIndex).updateCurrentPlayer(cleared)
     }
 
     def winGame(): Boolean = {
@@ -208,26 +204,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
         gameInput match {
-            case "draw" => {
-                turnStartState match {
-                    case Some(previousState) =>
-                        setStateInternal(previousState)
-                    case None =>
-                }
-
-                val updatedPlayer = getState.players(currentPlayerIndex)
-
-                println("Drawing a token...")
-                addTokenToPlayer(updatedPlayer, stack)
-
-                passTurn(updatedPlayer, true)
-            }
-
-            case "pass" => passTurn(currentPlayer)
-
-            
-
-            
+            //case "pass" => passTurn(currentPlayer)
             case "appendToRow" =>
                 println("Enter the token to append (e.g. 'token1:color'):")
                 val input = readLine().trim
@@ -337,6 +314,25 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             field.copy(players = updatedPlayers)
         }
         updatedPlayer
+    }
+
+    def drawFromStackAndPass: (GameState, String) = {
+        turnStartState match {
+            case Some(previousState) =>
+            setStateInternal(previousState)
+            case None =>
+        }
+
+        val currentPlayer = getState.currentPlayer
+        val (updatedPlayer, updatedStack) = addTokenToPlayer(currentPlayer, getState.currentStack)
+
+        val updatedState = getState.updateCurrentPlayer(updatedPlayer).updateStack(updatedStack)
+        setStateInternal(updatedState)
+
+        val (finalState, message) = passTurn(updatedState, true)
+        setStateInternal(finalState)
+
+        (finalState, message)
     }
 
     def playRow(tokenStrings: List[String], currentPlayer: Player, stack: TokenStack): (Player, String) = {

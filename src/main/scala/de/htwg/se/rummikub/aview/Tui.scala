@@ -73,10 +73,11 @@ class Tui(controller: Controller) extends Observer {
         controller.startGame()
         
         var gameInput = ""
-        var currentPlayer = controller.getState.currentPlayer
-        val stack = controller.getState.currentStack
         
         while (!controller.winGame() && gameInput != "end") {
+            val currentPlayer = controller.getState.currentPlayer
+            val stack = controller.getState.currentStack
+
             controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
             println(currentPlayer.name + ", it's your turn!\n")
             println("Available commands:")
@@ -106,6 +107,18 @@ class Tui(controller: Controller) extends Observer {
         controller.setStateInternal(controller.getState.updateCurrentPlayer(updatedPlayer))
 
         input match {
+            case "draw" => {
+                println("Drawing a token...")
+                val (newState, message) = controller.drawFromStackAndPass
+                println(message)
+            }
+
+            case "pass" => {
+                val (newState, message) = controller.passTurn(controller.getState)
+                controller.setStateInternal(newState)
+                println(message)
+            }
+
             case "group" => {
                 println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
                 val tokenStrings = readLine().split(",").map(_.trim).toList
@@ -116,7 +129,8 @@ class Tui(controller: Controller) extends Observer {
 
                 controller.setStateInternal(newState)
             }
-            case "row"   => {
+
+            case "row" => {
                 println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
                 val tokenStrings = readLine().split(",").map(_.trim).toList
                 val (newPlayer, message) = controller.playRow(tokenStrings, controller.getState.currentPlayer, controller.getState.currentStack)
@@ -126,12 +140,11 @@ class Tui(controller: Controller) extends Observer {
 
                 controller.setStateInternal(newState)
             }
+
             /*case "appendToRow" => controller.appendToRow(player, stack)
             case "appendToGroup" => controller.appendToGroup(player, stack)
-            case "draw" => controller.drawToken(player, stack)
             case "undo" => controller.undoMove(player)
-            case "redo" => controller.redoMove(player)
-            case "pass" => controller.passTurn(player)*/
+            case "redo" => controller.redoMove(player)*/
             case _ =>
         }
     }
