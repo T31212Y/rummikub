@@ -66,7 +66,7 @@ class GuiSwing(controller: Controller) extends JFrame("Rummikub GUI") with Obser
     if (input.nonEmpty) {
       input match {
         case "new" =>
-          controller.createNewGame
+          controller.createNewGame()
         case "start" =>
           controller.startGame()
         case "help" =>
