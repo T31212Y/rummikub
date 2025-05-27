@@ -12,30 +12,21 @@ class Tui(controller: Controller) extends Observer {
     def inputCommands(input: String): Unit = {
         input match {
             case "new" => controller.createNewGame
-            case "start" => playGame()
+            case "start" => playGame
             case "help"  => println(controller.showHelpPage().mkString("\n") + "\n")
             case "quit"  => println(controller.showGoodbye())
             case _       =>
         }
     }
 
-    private def playGame(): Unit = {
+    def playGame: Unit = {
         println("Starting the game...")
-        
-        var stack = controller.createTokenStack()
-
         println("Drawing tokens for each player...")
-        controller.playingField.map(_.players).getOrElse(List()).foreach { player =>
-            controller.addMultipleTokensToPlayer(player, stack, 14)
-        }
-
-        var currentPlayer = controller.playingField match {
-            case Some(field) if field.players.nonEmpty => field.players.head
-            case _ =>
-                println("No players available.")
-                return
-        }
+        controller.startGame()
+        
         var gameInput = ""
+        var currentPlayer = controller.getState.currentPlayer
+        val stack = controller.getState.currentStack
         
         while (!controller.winGame() && gameInput != "end") {
             controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
@@ -54,8 +45,46 @@ class Tui(controller: Controller) extends Observer {
             controller.beginTurn(currentPlayer)
 
             gameInput = readLine()
-            currentPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ gameInput)
-            currentPlayer = controller.processGameInput(gameInput, currentPlayer, stack)
+            processGameInput(gameInput)
+        }
+    }
+
+    def processGameInput(input: String): Unit = {
+        val currentPlayer = controller.getState.currentPlayer
+        val stack = controller.getState.currentStack
+        val gameInput = input.toLowerCase.trim
+
+        val updatedPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ gameInput)
+        controller.setStateInternal(controller.getState.updateCurrentPlayer(updatedPlayer))
+
+        input match {
+            case "group" => {
+                println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
+                val tokenStrings = readLine().split(",").map(_.trim).toList
+                val (newPlayer, message) = controller.playGroup(tokenStrings, controller.getState.currentPlayer, controller.getState.currentStack)
+                println(message)
+
+                val newState = controller.getState.updateCurrentPlayer(newPlayer)
+
+                controller.setStateInternal(newState)
+            }
+            case "row"   => {
+                println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
+                val tokenStrings = readLine().split(",").map(_.trim).toList
+                val (newPlayer, message) = controller.playRow(tokenStrings, controller.getState.currentPlayer, controller.getState.currentStack)
+                println(message)
+
+                val newState = controller.getState.updateCurrentPlayer(newPlayer)
+
+                controller.setStateInternal(newState)
+            }
+            /*case "appendToRow" => controller.appendToRow(player, stack)
+            case "appendToGroup" => controller.appendToGroup(player, stack)
+            case "draw" => controller.drawToken(player, stack)
+            case "undo" => controller.undoMove(player)
+            case "redo" => controller.redoMove(player)
+            case "pass" => controller.passTurn(player)*/
+            case _ =>
         }
     }
 

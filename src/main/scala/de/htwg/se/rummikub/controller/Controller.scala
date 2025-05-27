@@ -24,7 +24,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         playingField = gameMode.runGameSetup()
 
         gameState = playingField.map { field =>
-            GameState(field.innerField, field.players.toVector, field.boards.toVector, 0)
+            GameState(field.innerField, field.players.toVector, field.boards.toVector, 0, field.stack)
         }
 
         notifyObservers
@@ -40,6 +40,18 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         val names = readLine().split(",").map(_.trim).toList
 
         setupNewGame(amountPlayers, names)
+    }
+
+    def startGame(): Unit = {
+        val stack = getState.stack
+        val (updatedPlayers, updatedStack) = gameState.get.players.foldLeft((Vector.empty[Player], stack)) {
+            case ((playersAcc, stackAcc), player) =>
+            val (updatedPlayer, newStack) = addMultipleTokensToPlayer(player, stackAcc, 14)
+            (playersAcc :+ updatedPlayer, newStack)
+        }
+
+        val newState = gameState.get.copy(players = updatedPlayers, stack = updatedStack)
+        setStateInternal(newState)
     }
 
     def createTokenStack(): TokenStack = {
@@ -63,14 +75,11 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         gameMode.renderPlayingField(playingField)
     }
 
-    def addTokenToPlayer(player: Player, stack: TokenStack): Unit = {
-        val tokenToAdd = stack.drawToken()
-        playingField = playingField.map { field =>
-            field.copy(players = field.players.map {
-                case p if p.name == player.name => p.copy(tokens = p.tokens :+ tokenToAdd)
-                case p => p
-            })
-        }
+    def addTokenToPlayer(player: Player, stack: TokenStack): (Player, TokenStack) = {
+        val (token, updatedStack) = stack.drawToken()
+        val updatedPlayer = player.copy(tokens = player.tokens :+ token)
+
+        (updatedPlayer, updatedStack)
     }
 
     def removeTokenFromPlayer(player: Player, token: Token): Unit = {
@@ -82,18 +91,13 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         }
     }
 
-    def addMultipleTokensToPlayer(player: Player, stack: TokenStack, amt: Int): Unit = {
-        val tokensToAdd = stack.drawMultipleTokens(amt)
+    def addMultipleTokensToPlayer(player: Player, stack: TokenStack, amt: Int): (Player, TokenStack) = {
+        val (tokensToAdd, updatedStack) = stack.drawMultipleTokens(amt)
         val updatedPlayer = player.copy(tokens = player.tokens ++ tokensToAdd)
 
-        playingField = playingField.map { field =>
-            val updatedPlayers = field.players.map {
-                case p if p.name == player.name => updatedPlayer
-                case p => p
-            }
-            field.copy(players = updatedPlayers)
-        }
+        (updatedPlayer, updatedStack)
     }
+
 
     def showWelcome(): Vector[String] = {
         Vector("Welcome to",
@@ -268,48 +272,8 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
             case "pass" => passTurn(currentPlayer)
 
-            case "row" =>
-                println("Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):")
-                val tokens = readLine().split(",").map(_.trim).toList
-                val row = createRow(changeStringListToTokenList(tokens))
+            
 
-                if (!row.isValid) {
-                    println("It's not a valid row!")
-                    currentPlayer
-                } else {
-                    executeAddRow(row, currentPlayer, stack)
-
-                    val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, row.tokens)
-                    if (!updatedPlayer.validateFirstMove()) {
-                        println("Your move is not valid for the first move requirement.")
-                    } else {
-                        validFirstMoveThisTurn = true
-                    }
-
-                    updatedPlayer
-                }
-
-            case "group" =>
-                println("Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):")
-                val tokens = readLine().split(",").map(_.trim).toList
-                val group = createGroup(changeStringListToTokenList(tokens))
-
-                if (!group.isValid) {
-                    println("It's not a valid group!")
-                    currentPlayer
-                } else {
-
-                    executeAddGroup(group, currentPlayer, stack)
-
-                    val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, group.tokens)
-                    if (!updatedPlayer.validateFirstMove()) {
-                        println("Your move is not valid for the first move requirement.")
-                    } else {
-                        validFirstMoveThisTurn = true
-                    }
-
-                    updatedPlayer
-                }
             
             case "appendToRow" =>
                 println("Enter the token to append (e.g. 'token1:color'):")
@@ -366,20 +330,22 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
                 table = field.innerField,
                 players = copiedPlayers.toVector,
                 boards = copiedBoards.toVector,
-                currentPlayerIndex = currentPlayerIndex
+                currentPlayerIndex = currentPlayerIndex,
+                stack = field.stack
             )
         case None => GameState(
                         table = Table(16, 90, List.empty),
                         players = Vector.empty,
                         boards = Vector.empty,
-                        currentPlayerIndex = 0
+                        currentPlayerIndex = 0,
+                        stack = createTokenStack()
                     )
     }
 
     def setStateInternal(state: GameState): Unit = {
         this.gameState = Some(state)
         this.playingField = Some(
-            PlayingField(state.players.toList, state.boards.toList, state.table)
+            PlayingField(state.players.toList, state.boards.toList, state.table, state.stack)
         )
         this.currentPlayerIndex = state.currentPlayerIndex
     }
@@ -418,5 +384,51 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             field.copy(players = updatedPlayers)
         }
         updatedPlayer
+    }
+
+    def playRow(tokenStrings: List[String], currentPlayer: Player, stack: TokenStack): (Player, String) = {
+        val tokens = changeStringListToTokenList(tokenStrings)
+
+        if (tokens.isEmpty)
+            return (currentPlayer, "No valid tokens detected.")
+
+        val row = createRow(tokens)
+
+        if (!row.isValid)
+            return (currentPlayer, "It's not a valid row!")
+
+        executeAddRow(row, currentPlayer, stack)
+
+        val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, row.tokens)
+
+        if (!updatedPlayer.validateFirstMove())
+            return (updatedPlayer, "Your move is not valid for the first move requirement.")
+
+        validFirstMoveThisTurn = true
+
+        (updatedPlayer, "Row successfully placed.")
+    }
+
+    def playGroup(tokenStrings: List[String], currentPlayer: Player, stack: TokenStack): (Player, String) = {
+        val tokens = changeStringListToTokenList(tokenStrings)
+
+        if (tokens.isEmpty)
+            return (currentPlayer, "No valid tokens detected.")
+
+        val group = createGroup(tokens)
+
+        if (!group.isValid)
+            return (currentPlayer, "It's not a valid group!")
+
+        executeAddGroup(group, currentPlayer, stack)
+
+        val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, group.tokens)
+
+        if (!updatedPlayer.validateFirstMove())
+            return (updatedPlayer, "Your move is not valid for the first move requirement.")
+
+        validFirstMoveThisTurn = true
+
+        (updatedPlayer, "Group successfully placed.")
     }
 }
