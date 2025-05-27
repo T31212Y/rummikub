@@ -9,6 +9,7 @@ import scala.io.StdIn.readLine
 object Rummikub {
   val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
   val tui = new Tui(controller)
+  val gui = new GuiSwing(controller)
 
   def main(args: Array[String]): Unit = {
     var input = ""

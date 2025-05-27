@@ -18,6 +18,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     var turnStartState: Option[GameState] = None
 
     val undoManager = new UndoManager
+    var gameEnded: Boolean = false
 
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
         gameMode = GameModeFactory.createGameMode(amountPlayers, names).get
@@ -26,7 +27,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         gameState = playingField.map { field =>
             GameState(field.innerField, field.players.toVector, field.boards.toVector, 0, field.stack)
         }
-
+        gameEnded = false
         notifyObservers
     }
 
@@ -84,6 +85,44 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         val updatedPlayer = player.copy(tokens = player.tokens ++ tokensToAdd)
 
         (updatedPlayer, updatedStack)
+    }
+
+
+    def showWelcome(): Vector[String] = {
+        Vector("Welcome to",
+        " ____                                _  _            _      _",
+        "|  _ \\  _   _  _ __ ___   _ __ ___  (_)| | __ _   _ | |__  | |",
+        "| |_) || | | || '_ ` _ \\ | '_ ` _ \\ | || |/ /| | | || '_ \\ | |",
+        "|  _ < | |_| || | | | | || | | | | || ||   < | |_| || |_) ||_|",
+        "|_| \\_\\\\___,_||_| |_| |_||_| |_| |_||_||_|\\_\\\\___,_||_.__/ (_)"
+        )
+    }
+
+    def showHelp(): String = {
+        "Type 'help' for a list of commands."
+    }
+
+    def showHelpPage(): Vector[String] = {
+        Vector("Available commands:",
+               "new - Create a new game",
+               "start - Start the game",
+               "quit - Exit the game"
+        )
+    }
+
+    def showGoodbye(): String = {
+        if (gameEnded)
+            "Thank you for playing Rummikub! Goodbye!"
+        else
+        ""
+    }
+
+    def askAmountOfPlayers(): String = {
+        "Please enter the number of players (2-4):"
+    }
+
+    def askPlayerNames(): String = {
+        "Please enter the names of the players (comma-separated):"
     }
     
     def passTurn(state: GameState, allowWithoutFirstMove: Boolean = false): (GameState, String) = {
@@ -237,6 +276,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
             case "end" =>
                 println("Exiting the game...")
+                endGame()
                 currentPlayer
 
             case _ =>
@@ -379,5 +419,20 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         validFirstMoveThisTurn = true
 
         (updatedPlayer, "Group successfully placed.")
+    }
+    def endGame(): Unit = {
+        gameEnded = true
+        notifyObservers
+    }
+
+    def createNewGame(): Unit = {
+        println(showWelcome().mkString("\n"))
+        println(askAmountOfPlayers())
+        val amountPlayers = readLine().toInt
+        println(askPlayerNames())
+        val names = readLine().split(",").map(_.trim).toList
+
+        setupNewGame(amountPlayers, names)
+        startGame()
     }
 }
