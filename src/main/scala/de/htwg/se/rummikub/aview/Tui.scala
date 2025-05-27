@@ -34,7 +34,9 @@ class Tui(controller: Controller) extends Observer {
     }
 
     def showGoodbye: Unit = {
-        println("Thank you for playing Rummikub! Goodbye!")
+        if (controller.gameEnded) {
+            println("Thank you for playing Rummikub! Goodbye!")
+        }
     }
 
     def askAmountOfPlayers: Unit = {

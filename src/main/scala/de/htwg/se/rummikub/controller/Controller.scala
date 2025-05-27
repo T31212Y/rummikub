@@ -86,44 +86,6 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
         (updatedPlayer, updatedStack)
     }
-
-
-    def showWelcome(): Vector[String] = {
-        Vector("Welcome to",
-        " ____                                _  _            _      _",
-        "|  _ \\  _   _  _ __ ___   _ __ ___  (_)| | __ _   _ | |__  | |",
-        "| |_) || | | || '_ ` _ \\ | '_ ` _ \\ | || |/ /| | | || '_ \\ | |",
-        "|  _ < | |_| || | | | | || | | | | || ||   < | |_| || |_) ||_|",
-        "|_| \\_\\\\___,_||_| |_| |_||_| |_| |_||_||_|\\_\\\\___,_||_.__/ (_)"
-        )
-    }
-
-    def showHelp(): String = {
-        "Type 'help' for a list of commands."
-    }
-
-    def showHelpPage(): Vector[String] = {
-        Vector("Available commands:",
-               "new - Create a new game",
-               "start - Start the game",
-               "quit - Exit the game"
-        )
-    }
-
-    def showGoodbye(): String = {
-        if (gameEnded)
-            "Thank you for playing Rummikub! Goodbye!"
-        else
-        ""
-    }
-
-    def askAmountOfPlayers(): String = {
-        "Please enter the number of players (2-4):"
-    }
-
-    def askPlayerNames(): String = {
-        "Please enter the names of the players (comma-separated):"
-    }
     
     def passTurn(state: GameState, allowWithoutFirstMove: Boolean = false): (GameState, String) = {
         val currentPlayer = state.currentPlayer
@@ -243,7 +205,6 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     def processGameInput(gameInput: String, currentPlayer: Player, stack: TokenStack): Player = {
         gameInput match {
-            //case "pass" => passTurn(currentPlayer)
             case "appendToRow" =>
                 println("Enter the token to append (e.g. 'token1:color'):")
                 val input = readLine().trim
@@ -420,19 +381,9 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
         (updatedPlayer, "Group successfully placed.")
     }
+    
     def endGame(): Unit = {
         gameEnded = true
         notifyObservers
-    }
-
-    def createNewGame(): Unit = {
-        println(showWelcome().mkString("\n"))
-        println(askAmountOfPlayers())
-        val amountPlayers = readLine().toInt
-        println(askPlayerNames())
-        val names = readLine().split(",").map(_.trim).toList
-
-        setupNewGame(amountPlayers, names)
-        startGame()
     }
 }
