@@ -6,12 +6,15 @@ case class GameState(
   table: Table,
   players: Vector[Player],
   boards: Vector[Board],
-  currentPlayerIndex: Int
+  currentPlayerIndex: Int,
+  stack: TokenStack
 ) {
 
   def currentPlayer: Player = players(currentPlayerIndex)
 
   def currentBoard: Board = boards(currentPlayerIndex)
+
+  def currentStack: TokenStack = stack
 
   def updateCurrentPlayer(updatedPlayer: Player): GameState =
     copy(players = players.updated(currentPlayerIndex, updatedPlayer))
