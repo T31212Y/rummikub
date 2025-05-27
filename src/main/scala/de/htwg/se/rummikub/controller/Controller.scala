@@ -18,6 +18,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     var turnStartState: Option[GameState] = None
 
     val undoManager = new UndoManager
+    var gameEnded: Boolean = false
 
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
         gameMode = GameModeFactory.createGameMode(amountPlayers, names).get
@@ -26,7 +27,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         gameState = playingField.map { field =>
             GameState(field.innerField, field.players.toVector, field.boards.toVector, 0, field.stack)
         }
-
+        gameEnded = false
         notifyObservers
     }
 
@@ -122,7 +123,8 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     }
 
     def showGoodbye(): String = {
-        "Thank you for playing Rummikub! Goodbye!"
+        if (gameEnded) "Thank you for playing Rummikub! Goodbye!"
+        else ""
     }
 
     def askAmountOfPlayers(): String = {
@@ -307,6 +309,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
             case "end" =>
                 println("Exiting the game...")
+                endGame()
                 currentPlayer
 
             case _ =>
@@ -430,5 +433,9 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         validFirstMoveThisTurn = true
 
         (updatedPlayer, "Group successfully placed.")
+    }
+    def endGame(): Unit = {
+        gameEnded = true
+        notifyObservers
     }
 }
