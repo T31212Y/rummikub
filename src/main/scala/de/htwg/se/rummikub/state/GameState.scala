@@ -31,6 +31,12 @@ case class GameState(
   def updateTable(newTable: Table): GameState =
     copy(table = newTable)
 
+  def updateStack(newStack: TokenStack): GameState =
+    copy(stack = newStack)
+  
+  def updatePlayerIndex(newIndex: Int): GameState =
+    copy(currentPlayerIndex = newIndex)
+
   def nextTurn(): GameState =
     copy(currentPlayerIndex = (currentPlayerIndex + 1) % players.length)
 }
