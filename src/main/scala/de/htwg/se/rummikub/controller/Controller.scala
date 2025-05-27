@@ -31,18 +31,6 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         notifyObservers
     }
 
-    def createNewGame: Unit = {
-        println("Creating a new game...")
-
-        println(askAmountOfPlayers())
-        val amountPlayers = readLine().toInt
-
-        println(askPlayerNames())
-        val names = readLine().split(",").map(_.trim).toList
-
-        setupNewGame(amountPlayers, names)
-    }
-
     def startGame(): Unit = {
         val stack = getState.stack
         val (updatedPlayers, updatedStack) = gameState.get.players.foldLeft((Vector.empty[Player], stack)) {
@@ -123,8 +111,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     }
 
     def showGoodbye(): String = {
-        if (gameEnded) "Thank you for playing Rummikub! Goodbye!"
-        else ""
+        "Thank you for playing Rummikub! Goodbye!"
     }
 
     def askAmountOfPlayers(): String = {
