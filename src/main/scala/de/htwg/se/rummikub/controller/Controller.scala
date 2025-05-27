@@ -30,18 +30,6 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         notifyObservers
     }
 
-    def createNewGame: Unit = {
-        println("Creating a new game...")
-
-        println(askAmountOfPlayers())
-        val amountPlayers = readLine().toInt
-
-        println(askPlayerNames())
-        val names = readLine().split(",").map(_.trim).toList
-
-        setupNewGame(amountPlayers, names)
-    }
-
     def startGame(): Unit = {
         val stack = getState.stack
         val (updatedPlayers, updatedStack) = gameState.get.players.foldLeft((Vector.empty[Player], stack)) {
@@ -96,41 +84,6 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         val updatedPlayer = player.copy(tokens = player.tokens ++ tokensToAdd)
 
         (updatedPlayer, updatedStack)
-    }
-
-
-    def showWelcome(): Vector[String] = {
-        Vector("Welcome to",
-        " ____                                _  _            _      _",
-        "|  _ \\  _   _  _ __ ___   _ __ ___  (_)| | __ _   _ | |__  | |",
-        "| |_) || | | || '_ ` _ \\ | '_ ` _ \\ | || |/ /| | | || '_ \\ | |",
-        "|  _ < | |_| || | | | | || | | | | || ||   < | |_| || |_) ||_|",
-        "|_| \\_\\\\___,_||_| |_| |_||_| |_| |_||_||_|\\_\\\\___,_||_.__/ (_)"
-        )
-    }
-
-    def showHelp(): String = {
-        "Type 'help' for a list of commands."
-    }
-
-    def showHelpPage(): Vector[String] = {
-        Vector("Available commands:",
-               "new - Create a new game",
-               "start - Start the game",
-               "quit - Exit the game"
-        )
-    }
-
-    def showGoodbye(): String = {
-        "Thank you for playing Rummikub! Goodbye!"
-    }
-
-    def askAmountOfPlayers(): String = {
-        "Please enter the number of players (2-4):"
-    }
-
-    def askPlayerNames(): String = {
-        "Please enter the names of the players (comma-separated):"
     }
     
     def passTurn(currentPlayer: Player, allowWithoutFirstMove: Boolean = false): Player = {
