@@ -76,7 +76,7 @@ class Tui(controller: Controller) extends Observer {
         
         var gameInput = ""
         
-        while (!controller.winGame() && gameInput != "end") {
+        while (!controller.winGame() && !controller.gameEnded) {
             val currentPlayer = controller.getState.currentPlayer
             val stack = controller.getState.currentStack
 
@@ -143,11 +143,52 @@ class Tui(controller: Controller) extends Observer {
                 controller.setStateInternal(newState)
             }
 
-            /*case "appendToRow" => controller.appendToRow(player, stack)
-            case "appendToGroup" => controller.appendToGroup(player, stack)
-            case "undo" => controller.undoMove(player)
-            case "redo" => controller.redoMove(player)*/
-            case _ =>
+            case "appendToRow" => {
+                println("Enter the token to append (e.g. 'token1:color'):")
+                val tokenInput = readLine().trim
+                
+                println("Enter the row's index (starting with 0):")
+                val index = readLine().trim.toInt
+
+                val (updatedPlayer, message) = controller.appendTokenToRow(tokenInput, index)
+                println(message)
+
+                val newState = controller.getState.updateCurrentPlayer(updatedPlayer)
+
+                controller.setStateInternal(newState)
+            }
+
+            case "appendToGroup" => {
+                println("Enter the token to append (e.g. 'token1:color'):")
+                val tokenInput = readLine().trim
+
+                println("Enter the group's index (starting with 0):")
+                val index = readLine().trim.toInt
+
+                val (updatedPlayer, message) = controller.appendTokenToGroup(tokenInput, index)
+                println(message)
+
+                val newState = controller.getState.updateCurrentPlayer(updatedPlayer)
+
+                controller.setStateInternal(newState)
+            }
+
+            case "undo" => {
+                controller.undo()
+                println("Undo successful.")
+            }
+
+            case "redo" => {
+                controller.redo()
+                println("Redo successful.")
+            }
+
+            case "end" => {
+                println("Exiting the game...")
+                controller.gameEnded = true
+            }
+
+            case _ => println("Invalid command.")
         }
     }
 
