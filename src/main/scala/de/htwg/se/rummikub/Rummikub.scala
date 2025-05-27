@@ -13,11 +13,11 @@ object Rummikub {
   def main(args: Array[String]): Unit = {
     var input = ""
 
-    println(tui.showWelcome().mkString("\n") + "\n")
+    println(controller.showWelcome().mkString("\n") + "\n")
     controller.setupNewGame(2, List("Emilia", "Noah"))
 
     while (input != "quit") {
-        println(tui.showHelp() + "\n")
+        println(controller.showHelp() + "\n")
         println("Please enter a command:")
         input = readLine()
         tui.inputCommands(input)

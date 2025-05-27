@@ -16,6 +16,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     var gameState: Option[GameState] = None
     var currentPlayerIndex: Int = 0
     var turnStartState: Option[GameState] = None
+    var isGameRunning: Boolean = false
 
     val undoManager = new UndoManager
 
@@ -45,23 +46,23 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     def playGame(): Unit = {
         println("Starting the game...")
         
-        var stack = controller.createTokenStack()
+        var stack = createTokenStack()
 
         println("Drawing tokens for each player...")
-        controller.playingField.map(_.players).getOrElse(List()).foreach { player =>
-            controller.addMultipleTokensToPlayer(player, stack, 14)
+        playingField.map(_.players).getOrElse(List()).foreach { player =>
+            addMultipleTokensToPlayer(player, stack, 14)
         }
 
-        var currentPlayer = controller.playingField match {
+        var currentPlayer = playingField match {
             case Some(field) if field.players.nonEmpty => field.players.head
             case _ =>
                 println("No players available.")
                 return
         }
         var gameInput = ""
-        
-        while (!controller.winGame() && gameInput != "end") {
-            controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
+
+        while (!winGame() && gameInput != "end") {
+            setPlayingField(gameMode.updatePlayingField(playingField))
             println(currentPlayer.name + ", it's your turn!\n")
             println("Available commands:")
             println("group - Play a group of tokens")
@@ -74,11 +75,11 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             println("pass - Pass your turn")
             println("end - End the game\n")
 
-            controller.beginTurn(currentPlayer)
+            beginTurn(currentPlayer)
 
             gameInput = readLine()
             currentPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ gameInput)
-            currentPlayer = controller.processGameInput(gameInput, currentPlayer, stack)
+            currentPlayer = processGameInput(gameInput, currentPlayer, stack)
         }
     }
 

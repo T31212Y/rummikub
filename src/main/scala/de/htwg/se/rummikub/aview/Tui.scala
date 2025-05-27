@@ -12,9 +12,9 @@ class Tui(controller: Controller) extends Observer {
     def inputCommands(input: String): Unit = {
         input match {
             case "new" => controller.createNewGame
-            case "start" => playGame()
-            case "help"  => println(showHelpPage().mkString("\n") + "\n")
-            case "quit"  => println(showGoodbye())
+            case "start" => controller.playGame()
+            case "help"  => println(controller.showHelpPage().mkString("\n") + "\n")
+            case "quit"  => println(controller.showGoodbye())
             case _       =>
         }
     }
