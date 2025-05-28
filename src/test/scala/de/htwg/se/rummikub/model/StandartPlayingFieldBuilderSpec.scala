@@ -10,11 +10,13 @@ class StandardPlayingFieldBuilderSpec extends AnyWordSpec {
       val players = List(Player("A"), Player("B"))
       val boards = List(Board(24, 14, 2, 2, "default", 10), Board(24, 14, 2, 2, "default", 10))
       val table = Table(2, 14)
+      val stack = TokenStack(List()) 
 
       val pf = builder
         .setPlayers(players)
         .setBoards(boards)
         .setInnerField(table)
+        .setStack(stack) 
         .build()
 
       pf.players shouldBe players
