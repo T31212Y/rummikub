@@ -55,7 +55,6 @@ case class Row(row: List[Token]) extends TokenStructure(row) {
             else None
         }.collectFirst { case Some(vals) => vals }
     }
-
     override def points: Int = {
         jokerValues match {
         case Some(jVals) =>
