@@ -8,7 +8,7 @@ class TokenStackSpec extends AnyWordSpec {
         "remove a token from the stack" in {
             val joker = Joker(Color.BLACK)
             val stack = TokenStack().removeToken(joker) 
-            stack should not contain joker
+            stack.tokens should not contain (joker)
         }
 
         "check if the stack is empty" in {
