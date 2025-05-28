@@ -5,69 +5,9 @@ import de.htwg.se.rummikub.util.Observer
 
 import scala.io.StdIn.readLine
 
-class Tui(controller: Controller) extends Observer {
+class Tui(controller: Controller) extends GameView(controller) with Observer {
 
     controller.add(this)
-
-    def showWelcome: Unit = {
-        val logo = Vector("Welcome to",
-        " ____                                _  _            _      _",
-        "|  _ \\  _   _  _ __ ___   _ __ ___  (_)| | __ _   _ | |__  | |",
-        "| |_) || | | || '_ ` _ \\ | '_ ` _ \\ | || |/ /| | | || '_ \\ | |",
-        "|  _ < | |_| || | | | | || | | | | || ||   < | |_| || |_) ||_|",
-        "|_| \\_\\\\___,_||_| |_| |_||_| |_| |_||_||_|\\_\\\\___,_||_.__/ (_)"
-        )
-        println(logo.mkString("\n") + "\n")
-    }
-
-    def showHelp: Unit = {
-        println("Type 'help' for a list of commands.\n")
-    }
-
-    def showHelpPage: Unit = {
-        val help = Vector("Available commands:",
-               "new - Create a new game",
-               "start - Start the game",
-               "quit - Exit the game"
-        )
-        println(help.mkString("\n") + "\n")
-    }
-
-    def showGoodbye: Unit = {
-        if (controller.gameEnded) {
-            println("Thank you for playing Rummikub! Goodbye!")
-        }
-    }
-
-    def askAmountOfPlayers: Unit = {
-        println("Please enter the number of players (2-4):")
-    }
-
-    def askPlayerNames: Unit = {
-        println("Please enter the names of the players (comma-separated):")
-    }
-
-    def createNewGame: Unit = {
-        println("Creating a new game...")
-
-        askAmountOfPlayers
-        val amountPlayers = readLine().toInt
-
-        askPlayerNames
-        val names = readLine().split(",").map(_.trim).toList
-
-        controller.setupNewGame(amountPlayers, names)
-    }
-
-    def inputCommands(input: String): Unit = {
-        input match {
-            case "new"   => createNewGame
-            case "start" => playGame
-            case "help"  => showHelpPage
-            case "quit"  => showGoodbye
-            case _       => println("Invalid command.\n"); showHelpPage
-        }
-    }
 
     def playGame: Unit = {
         println("Starting the game...")

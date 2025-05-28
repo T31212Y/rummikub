@@ -8,17 +8,17 @@ import scala.io.StdIn.readLine
 
 object Rummikub {
   val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
-  val tui = new Tui(controller)
+  val tui: GameView = new Tui(controller)
   val gui = new GuiSwing(controller)
 
   def main(args: Array[String]): Unit = {
     var input = ""
 
-    tui.showWelcome
+    println(tui.showWelcome.mkString("\n") + "\n")
     controller.setupNewGame(2, List("Emilia", "Noah"))
 
     while (input != "quit") {
-        tui.showHelp
+        println(tui.showHelp)
         println("Please enter a command:")
         input = readLine()
         tui.inputCommands(input)

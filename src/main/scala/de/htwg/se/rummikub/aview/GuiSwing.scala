@@ -8,7 +8,7 @@ import javax.swing.WindowConstants
 import java.awt._
 import java.awt.event.{ActionEvent, ActionListener}
 
-class GuiSwing(controller: Controller) extends JFrame("Rummikub GUI") with Observer {
+class GuiSwing(controller: Controller) extends JFrame("Rummikub GUI") with GameView(controller) with Observer {
 
   // TextArea für das Spielfeld
   val textArea = new JTextArea()
@@ -19,10 +19,10 @@ class GuiSwing(controller: Controller) extends JFrame("Rummikub GUI") with Obser
 
   val outputArea = new javax.swing.JTextArea(10, 40)
   outputArea.setEditable(false)
-  outputArea.setText(controller.showHelp())
+  outputArea.setText(showHelp)
 
   // Hilfe-Bereich
-  val helpArea = new JTextArea(controller.showHelp())
+  val helpArea = new JTextArea(showHelp)
   helpArea.setEditable(false)
   helpArea.setBackground(new Color(230, 230, 250))
 
@@ -66,11 +66,11 @@ class GuiSwing(controller: Controller) extends JFrame("Rummikub GUI") with Obser
     if (input.nonEmpty) {
       input match {
         case "new" =>
-          controller.createNewGame()
+          createNewGame
         case "start" =>
           controller.startGame()
         case "help" =>
-          JOptionPane.showMessageDialog(this, controller.showHelpPage().mkString("\n"), "Help", JOptionPane.INFORMATION_MESSAGE)
+          JOptionPane.showMessageDialog(this, showHelpPage.mkString("\n"), "Help", JOptionPane.INFORMATION_MESSAGE)
         case "quit" =>
           controller.endGame() 
         case "row" =>
@@ -103,7 +103,7 @@ class GuiSwing(controller: Controller) extends JFrame("Rummikub GUI") with Obser
   // Observer-Update: Anzeige aktualisieren und ggf. Fenster schließen
   def updateView(): Unit = {
     textArea.setText(controller.playingfieldToString)
-    val goodbyeMsg = controller.showGoodbye()
+    val goodbyeMsg = showGoodbye
     if (goodbyeMsg.nonEmpty) {
       JOptionPane.showMessageDialog(this, goodbyeMsg, "Goodbye", JOptionPane.INFORMATION_MESSAGE)
       dispose()  // Fenster schließen
@@ -111,4 +111,5 @@ class GuiSwing(controller: Controller) extends JFrame("Rummikub GUI") with Obser
   }
 
   override def update: Unit = updateView()
+  override def playGame: Unit = ???
 }
