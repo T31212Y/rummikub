@@ -10,6 +10,9 @@ object Rummikub {
   val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
   val tui: GameView = new Tui(controller)
   val gui = new GuiSwing(controller)
+  gui.visible = true
+
+  //def top = new GuiSwing(controller)
 
   def main(args: Array[String]): Unit = {
     var input = ""

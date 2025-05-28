@@ -2,50 +2,48 @@ package de.htwg.se.rummikub.aview
 
 import de.htwg.se.rummikub.controller.Controller
 import de.htwg.se.rummikub.util.Observer
+import scala.swing._
+import scala.swing.event._
 
-import javax.swing._
-import javax.swing.WindowConstants
-import java.awt._
-import java.awt.event.{ActionEvent, ActionListener}
+class GuiSwing(controller: Controller) extends MainFrame with GameView(controller) with Observer {
 
-class GuiSwing(controller: Controller) extends JFrame("Rummikub GUI") with GameView(controller) with Observer {
+  title = "Rummikub GUI"
+  preferredSize = new Dimension(800, 600)
 
-  // TextArea für das Spielfeld
-  val textArea = new JTextArea()
-  textArea.setFont(new Font("Monospaced", Font.PLAIN, 14))
-  textArea.setEditable(false)
-  textArea.setLineWrap(false)
-  textArea.setBackground(new Color(245, 245, 220)) // Beige für Boards
+  // Spielfeld-Anzeige
+  val textArea = new TextArea {
+    font = new Font("Monospaced", java.awt.Font.PLAIN, 14)
+    editable = false
+    background = new Color(245, 245, 220)
+    lineWrap = false
+  }
 
-  val outputArea = new javax.swing.JTextArea(10, 40)
-  outputArea.setEditable(false)
-  outputArea.setText(showHelp)
-
-  // Hilfe-Bereich
-  val helpArea = new JTextArea(showHelp)
-  helpArea.setEditable(false)
-  helpArea.setBackground(new Color(230, 230, 250))
+  // Hilfe-Anzeige
+  val helpArea = new TextArea {
+    text = showHelp
+    editable = false
+    background = new Color(230, 230, 250)
+  }
 
   // Eingabefeld und Button
-  val inputField = new JTextField(40)
-  val sendButton = new JButton("Enter")
+  val inputField = new TextField(40)
+  val sendButton = new Button("Enter")
 
   // Panel für Eingabe
-  val inputPanel = new JPanel()
-  inputPanel.add(inputField)
-  inputPanel.add(sendButton)
-
-  // ScrollPane für das Spielfeld
-  val scrollPane = new JScrollPane(textArea)
+  val inputPanel = new FlowPanel {
+    contents += inputField
+    contents += sendButton
+  }
 
   // Layout
-  setLayout(new BorderLayout())
-  add(scrollPane, BorderLayout.CENTER)
-  add(inputPanel, BorderLayout.SOUTH)
-  add(helpArea, BorderLayout.NORTH)
-  setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
-  setSize(800, 600)
-  setVisible(true)
+  contents = new BorderPanel {
+    layout(new ScrollPane(textArea)) = BorderPanel.Position.Center
+    layout(inputPanel) = BorderPanel.Position.South
+    layout(helpArea) = BorderPanel.Position.North
+  }
+
+  // Fenster schließen
+  peer.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE)
 
   // Observer registrieren
   controller.add(this)
@@ -53,16 +51,17 @@ class GuiSwing(controller: Controller) extends JFrame("Rummikub GUI") with GameV
   // Initialanzeige
   updateView()
 
-  // Eingabe-Handling
-  sendButton.addActionListener(new ActionListener {
-    override def actionPerformed(e: ActionEvent): Unit = handleInput()
-  })
-  inputField.addActionListener(new ActionListener {
-    override def actionPerformed(e: ActionEvent): Unit = handleInput()
-  })
+  // Event-Handling
+  listenTo(sendButton)
+  listenTo(inputField)
+
+  reactions += {
+    case ButtonClicked(`sendButton`) | EditDone(`inputField`) =>
+      handleInput()
+  }
 
   def handleInput(): Unit = {
-    val input = inputField.getText.trim
+    val input = inputField.text.trim
     if (input.nonEmpty) {
       input match {
         case "new" =>
@@ -70,46 +69,45 @@ class GuiSwing(controller: Controller) extends JFrame("Rummikub GUI") with GameV
         case "start" =>
           controller.startGame()
         case "help" =>
-          JOptionPane.showMessageDialog(this, showHelpPage.mkString("\n"), "Help", JOptionPane.INFORMATION_MESSAGE)
+          Dialog.showMessage(contents.head, showHelpPage.mkString("\n"), title = "Help")
         case "quit" =>
-          controller.endGame() 
+          controller.endGame()
         case "row" =>
-          val tokens = JOptionPane.showInputDialog(this, "Tokens für Row eingeben (z.B. 1:red,2:blue,3:green):")
-          if (tokens != null && tokens.nonEmpty) {
+          val tokensOpt = Dialog.showInput(contents.head, "Tokens für Row eingeben (z.B. 1:red,2:blue,3:green):", initial = "")
+          tokensOpt.foreach { tokens =>
             val tokenList = tokens.split(",").map(_.trim).toList
             val (newPlayer, message) = controller.playRow(tokenList, controller.getState.currentPlayer, controller.getState.stack)
-            JOptionPane.showMessageDialog(this, message, "Row", JOptionPane.INFORMATION_MESSAGE)
+            Dialog.showMessage(contents.head, message, title = "Row")
             val newState = controller.getState.updateCurrentPlayer(newPlayer)
             controller.setStateInternal(newState)
           }
         case "group" =>
-          val tokens = JOptionPane.showInputDialog(this, "Tokens für Group eingeben (z.B. 1:red,2:blue,3:green):")
-          if (tokens != null && tokens.nonEmpty) {
+          val tokensOpt = Dialog.showInput(contents.head, "Tokens für Group eingeben (z.B. 1:red,2:blue,3:green):", initial = "")
+          tokensOpt.foreach { tokens =>
             val tokenList = tokens.split(",").map(_.trim).toList
             val (newPlayer, message) = controller.playGroup(tokenList, controller.getState.currentPlayer, controller.getState.stack)
-            JOptionPane.showMessageDialog(this, message, "Group", JOptionPane.INFORMATION_MESSAGE)
+            Dialog.showMessage(contents.head, message, title = "Group")
             val newState = controller.getState.updateCurrentPlayer(newPlayer)
             controller.setStateInternal(newState)
           }
         case _ =>
-          JOptionPane.showMessageDialog(this, "Unknown command.", "Info", JOptionPane.INFORMATION_MESSAGE)
+          Dialog.showMessage(contents.head, "Unknown command.", title = "Info")
       }
-      inputField.setText("")
+      inputField.text = ""
       updateView()
     }
   }
 
-
-  // Observer-Update: Anzeige aktualisieren und ggf. Fenster schließen
+  // View-Aktualisierung
   def updateView(): Unit = {
-    textArea.setText(controller.playingfieldToString)
+    textArea.text = controller.playingfieldToString
     val goodbyeMsg = showGoodbye
     if (goodbyeMsg.nonEmpty) {
-      JOptionPane.showMessageDialog(this, goodbyeMsg, "Goodbye", JOptionPane.INFORMATION_MESSAGE)
-      dispose()  // Fenster schließen
+      Dialog.showMessage(contents.head, goodbyeMsg, title = "Goodbye")
+      close()
     }
   }
 
   override def update: Unit = updateView()
-  override def playGame: Unit = ???
+  override def playGame: Unit = ??? // Muss noch implementiert werden
 }
