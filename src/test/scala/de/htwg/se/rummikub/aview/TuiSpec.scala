@@ -12,20 +12,20 @@ class TuiSpec extends AnyWordSpec with Matchers {
   "A Tui" should {
 
     val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
-    val tui = new Tui(controller)
+    val tui: GameView = new Tui(controller)
 
     "show welcome message" in {
-      val welcome = tui.showWelcome()
+      val welcome = tui.showWelcome.mkString("\n") + "\n"
       welcome should not be empty
-      welcome.head should be ("Welcome to")
+      welcome(0) should be ("Welcome to")
     }
 
     "show help text" in {
-      tui.showHelp() should be ("Type 'help' for a list of commands.")
+      tui.showHelp.mkString("\n") + "\n" should be ("Type 'help' for a list of commands.")
     }
 
     "show help page" in {
-      val helpPage = tui.showHelpPage()
+      val helpPage = tui.showHelpPage.mkString("\n") + "\n"
       helpPage should not be empty
       helpPage should be (Vector("Available commands:",
                "new - Create a new game",
@@ -35,15 +35,15 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "ask for number of players" in {
-      tui.askAmountOfPlayers() should be ("Please enter the number of players (2-4):")
+      tui.askAmountOfPlayers.mkString("\n") + "\n" should be ("Please enter the number of players (2-4):")
     }
 
     "ask for player names" in {
-      tui.askPlayerNames() should include ("Please enter the names of the players (comma-separated):")
+      tui.askPlayerNames.mkString("\n") + "\n" should include ("Please enter the names of the players (comma-separated):")
     }
 
     "show goodbye message" in {
-      tui.showGoodbye() should include ("Thank you for playing Rummikub! Goodbye!")
+      tui.showGoodbye.mkString("\n") + "\n" should include ("Thank you for playing Rummikub! Goodbye!")
     }
 
     "handle 'new' command" in {
@@ -103,15 +103,26 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "print error if no players are available when starting the game" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List()).get)
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Alice", "Bob")).get)
       val tui = new Tui(controller)
-      controller.playingField = Some(PlayingField(Nil, Nil, null)) 
+      controller.playingField = Some(PlayingField(
+        List.empty[Player],
+        List.empty[Board],
+        Table(0, 0, List.empty[List[Token]]),
+        TokenStack(List())
+      ))
 
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
         tui.inputCommands("start")
       }
       out.toString should include ("No players available.")
+
+      val outAgain = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(outAgain)) {
+        tui.inputCommands("start")
+      }
+      outAgain.toString should include ("No players available.")
     }
 
     "not throw if playingField is None when starting the game" in {
