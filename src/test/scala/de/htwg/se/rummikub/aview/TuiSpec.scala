@@ -12,7 +12,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
   "A Tui" should {
 
     val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
-    val tui: GameView = new Tui(controller)
+    val tui = new Tui(controller)
 
     "show welcome message" in {
       val welcome = tui.showWelcome.mkString("\n") + "\n"
@@ -102,27 +102,91 @@ class TuiSpec extends AnyWordSpec with Matchers {
       outContent.toString should not include ("Exception")
     }
 
-    "print error if no players are available when starting the game" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Alice", "Bob")).get)
-      val tui = new Tui(controller)
-      controller.playingField = Some(PlayingField(
-        List.empty[Player],
-        List.empty[Board],
-        Table(0, 0, List.empty[List[Token]]),
-        TokenStack(List())
-      ))
-
+    "print invalid command for unknown input" in {
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
-        tui.inputCommands("start")
+        tui.processGameInput("foobar")
       }
-      out.toString should include ("No players available.")
+      out.toString should include ("Invalid command.")
+    }
 
-      val outAgain = new ByteArrayOutputStream()
-      Console.withOut(new PrintStream(outAgain)) {
-        tui.inputCommands("start")
+    "handle 'draw' command" in {
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+        tui.processGameInput("draw")
       }
-      outAgain.toString should include ("No players available.")
+      out.toString should include ("Drawing a token")
+    }
+
+    "handle 'pass' command" in {
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+        tui.processGameInput("pass")
+      }
+      out.toString should include ("ended their turn")
+    }
+
+    "handle 'undo' and 'redo' commands" in {
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+        tui.processGameInput("undo")
+        tui.processGameInput("redo")
+      }
+      out.toString should include ("Undo successful.")
+    }
+
+    "handle 'end' command" in {
+      controller.gameEnded = false
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+        tui.processGameInput("end")
+      }
+      out.toString should include ("Exiting the game")
+      controller.gameEnded shouldBe true
+    }
+
+    "handle 'group' command" in {
+      val in = new ByteArrayInputStream("1:red,2:blue\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("group")
+        }
+        out.toString should (include ("Enter the tokens to play as group") or include ("Group"))
+      }
+    }
+
+    "handle 'row' command" in {
+      val in = new ByteArrayInputStream("1:red,2:blue\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("row")
+        }
+        out.toString should (include ("Enter the tokens to play as row") or include ("Row"))
+      }
+    }
+
+    "handle 'appendToRow' command" in {
+      val in = new ByteArrayInputStream("1:red\n0\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("appendToRow")
+        }
+        out.toString should include ("Enter the token to append")
+      }
+    }
+
+    "handle 'appendToGroup' command" in {
+      val in = new ByteArrayInputStream("1:red\n0\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("appendToGroup")
+        }
+        out.toString should include ("Enter the token to append")
+      }
     }
 
     "not throw if playingField is None when starting the game" in {
