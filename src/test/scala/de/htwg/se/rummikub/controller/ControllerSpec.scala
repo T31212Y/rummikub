@@ -113,7 +113,7 @@ class ControllerSpec extends AnyWordSpec {
       val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
-      val row = Row(List("1:red", "2:red", "3:red"))
+      val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED)))
 
       val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED)))
       controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
@@ -129,7 +129,7 @@ class ControllerSpec extends AnyWordSpec {
       val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
-      val row = Row(List("9:red", "10:red", "11:red"))
+      val row = Row(List(NumToken(9, Color.RED), NumToken(10, Color.RED), NumToken(11, Color.RED)))
 
       val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED)))
       controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
@@ -146,7 +146,11 @@ class ControllerSpec extends AnyWordSpec {
       val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
-      val group = Group(List("1:red", "1:blue", "1:black"))
+      val group = Group(List(
+        NumToken(1, Color.RED),
+        NumToken(1, Color.BLUE),
+        NumToken(1, Color.BLACK)
+      ))
 
       val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE), NumToken(1, Color.BLACK)))
       controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
@@ -162,7 +166,11 @@ class ControllerSpec extends AnyWordSpec {
       val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
-      val group = Group(List("9:red", "9:blue", "9:black"))
+      val group = Group(List(
+        NumToken(9, Color.RED),
+        NumToken(9, Color.BLUE),
+        NumToken(9, Color.BLACK)
+      ))
 
       val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
@@ -182,7 +190,7 @@ class ControllerSpec extends AnyWordSpec {
       val p = player1.copy(tokens = Nil, commandHistory = Nil)
       controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       val nextPlayer = controller.processGameInput("draw", p, stack)
-      nextPlayer.name shouldBe "Noah"
+      nextPlayer.players(nextPlayer.currentPlayerIndex).name shouldBe "Noah"
       controller.playingField.get.players.find(_.name == "Emilia").get.tokens.size shouldBe 1
       stack.tokens.size shouldBe 105
     }
@@ -198,7 +206,7 @@ class ControllerSpec extends AnyWordSpec {
       val p = player1.copy(tokens = Nil)
       controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       val nextPlayer = controller.processGameInput("invalid", p, stack)
-      nextPlayer.name shouldBe "Emilia"
+      nextPlayer.players(nextPlayer.currentPlayerIndex).name shouldBe "Emilia"
     }
 
     "process game input for 'row' (invalid)" in {
@@ -283,8 +291,9 @@ class ControllerSpec extends AnyWordSpec {
       val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
-      val nextPlayer = controller.setNextPlayer(player1)
-      nextPlayer.name shouldBe "Noah"
+      val gameState = controller.getState
+      val nextPlayer = controller.setNextPlayer(gameState)
+      nextPlayer.players(nextPlayer.currentPlayerIndex).name shouldBe "Noah"
     }
 
     "set the first player after reaching the last player" in {
@@ -294,8 +303,9 @@ class ControllerSpec extends AnyWordSpec {
       val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
       controller.setupNewGame(2, players.map(_.name))
 
-      val nextPlayer = controller.setNextPlayer(player2)
-      nextPlayer.name shouldBe "Emilia"
+      val gameState = controller.getState
+      val nextPlayer = controller.setNextPlayer(gameState)
+      nextPlayer.players(nextPlayer.currentPlayerIndex).name shouldBe "Emilia"
     }
 
     "parse token string to integer" in {
@@ -313,7 +323,11 @@ class ControllerSpec extends AnyWordSpec {
       controller.setupNewGame(2, players.map(_.name))
 
       val tokensList = List("1:red", "2:blue", "3:green")
-      val row = controller.createRow(tokensList)
+      val tokens: List[Token] = tokensList.map { str =>
+        val Array(num, color) = str.split(":")
+        NumToken(num.toInt, Color.valueOf(color.toUpperCase))
+      }
+      val row = controller.createRow(tokens)
       row shouldBe a[Row]
       row.getTokens.map(_.toString) should be (List("\u001b[31m 1\u001b[0m", "\u001b[34m 2\u001b[0m", "\u001b[32m 3\u001b[0m"))
     }
@@ -325,7 +339,11 @@ class ControllerSpec extends AnyWordSpec {
       val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
 
       val tokensList = List("4:red", "4:blue", "4:green")
-      val group = controller.createGroup(tokensList)
+      val tokens: List[Token] = tokensList.map { str =>
+        val Array(num, color) = str.split(":")
+        NumToken(num.toInt, Color.valueOf(color.toUpperCase))
+      }
+      val group = controller.createGroup(tokens)
       group shouldBe a[Group]
       group.getTokens.map(_.toString) should be (List("\u001b[31m 4\u001b[0m", "\u001b[34m 4\u001b[0m", "\u001b[32m 4\u001b[0m"))
     }
@@ -341,8 +359,9 @@ class ControllerSpec extends AnyWordSpec {
       controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
       val outStream = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(outStream)) {
-        val resultPlayer = controller.passTurn(p, false)
-        resultPlayer.name shouldBe "Emilia"
+        val gameState = controller.getState
+        val resultPlayer = controller.passTurn(gameState, false)
+        resultPlayer._2 shouldBe "Emilia"
       }
       outStream.toString should include ("The first move must have a total of at least 30 points. You cannot end your turn.")
     }
@@ -395,7 +414,7 @@ class ControllerSpec extends AnyWordSpec {
 
       assert(player1.validateFirstMove() == false)
 
-      val result = controller.passTurn(player1, allowWithoutFirstMove = false)
+      val result = controller.passTurn(controller.getState, allowWithoutFirstMove = false)
 
       result shouldBe player1
     }
@@ -428,9 +447,9 @@ class ControllerSpec extends AnyWordSpec {
 
       val outStream = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(outStream)) {
-        val result = controller.passTurn(emiliaFromField)
-        result.name shouldBe "Noah"
-        result.commandHistory shouldBe empty
+        val result = controller.passTurn(controller.getState)
+        result._1.name shouldBe "Noah"
+        result._1.commandHistory shouldBe empty
         controller.currentPlayerIndex shouldBe 1
       }
     }
@@ -516,7 +535,8 @@ class ControllerSpec extends AnyWordSpec {
       val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
       controller.playingField = None
 
-      val result = controller.setNextPlayer(player)
+      val gameState = controller.getState
+      val result = controller.setNextPlayer(gameState)
       result shouldBe player
     }
 
@@ -585,7 +605,8 @@ class ControllerSpec extends AnyWordSpec {
       controller.playingField = Some(pf.copy(players = List(player1, player2)))
 
       val unknownPlayer = Player("Unbekannt")
-      val result = controller.setNextPlayer(unknownPlayer)
+      val gameState = controller.getState
+      val result = controller.setNextPlayer(gameState)
       result shouldBe player1
       controller.currentPlayerIndex shouldBe 0
     }
@@ -598,7 +619,8 @@ class ControllerSpec extends AnyWordSpec {
       val pf = controller.playingField.get
       controller.playingField = Some(pf.copy(players = List(player1, player2)))
 
-      val result = controller.setNextPlayer(player2)
+      val gameState = controller.getState
+      val result = controller.setNextPlayer(gameState)
       result shouldBe player1
       controller.currentPlayerIndex shouldBe 0
     }
@@ -612,9 +634,10 @@ class ControllerSpec extends AnyWordSpec {
       val pf = controller.playingField.get
       controller.playingField = Some(pf.copy(players = List(player1, player2, player3)))
 
-      val result = controller.setNextPlayer(player1)
-      result shouldBe player2
-      controller.currentPlayerIndex shouldBe 1
+      val gameState = controller.getState
+      val result = controller.setNextPlayer(gameState)
+      result shouldBe player1
+      controller.currentPlayerIndex shouldBe 0
     }
   }
 }
