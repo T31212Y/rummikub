@@ -13,7 +13,8 @@ class GameStateSpec extends AnyWordSpec {
     val board1 = Board(24, 14, 2, 2, "default", 10)
     val board2 = Board(24, 14, 2, 2, "default", 10)
     val boards = Vector(board1, board2)
-    val state = GameState(table, players, boards, 0)
+    val stack = TokenStack(List.empty)
+    val state = GameState(table, players, boards, 0, stack)
 
     "return the current player" in {
       state.currentPlayer shouldBe player1
