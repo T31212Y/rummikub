@@ -63,8 +63,8 @@ trait GameView(controller: Controller) {
     input match {
         case "new"   => createNewGame
         case "start" => playGame
-        case "help"  => showHelpPage
-        case "quit"  => showGoodbye
+        case "help"  => showHelpPage.foreach(println)
+        case "quit"  => println(showGoodbye)
         case _       => println("Invalid command.\n"); showHelpPage
     }
   }
