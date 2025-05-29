@@ -129,7 +129,6 @@ class TuiSpec extends AnyWordSpec with Matchers {
       
       controller.setupNewGame(2, List("Emilia", "Noah"))
       controller.playingField = Some(controller.playingField.get.copy(players = List(player1, player2)))
-      controller.validFirstMoveThisTurn = true
       
       val stack = TokenStack()
 
