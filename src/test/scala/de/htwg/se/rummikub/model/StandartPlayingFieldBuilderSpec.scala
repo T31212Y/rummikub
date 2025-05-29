@@ -47,5 +47,17 @@ class StandardPlayingFieldBuilderSpec extends AnyWordSpec {
       builder.setPlayers(players).setBoards(boards)
       an [IllegalStateException] should be thrownBy builder.build()
     }
+
+    "throw an exception if stack is not set" in {
+      val builder = new StandardPlayingFieldBuilder
+      val players = List(Player("A"))
+      val boards = List(Board(24, 14, 2, 2, "default", 10))
+      val table = Table(1, 14)
+      builder.setPlayers(players).setBoards(boards).setInnerField(table)
+      val exception = intercept[IllegalStateException] {
+        builder.build()
+      }
+      exception.getMessage should include ("Stack not set")
+    }
   }
 }
