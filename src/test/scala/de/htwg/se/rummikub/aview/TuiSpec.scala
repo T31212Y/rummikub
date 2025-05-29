@@ -17,15 +17,15 @@ class TuiSpec extends AnyWordSpec with Matchers {
     "show welcome message" in {
       val welcome = tui.showWelcome.mkString("\n") + "\n"
       welcome should not be empty
-      welcome(0) should be ("Welcome to")
+      welcome should include ("Welcome to")
     }
 
     "show help text" in {
-      tui.showHelp.mkString("\n") + "\n" should be ("Type 'help' for a list of commands.")
+      tui.showHelp should be ("Type 'help' for a list of commands.")
     }
 
     "show help page" in {
-      val helpPage = tui.showHelpPage.mkString("\n") + "\n"
+      val helpPage = tui.showHelpPage
       helpPage should not be empty
       helpPage should be (Vector("Available commands:",
                "new - Create a new game",
@@ -35,15 +35,15 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "ask for number of players" in {
-      tui.askAmountOfPlayers.mkString("\n") + "\n" should be ("Please enter the number of players (2-4):")
+      tui.askAmountOfPlayers should be ("Please enter the number of players (2-4):")
     }
 
     "ask for player names" in {
-      tui.askPlayerNames.mkString("\n") + "\n" should include ("Please enter the names of the players (comma-separated):")
+      tui.askPlayerNames should include ("Please enter the names of the players (comma-separated):")
     }
 
     "show goodbye message" in {
-      tui.showGoodbye.mkString("\n") + "\n" should include ("Thank you for playing Rummikub! Goodbye!")
+      tui.showGoodbye should include ("Thank you for playing Rummikub! Goodbye!")
     }
 
     "handle 'new' command" in {

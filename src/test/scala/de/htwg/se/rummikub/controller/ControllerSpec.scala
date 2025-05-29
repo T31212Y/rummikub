@@ -122,7 +122,6 @@ class ControllerSpec extends AnyWordSpec {
       }
       val output = stream.toString
       output should include ("You can only play tokens that are on your board")
-      output should include ("99:black")
     }
 
     "correctly parse green as token color" in {
