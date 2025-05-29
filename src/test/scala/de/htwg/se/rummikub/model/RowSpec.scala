@@ -96,5 +96,22 @@ class RowSpec extends AnyWordSpec {
       val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.RED)))
       row.points shouldBe 3
     }
+
+    "return Int.MaxValue in countMissingValues if actualValues and missing overlap" in {
+      val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED)))
+      val targetSeq = List(1, 2, 3, 3)
+      val actualValues = List(1, 2, 3)
+      val method = row.getClass.getDeclaredMethod("countMissingValues", classOf[List[Int]], classOf[List[Int]])
+      method.setAccessible(true)
+      val result = method.invoke(row, targetSeq, actualValues).asInstanceOf[Int]
+
+      result shouldBe Int.MaxValue
+    }
+
+    "points should sum only NumToken values if jokerValues is None" in {
+      val dummyToken = NumToken(0, Color.RED)
+      val row = Row(List(NumToken(5, Color.RED), dummyToken))
+      row.points shouldBe 5
+    }
   }
 }

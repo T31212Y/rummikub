@@ -71,5 +71,10 @@ class GroupSpec extends AnyWordSpec {
             val group = Group(List(token, tokenJokerRed))
             group.points shouldBe 20
         }
+
+        "jokerValues should return None if NumTokens have different values" in {
+            val group = Group(List(NumToken(7, Color.RED), NumToken(8, Color.BLUE), Joker(Color.BLACK)))
+            group.jokerValues shouldBe None
+        }
     }
 }

@@ -10,7 +10,6 @@ case class Row(row: List[Token]) extends TokenStructure(row) {
             case NumToken(n, c) => (n, c) 
         }
 
-        if (numTokens.isEmpty) return false
         if (!hasUniformColor(numTokens)) return false
 
         val nums = numTokens.map(_._1).distinct.sorted
@@ -61,7 +60,6 @@ case class Row(row: List[Token]) extends TokenStructure(row) {
             tokens.zipAll(jVals, null, 0).map {
             case (NumToken(n, _), _) => n
             case (_: Joker, jVal)    => jVal
-            case _                   => 0
             }.sum
         case None =>
             tokens.collect { case NumToken(n, _) => n }.sum

@@ -14,8 +14,6 @@ case class Group(group: List[Token]) extends TokenStructure(group) {
         case NumToken(n, c) => (n, c)
         }
 
-        if (numTokens.isEmpty) return false
-
         val distinctNumbers = numTokens.map(_._1).distinct
         if (distinctNumbers.size != 1) return false
 
@@ -23,8 +21,6 @@ case class Group(group: List[Token]) extends TokenStructure(group) {
 
         val allColors = Set(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK)
         val availableColorsForJokers = allColors -- usedColors
-
-        if (availableColorsForJokers.size < jokers.size) return false
 
         true
     }
