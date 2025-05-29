@@ -42,17 +42,7 @@ trait GameView(controller: Controller) {
     "Please enter the names of the players (comma-separated):"
   }
 
-  def createNewGame: Unit = {
-      println("Creating a new game...")
-
-      askAmountOfPlayers
-      val amountPlayers = readLine().toInt
-
-      askPlayerNames
-      val names = readLine().split(",").map(_.trim).toList
-
-      controller.setupNewGame(amountPlayers, names)
-  }
+  def createNewGame: Unit
 
   def playGame: Unit
 
