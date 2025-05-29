@@ -235,67 +235,80 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
 
     val tableTokens = controller.getState.table.tokensOnTable
 
-    for ((tokenGroup, index) <- tableTokens.zipWithIndex) {
-      val groupPanel = new FlowPanel(FlowPanel.Alignment.Center)() {
+    val groupsPerRow = 5
+    val rows = tableTokens.grouped(groupsPerRow).toSeq
+
+    for ((rowGroups, rowIndex) <- rows.zipWithIndex) {
+      val rowPanel = new FlowPanel(FlowPanel.Alignment.Left)() {
         opaque = false
-        hGap = 4
-        vGap = 2
-        
-        val borderColor = java.awt.Color.WHITE
-        val borderFont = new Font("Arial", java.awt.Font.BOLD, 12)
-
-        val groupTitleBorder = BorderFactory.createTitledBorder(
-          BorderFactory.createLineBorder(borderColor),
-          s"TokenStructure $index",
-          javax.swing.border.TitledBorder.CENTER,
-          javax.swing.border.TitledBorder.BOTTOM,
-          borderFont,
-          borderColor
-        )
-        this.border = groupTitleBorder
+        hGap = 15
+        vGap = 10
       }
 
-      for (token <- tokenGroup) {
-        groupPanel.contents += TokenPanel(token, controller)
+      for ((tokenGroup, groupIndex) <- rowGroups.zipWithIndex) {
+        val groupPanel = new FlowPanel(FlowPanel.Alignment.Center)() {
+          opaque = false
+          hGap = 4
+          vGap = 2
+
+          val borderColor = java.awt.Color.WHITE
+          val borderFont = new Font("Arial", java.awt.Font.BOLD, 12)
+
+          border = BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(borderColor),
+            s"index: ${rowIndex * groupsPerRow + groupIndex}",
+            javax.swing.border.TitledBorder.CENTER,
+            javax.swing.border.TitledBorder.BOTTOM,
+            borderFont,
+            borderColor
+          )
+        }
+
+        tokenGroup.foreach { token =>
+          groupPanel.contents += TokenPanel(token, controller)
+        }
+
+        rowPanel.contents += groupPanel
       }
 
-      tablePanel.contents += groupPanel
+      tablePanel.contents += rowPanel
+      tablePanel.contents += Swing.VStrut(10)
     }
 
     tablePanel.revalidate()
     tablePanel.repaint()
   }
 
-    def update: Unit = {
-        val state = controller.getState
+  def update: Unit = {
+    val state = controller.getState
 
-        updatePlayerTokens
-        updateTable
+    updatePlayerTokens
+    updateTable
 
-        updateTable
-        updatePlayerTokens
+    updateTable
+    updatePlayerTokens
+  }
+
+  override def playGame: Unit = {
+    controller.startGame()
+    updatePlayerBoardTitle(controller.getState)
+    update
+    nextTurn
+  }
+
+  def nextTurn: Unit = {
+    if (controller.winGame() || controller.gameEnded) {
+      return
     }
 
-    override def playGame: Unit = {
-        controller.startGame()
-        updatePlayerBoardTitle(controller.getState)
-        update
-        nextTurn
-    }
+    val currentPlayer = controller.getState.currentPlayer
+    val stack = controller.getState.currentStack
+    controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
+    stateLabel.text = currentPlayer.name + ", it's your turn!"
 
-    def nextTurn: Unit = {
-      if (controller.winGame() || controller.gameEnded) {
-        return
-      }
+    controller.beginTurn(currentPlayer)
 
-      val currentPlayer = controller.getState.currentPlayer
-      val stack = controller.getState.currentStack
-      controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
-      stateLabel.text = currentPlayer.name + ", it's your turn!"
-
-      controller.beginTurn(currentPlayer)
-
-      update
+    update
   }
 
   def createButtonRow(button1: Button, button2: Button, width: Int = 130, height: Int = 30): FlowPanel = {
