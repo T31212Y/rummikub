@@ -116,6 +116,7 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
       val (newState, message) = controller.drawFromStackAndPass
       stateLabel.text = message
       updatePlayerBoardTitle(newState)
+      nextTurn
     }
 
     case ButtonClicked(`passButton`) => {
@@ -123,6 +124,7 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
       controller.setStateInternal(newState)
       stateLabel.text = message
       updatePlayerBoardTitle(newState)
+      nextTurn
     }
 
     case ButtonClicked(`rowButton`) => {

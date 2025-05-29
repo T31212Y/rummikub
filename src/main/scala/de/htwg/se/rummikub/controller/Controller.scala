@@ -15,7 +15,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
     var currentPlayerIndex: Int = 0
     var turnStartState: Option[GameState] = None
 
-    val undoManager = new UndoManager
+    var turnUndoManager: UndoManager = new UndoManager
     var gameEnded: Boolean = false
 
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
@@ -217,6 +217,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
     def beginTurn(currentPlayer: Player): Unit = {
         if (currentPlayer.commandHistory.isEmpty) {
             turnStartState = Some(getState)
+            turnUndoManager = new UndoManager
         }
     }
 
@@ -251,32 +252,32 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
     def executeAddRow(row: Row, player: Player, stack: TokenStack): Unit = {
         val cmd = new AddRowCommand(this, row, player, stack)
-        undoManager.doStep(cmd)
+        turnUndoManager.doStep(cmd)
     }
 
     def executeAddGroup(group: Group, player: Player, stack: TokenStack): Unit = {
       if (!getState.players.exists(_.name == player.name))
         throw new NoSuchElementException(player.name)
       val cmd = new AddGroupCommand(this, group, player, stack)
-      undoManager.doStep(cmd)
+      turnUndoManager.doStep(cmd)
     }
 
     def executeAppendToRow(token: Token, rowIndex: Int, player: Player): Unit = {
         val cmd = new AppendTokenCommand(this, token, rowIndex, isRow = true, player)
-        undoManager.doStep(cmd)
+        turnUndoManager.doStep(cmd)
     }
 
     def executeAppendToGroup(token: Token, groupIndex: Int, player: Player): Unit = {
         val cmd = new AppendTokenCommand(this, token, groupIndex, isRow = false, player)
-        undoManager.doStep(cmd)
+        turnUndoManager.doStep(cmd)
     }
 
     def undo(): Unit = {
-        undoManager.undoStep()
+        turnUndoManager.undoStep()
         publish(UpdateEvent())
     }
     def redo(): Unit = {
-        undoManager.redoStep()
+        turnUndoManager.redoStep()
         publish(UpdateEvent())
     } 
 
