@@ -234,11 +234,23 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
     val tableTokens = controller.getState.table.tokensOnTable
 
     for ((tokenGroup, index) <- tableTokens.zipWithIndex) {
-      val groupPanel = new FlowPanel {
+      val groupPanel = new FlowPanel(FlowPanel.Alignment.Center)() {
         opaque = false
-        hGap = 10
-        vGap = 5
-        border = Swing.TitledBorder(BorderFactory.createEtchedBorder(), s"TokenStructure $index")
+        hGap = 4
+        vGap = 2
+        
+        val borderColor = java.awt.Color.WHITE
+        val borderFont = new Font("Arial", java.awt.Font.BOLD, 12)
+
+        val groupTitleBorder = BorderFactory.createTitledBorder(
+          BorderFactory.createLineBorder(borderColor),
+          s"TokenStructure $index",
+          javax.swing.border.TitledBorder.CENTER,
+          javax.swing.border.TitledBorder.BOTTOM,
+          borderFont,
+          borderColor
+        )
+        this.border = groupTitleBorder
       }
 
       for (token <- tokenGroup) {
