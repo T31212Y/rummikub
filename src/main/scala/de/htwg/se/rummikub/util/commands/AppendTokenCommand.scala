@@ -10,6 +10,10 @@ class AppendTokenCommand(controller: Controller, token: Token, index: Int, isRow
   var oldState: Option[GameState] = Some(controller.getState)
 
   override def doStep(): Unit = {
+    if (controller.playingField.isEmpty || controller.gameState.isEmpty) {
+      println("No state available.")
+      return
+    }
     val updatedTokensOnTable = controller.playingField.get.innerField.tokensOnTable.zipWithIndex.map {
       case (tokenList, i) if i == index => tokenList :+ token
       case (tokenList, _)               => tokenList
