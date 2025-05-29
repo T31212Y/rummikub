@@ -202,5 +202,26 @@ class TuiSpec extends AnyWordSpec with Matchers {
         out.toString should include ("Enter the token to append")
       }
     }
+
+    "display the available commands" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val tui = new Tui(controller)
+
+      val result = tui.showAvailableCommands
+
+      val expected = Vector(
+        "Available commands:",
+        "draw - Draw a token from the stack and pass your turn",
+        "pass - Pass your turn",
+        "row - Play a row of tokens",
+        "group - Play a group of tokens",
+        "appendToRow - Append a token to an existing row",
+        "appendToGroup - Append a token to an existing group",
+        "undo - Undo last move",
+        "redo - Redo last undone move"
+      )
+
+      result shouldBe expected
+    }
   }
 }
