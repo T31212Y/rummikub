@@ -122,7 +122,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "handle 'pass' command" in {
-      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)))
+      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)), hasCompletedFirstMove = true)
       val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
       val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
       val tui = new Tui(controller)
