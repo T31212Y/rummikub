@@ -87,17 +87,17 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         (updatedPlayer, updatedStack)
     }
     
-    def passTurn(state: GameState, allowWithoutFirstMove: Boolean = false): (GameState, String) = {
+    def passTurn(state: GameState): (GameState, String) = {
         val currentPlayer = state.currentPlayer
 
-        if (!allowWithoutFirstMove && (currentPlayer.commandHistory.isEmpty || !currentPlayer.validateFirstMove())) {
+        if (!validFirstMoveThisTurn && (currentPlayer.commandHistory.isEmpty || !currentPlayer.validateFirstMove())) {
             val message = "The first move must have a total of at least 30 points. You cannot end your turn."
             (state, message)
         } else {
             val nextState = setNextPlayer(state)
             validFirstMoveThisTurn = false
             turnStartState = None
-            val message = s"${currentPlayer.name} ended their turn. It's now ${nextState.currentPlayer.name}'s turn."
+            val message = s"${state.currentPlayer.name} ended their turn."
 
             setStateInternal(nextState)
             setPlayingField(gameMode.updatePlayingField(playingField))
@@ -190,6 +190,8 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
     def changeStringListToTokenList(list: List[String]): List[Token] = { 
         list.map { tokenString =>
             val tokenParts = tokenString.split(":")
+            if (tokenParts.length < 2)
+                throw new IllegalArgumentException("Invalid token input.")
             val tokenFactory = new StandardTokenFactory
 
             if (tokenParts(0) == "J") {
@@ -255,8 +257,10 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
     }
 
     def executeAddGroup(group: Group, player: Player, stack: TokenStack): Unit = {
-        val cmd = new AddGroupCommand(this, group, player, stack)
-        undoManager.doStep(cmd)
+      if (!getState.players.exists(_.name == player.name))
+        throw new NoSuchElementException(player.name)
+      val cmd = new AddGroupCommand(this, group, player, stack)
+      undoManager.doStep(cmd)
     }
 
     def executeAppendToRow(token: Token, rowIndex: Int, player: Player): Unit = {
@@ -304,11 +308,10 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         val updatedState = getState.updateCurrentPlayer(updatedPlayer).updateStack(updatedStack)
         setStateInternal(updatedState)
 
-        val (finalState, message) = passTurn(updatedState, true)
+        val (finalState, message) = passTurn(updatedState)
 
         setStateInternal(finalState)
         setPlayingField(gameMode.updatePlayingField(playingField))
-        //publish(UpdateEvent())
         (finalState, message)
     }
 

@@ -171,16 +171,16 @@ class ControllerSpec extends AnyWordSpec {
     "return message if invalid token input is given" in {
       controller.setPlayingField(Some(pf))
       val invalidTokenString = List("foo")
-      val (player, message) = controller.addRowToTable(controller.createRow(controller.changeStringListToTokenList(invalidTokenString)), player1)
-      player shouldBe controller.getState.currentPlayer
-      message should be ("Invalid token input.")
+      an [IllegalArgumentException] should be thrownBy {
+        controller.addRowToTable(controller.createRow(controller.changeStringListToTokenList(List("foo"))), player1)
+      }
     }
 
     "return message if first move requirement is not met when adding a group" in {
       controller.setPlayingField(Some(pf))
       val testPlayer = player1.copy(tokens = List(NumToken(1, Color.RED)))
-      val group = controller.createGroup(List(NumToken(1, Color.RED)))
-      val (updatedPlayer, msg) = controller.addGroupToTable(group, testPlayer)
+      val groupTokens = List("1:red")
+      val (updatedPlayer, msg) = controller.playGroup(groupTokens, testPlayer, stack)
       msg should be ("Your move is not valid for the first move requirement.")
     }
   }
