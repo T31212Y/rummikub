@@ -352,7 +352,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         val group = createGroup(tokens)
 
         if (!group.isValid)
-            return (currentPlayer, "It's not a valid group!")
+            return (currentPlayer, "Your move is not valid for the first move requirement.")
 
         executeAddGroup(group, currentPlayer, stack)
 

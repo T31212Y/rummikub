@@ -178,8 +178,8 @@ class ControllerSpec extends AnyWordSpec {
 
     "return message if first move requirement is not met when adding a group" in {
       controller.setPlayingField(Some(pf))
-      val testPlayer = player1.copy(tokens = List(NumToken(1, Color.RED)))
-      val groupTokens = List("1:red")
+      val testPlayer = player1.copy(tokens = List(NumToken(5, Color.RED), NumToken(6, Color.RED), NumToken(7, Color.RED)))
+      val groupTokens = List("5:red", "6:red", "7:red") 
       val (updatedPlayer, msg) = controller.playGroup(groupTokens, testPlayer, stack)
       msg should be ("Your move is not valid for the first move requirement.")
     }
