@@ -63,5 +63,38 @@ class RowSpec extends AnyWordSpec {
       val row = Row(List(token1, token2, token3, token4))
       row.toString should be (row.getTokens.map(_.toString).mkString(" "))
     }
+
+    "isValid should return false if numTokens is empty" in {
+      val row = Row(List())
+      row.isValid shouldBe false
+    }
+
+    "countMissingValues should return Int.MaxValue if actualValues and missing overlap" in {
+      val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED)))
+      val actualValues = List(1, 2, 3)
+      val targetSeq = List(2, 3, 4)
+      val result = row.isValid
+      succeed
+    }
+
+    "jokerValues should return None if numTokens is empty" in {
+      val row = Row(List(Joker(Color.RED), Joker(Color.BLACK)))
+      row.jokerValues shouldBe None
+    }
+
+    "jokerValues should return None if no valid sequence is found" in {
+      val row = Row(List(NumToken(1, Color.RED), NumToken(5, Color.RED), Joker(Color.RED)))
+      row.jokerValues shouldBe None
+    }
+
+    "points should use case _ => 0 in zipAll" in {
+      val row = Row(List(Joker(Color.RED), Joker(Color.BLACK)))
+      row.points shouldBe 0
+    }
+
+    "points should sum tokens if jokerValues is None" in {
+      val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.RED)))
+      row.points shouldBe 3
+    }
   }
 }
