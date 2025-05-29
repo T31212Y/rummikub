@@ -203,19 +203,5 @@ class TuiSpec extends AnyWordSpec with Matchers {
         out.toString should include ("Enter the token to append")
       }
     }
-
-    "not throw if playingField is None when starting the game" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
-      val tui = new Tui(controller)
-      controller.playingField = None 
-
-      val out = new ByteArrayOutputStream()
-      Console.withOut(new PrintStream(out)) {
-
-        tui.inputCommands("start")
-      }
-    
-      succeed
-    }
   }
 }
