@@ -3,6 +3,7 @@ package de.htwg.se.rummikub.controller
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.state.GameState
 
 class ControllerSpec extends AnyWordSpec {
 
@@ -182,6 +183,139 @@ class ControllerSpec extends AnyWordSpec {
       val groupTokens = List("5:red", "6:red", "7:red") 
       val (updatedPlayer, msg) = controller.playGroup(groupTokens, testPlayer, stack)
       msg should be ("Your move is not valid for the first move requirement.")
+    }
+
+    "passTurn should not allow passing if first move is not completed and ignoreFirstMoveCheck is false" in {
+      val player = Player("Emilia", hasCompletedFirstMove = false)
+      val player2 = Player("Noah")
+      val players = Vector(player, player2)
+      val table = Table(16, 90, List.empty)
+      val boards = Vector.empty[Board]
+      val stack = TokenStack()
+      val state = GameState(table, players, boards, 0, stack)
+
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = Some(PlayingField(players.toList, boards.toList, table, stack))
+
+      val (resultState, message) = controller.passTurn(state)
+      resultState shouldBe state
+      message shouldBe "The first move must have a total of at least 30 points. You cannot end your turn."
+    }
+
+    "winGame should return true and print winner if a player has no tokens" in {
+      val winner = Player("Emilia", tokens = List())
+      val loser = Player("Noah", tokens = List(NumToken(1, Color.RED)))
+      val pf = PlayingField(List(winner, loser), List(), Table(0, 0, List()), TokenStack())
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = Some(pf)
+
+      val output = new java.io.ByteArrayOutputStream()
+      Console.withOut(new java.io.PrintStream(output)) {
+        controller.winGame() shouldBe true
+      }
+      output.toString should include ("Player Emilia wins the game!")
+    }
+
+    "winGame should return false if no player has won" in {
+      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
+      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
+      val pf = PlayingField(List(player1, player2), List(), Table(0, 0, List()), TokenStack())
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = Some(pf)
+
+      controller.winGame() shouldBe false
+    }
+
+    "winGame should return false if playingField is None" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = None
+
+      controller.winGame() shouldBe false
+    }
+
+    "addGroupToTable should not allow playing tokens not on the player's board" in {
+      val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
+      val token = NumToken(9, Color.BLACK)
+      val group = Group(List(token))
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = Some(PlayingField(List(player), List(), Table(0, 0, List()), TokenStack.apply()))
+
+      val stream = new java.io.ByteArrayOutputStream()
+      Console.withOut(stream) {
+        val (tokens, updatedPlayer) = controller.addGroupToTable(group, player)
+        tokens shouldBe empty
+        updatedPlayer shouldBe player
+      }
+      val output = stream.toString
+      output should include ("You can only play tokens that are on your board")
+    }
+
+    "drawFromStackAndPass should handle the None case for turnStartState" in {
+      val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
+      val player2 = Player("Noah")
+      val table = Table(16, 90, List.empty)
+      val boards = Vector.empty[Board]
+      val stack = TokenStack.apply()
+      val state = GameState(table, Vector(player, player2), boards, 0, stack)
+
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = Some(PlayingField(List(player), boards.toList, table, stack))
+      controller.gameState = Some(state)
+      controller.turnStartState = None
+
+      val (resultState, message) = controller.drawFromStackAndPass
+
+      resultState.players.head.tokens.nonEmpty shouldBe true
+    }
+
+    "playRow should return error if row is not valid" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val player = Player("Emilia")
+      val stack = TokenStack.apply()
+      val (resultPlayer, message) = controller.playRow(List("1:red"), player, stack)
+      resultPlayer shouldBe player
+      message shouldBe "Your move is not valid for the first move requirement."
+    }
+
+    "playRow should place a valid row and return success message" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val player = Player("Emilia", tokens = List(NumToken(10, Color.RED), NumToken(11, Color.RED), NumToken(12, Color.RED)))
+      val stack = TokenStack.apply()
+      controller.setPlayingField(Some(PlayingField(List(player), List(), Table(0, 0, List()), stack)))
+      val (resultPlayer, message) = controller.playRow(List("10:red", "11:red", "12:red"), player, stack)
+      message shouldBe "Row successfully placed."
+      resultPlayer.hasCompletedFirstMove shouldBe true
+    }
+
+    "playGroup should return error if group is not valid" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val player = Player("Emilia")
+      val stack = TokenStack.apply()
+      val (resultPlayer, message) = controller.playGroup(List("1:red"), player, stack)
+      resultPlayer shouldBe player
+      message shouldBe "Your move is not valid for the first move requirement."
+    }
+
+    "playGroup should place a valid group and return success message" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val player = Player("Emilia", tokens = List(NumToken(10, Color.RED), NumToken(10, Color.BLACK), NumToken(10, Color.BLUE)))
+      val stack = TokenStack.apply()
+      controller.setPlayingField(Some(PlayingField(List(player), List(), Table(0, 0, List()), stack)))
+      val (resultPlayer, message) = controller.playGroup(List("10:red", "10:black", "10:blue"), player, stack)
+      message shouldBe "Group successfully placed."
+      resultPlayer.hasCompletedFirstMove shouldBe true
+    }
+
+    "beginTurn should do nothing if commandHistory is not empty" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.turnStartState = None
+      val oldUndoManager = controller.turnUndoManager
+
+      val player = Player("Emilia", commandHistory = List("row:10:red,11:red,12:red"))
+      controller.beginTurn(player)
+
+      controller.turnStartState shouldBe None
+      controller.turnUndoManager shouldBe oldUndoManager
     }
   }
 }

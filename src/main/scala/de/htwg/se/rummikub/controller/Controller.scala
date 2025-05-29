@@ -107,8 +107,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
     def setNextPlayer(state: GameState): GameState = {
         val current = state.currentPlayerIndex
-        val nextIndex = if (state.players.isEmpty) 0
-                        else (current + 1) % state.players.size
+        val nextIndex = (current + 1) % state.players.size
 
         val cleared = state.players(nextIndex).copy(commandHistory = List())
         state.updatePlayerIndex(nextIndex).updateCurrentPlayer(cleared)
@@ -317,20 +316,14 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
     def playRow(tokenStrings: List[String], currentPlayer: Player, stack: TokenStack): (Player, String) = {
         val tokens = changeStringListToTokenList(tokenStrings)
 
-        if (tokens.isEmpty)
-            return (currentPlayer, "No valid tokens detected.")
-
         val row = createRow(tokens)
 
         if (!row.isValid)
-            return (currentPlayer, "It's not a valid row!")
+            return (currentPlayer, "Your move is not valid for the first move requirement.")
 
         executeAddRow(row, currentPlayer, stack)
 
         val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, row.tokens)
-
-        if (!updatedPlayer.validateFirstMove())
-            return (updatedPlayer, "Your move is not valid for the first move requirement.")
 
         val updatedPlayerWithFlag = updatedPlayer.copy(hasCompletedFirstMove = true)
 
@@ -345,9 +338,6 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
     def playGroup(tokenStrings: List[String], currentPlayer: Player, stack: TokenStack): (Player, String) = {
         val tokens = changeStringListToTokenList(tokenStrings)
 
-        if (tokens.isEmpty)
-            return (currentPlayer, "No valid tokens detected.")
-
         val group = createGroup(tokens)
 
         if (!group.isValid)
@@ -356,9 +346,6 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         executeAddGroup(group, currentPlayer, stack)
 
         val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, group.tokens)
-
-        if (!updatedPlayer.validateFirstMove())
-            return (updatedPlayer, "Your move is not valid for the first move requirement.")
 
         val updatedPlayerWithFlag = updatedPlayer.copy(hasCompletedFirstMove = true)
 
@@ -372,9 +359,6 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
     def appendTokenToRow(tokenString: String, index: Int): (Player, String) = {
         val tokenList = changeStringListToTokenList(List(tokenString))
-
-        if (tokenList.isEmpty)
-            return (getState.currentPlayer, "Invalid token input.")
 
         val token = tokenList.head
         val currentPlayer = getState.currentPlayer
@@ -393,9 +377,6 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
     def appendTokenToGroup(tokenString: String, index: Int): (Player, String) = {
         val tokenList = changeStringListToTokenList(List(tokenString))
-
-        if (tokenList.isEmpty)
-            return (getState.currentPlayer, "Invalid token input.")
 
         val token = tokenList.head
         val currentPlayer = getState.currentPlayer
