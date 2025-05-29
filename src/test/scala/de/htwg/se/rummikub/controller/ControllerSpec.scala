@@ -68,6 +68,22 @@ class ControllerSpec extends AnyWordSpec {
       } shouldBe true
     }
 
+    "throw IllegalArgumentException for invalid token color" in {
+      val invalidTokenString = List("1:rainbow")
+      val exception = intercept[IllegalArgumentException] {
+        controller.changeStringListToTokenList(invalidTokenString)
+      }
+      exception.getMessage should include ("Invalid token color: rainbow")
+    }
+
+    "throw IllegalArgumentException for invalid joker color" in {
+      val invalidJokerString = List("J:rainbow")
+      val exception = intercept[IllegalArgumentException] {
+        controller.changeStringListToTokenList(invalidJokerString)
+      }
+      exception.getMessage should include ("Invalid joker color: rainbow")
+    }
+
     "add row and group to table" in {
       controller.setPlayingField(Some(pf))
       val row = controller.createRow(List(NumToken(1, Color.RED)))
@@ -92,6 +108,81 @@ class ControllerSpec extends AnyWordSpec {
     "end the game" in {
       controller.endGame()
       controller.gameEnded shouldBe true
+    }
+
+    "not allow to play tokens that are not on the player's board" in {
+      controller.setPlayingField(Some(pf))
+      val fakeToken = NumToken(99, Color.BLACK)
+      val row = controller.createRow(List(fakeToken))
+      val stream = new java.io.ByteArrayOutputStream
+      Console.withOut(stream) {
+        val (tokens, updatedPlayer) = controller.addRowToTable(row, player1)
+        tokens shouldBe empty
+        updatedPlayer shouldBe player1
+      }
+      val output = stream.toString
+      output should include ("You can only play tokens that are on your board")
+      output should include ("99:black")
+    }
+
+    "correctly parse green as token color" in {
+      val tokens = controller.changeStringListToTokenList(List("5:green"))
+      tokens should have size 1
+      tokens.head shouldBe NumToken(5, Color.GREEN)
+    }
+
+    "correctly parse black as token color" in {
+      val tokens = controller.changeStringListToTokenList(List("7:black"))
+      tokens should have size 1
+      tokens.head shouldBe NumToken(7, Color.BLACK)
+    }
+
+    "correctly parse red as joker color" in {
+      val tokens = controller.changeStringListToTokenList(List("J:red"))
+      tokens should have size 1
+      tokens.head shouldBe Joker(Color.RED)
+    }
+
+    "execute add group command" in {
+      controller.setPlayingField(Some(pf))
+      val group = controller.createGroup(List(NumToken(2, Color.BLUE)))
+      controller.executeAddGroup(group, player2, stack)
+      controller.getState.players.find(_.name == "Bob").get.tokens shouldBe empty
+    }
+
+    "throw NoSuchElementException if player is not found" in {
+      val missingPlayer = Player("Charlie")
+      val group = controller.createGroup(List(NumToken(2, Color.BLUE)))
+      val exception = intercept[NoSuchElementException] {
+        controller.executeAddGroup(group, missingPlayer, stack)
+      }
+      exception.getMessage should include ("Charlie")
+    }
+
+    "do nothing if undo is called with no previous state" in {
+      noException should be thrownBy controller.undo()
+      controller.getState shouldBe controller.getState
+    }
+
+    "do nothing if redo is called with no next state" in {
+      noException should be thrownBy controller.redo()
+      controller.getState shouldBe controller.getState
+    }
+
+    "return message if invalid token input is given" in {
+      controller.setPlayingField(Some(pf))
+      val invalidTokenString = List("foo")
+      val (player, message) = controller.addRowToTable(controller.createRow(controller.changeStringListToTokenList(invalidTokenString)), player1)
+      player shouldBe controller.getState.currentPlayer
+      message should be ("Invalid token input.")
+    }
+
+    "return message if first move requirement is not met when adding a group" in {
+      controller.setPlayingField(Some(pf))
+      val testPlayer = player1.copy(tokens = List(NumToken(1, Color.RED)))
+      val group = controller.createGroup(List(NumToken(1, Color.RED)))
+      val (updatedPlayer, msg) = controller.addGroupToTable(group, testPlayer)
+      msg should be ("Your move is not valid for the first move requirement.")
     }
   }
 }

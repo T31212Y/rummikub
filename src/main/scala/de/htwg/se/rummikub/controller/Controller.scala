@@ -181,30 +181,28 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     }
 
     def changeStringListToTokenList(list: List[String]): List[Token] = { 
-        list.map { tokenString =>
-            val tokenParts = tokenString.split(":")
-            val tokenFactory = new StandardTokenFactory
+      list.flatMap { tokenString =>
+        val tokenParts = tokenString.split(":")
+        val tokenFactory = new StandardTokenFactory
 
-            if (tokenParts(0) == "J") {
-                tokenParts(1) match {
-                    case "red" => tokenFactory.createJoker(Color.RED)
-                    case "black" => tokenFactory.createJoker(Color.BLACK)
-                    case _ => {
-                        throw new IllegalArgumentException(s"Invalid joker color: ${tokenParts(1)}")
-                    }
-                }
-            } else  {
-                tokenParts(1) match {
-                    case "red" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.RED)
-                    case "blue" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLUE)
-                    case "green" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.GREEN)
-                    case "black" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLACK)
-                    case _ => {
-                        throw new IllegalArgumentException(s"Invalid token color: ${tokenParts(1)}")
-                    }
-                }
-            }
+        if (tokenParts.length < 2) {
+          None // oder throw new IllegalArgumentException("Invalid token input.")
+        } else if (tokenParts(0) == "J") {
+          tokenParts(1) match {
+            case "red"   => Some(tokenFactory.createJoker(Color.RED))
+            case "black" => Some(tokenFactory.createJoker(Color.BLACK))
+            case _       => throw new IllegalArgumentException(s"Invalid joker color: ${tokenParts(1)}")
+          }
+        } else {
+          tokenParts(1) match {
+            case "red"   => Some(tokenFactory.createNumToken(tokenParts(0).toInt, Color.RED))
+            case "blue"  => Some(tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLUE))
+            case "green" => Some(tokenFactory.createNumToken(tokenParts(0).toInt, Color.GREEN))
+            case "black" => Some(tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLACK))
+            case _       => throw new IllegalArgumentException(s"Invalid token color: ${tokenParts(1)}")
+          }
         }
+      }
     }
 
     def beginTurn(currentPlayer: Player): Unit = {
@@ -248,8 +246,10 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     }
 
     def executeAddGroup(group: Group, player: Player, stack: TokenStack): Unit = {
-        val cmd = new AddGroupCommand(this, group, player, stack)
-        undoManager.doStep(cmd)
+      if (!getState.players.exists(_.name == player.name))
+        throw new NoSuchElementException(player.name)
+      val cmd = new AddGroupCommand(this, group, player, stack)
+      undoManager.doStep(cmd)
     }
 
     def executeAppendToRow(token: Token, rowIndex: Int, player: Player): Unit = {
