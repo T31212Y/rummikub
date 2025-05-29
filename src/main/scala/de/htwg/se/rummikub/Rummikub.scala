@@ -5,14 +5,12 @@ import de.htwg.se.rummikub.aview._
 import de.htwg.se.rummikub.model.GameModeFactory
 
 import scala.io.StdIn.readLine
+import de.htwg.se.rummikub.aview.gui.Gui
 
 object Rummikub {
   val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
   val tui: GameView = new Tui(controller)
-  val gui = new GuiSwing(controller)
-  gui.visible = true
-
-  //def top = new GuiSwing(controller)
+  val gui: GameView = new Gui(controller)
 
   def main(args: Array[String]): Unit = {
     var input = ""
