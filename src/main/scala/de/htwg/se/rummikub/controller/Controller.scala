@@ -11,7 +11,6 @@ import scala.swing.Publisher
 class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
     var playingField: Option[PlayingField] = None
-    var validFirstMoveThisTurn: Boolean = false
     var gameState: Option[GameState] = None
     var currentPlayerIndex: Int = 0
     var turnStartState: Option[GameState] = None
@@ -87,17 +86,16 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         (updatedPlayer, updatedStack)
     }
     
-    def passTurn(state: GameState): (GameState, String) = {
+    def passTurn(state: GameState, ignoreFirstMoveCheck: Boolean = false): (GameState, String) = {
         val currentPlayer = state.currentPlayer
 
-        if (!validFirstMoveThisTurn && (currentPlayer.commandHistory.isEmpty || !currentPlayer.validateFirstMove())) {
+        if (!ignoreFirstMoveCheck && !currentPlayer.hasCompletedFirstMove) {
             val message = "The first move must have a total of at least 30 points. You cannot end your turn."
             (state, message)
         } else {
             val nextState = setNextPlayer(state)
-            validFirstMoveThisTurn = false
             turnStartState = None
-            val message = s"${state.currentPlayer.name} ended their turn."
+            val message = s"${state.currentPlayer.name} ended their turn. It's now ${nextState.currentPlayer.name}'s turn."
 
             setStateInternal(nextState)
             setPlayingField(gameMode.updatePlayingField(playingField))
@@ -308,7 +306,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         val updatedState = getState.updateCurrentPlayer(updatedPlayer).updateStack(updatedStack)
         setStateInternal(updatedState)
 
-        val (finalState, message) = passTurn(updatedState)
+        val (finalState, message) = passTurn(updatedState, true)
 
         setStateInternal(finalState)
         setPlayingField(gameMode.updatePlayingField(playingField))
@@ -333,14 +331,14 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         if (!updatedPlayer.validateFirstMove())
             return (updatedPlayer, "Your move is not valid for the first move requirement.")
 
-        validFirstMoveThisTurn = true
+        val updatedPlayerWithFlag = updatedPlayer.copy(hasCompletedFirstMove = true)
 
-        val newState = getState.updateCurrentPlayer(updatedPlayer)
+        val newState = getState.updateCurrentPlayer(updatedPlayerWithFlag)
 
         setStateInternal(newState)
         setPlayingField(gameMode.updatePlayingField(playingField))
 
-        (updatedPlayer, "Row successfully placed.")
+        (updatedPlayerWithFlag, "Row successfully placed.")
     }
 
     def playGroup(tokenStrings: List[String], currentPlayer: Player, stack: TokenStack): (Player, String) = {
@@ -361,14 +359,14 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         if (!updatedPlayer.validateFirstMove())
             return (updatedPlayer, "Your move is not valid for the first move requirement.")
 
-        validFirstMoveThisTurn = true
+        val updatedPlayerWithFlag = updatedPlayer.copy(hasCompletedFirstMove = true)
 
-        val newState = getState.updateCurrentPlayer(updatedPlayer)
+        val newState = getState.updateCurrentPlayer(updatedPlayerWithFlag)
 
         setStateInternal(newState)
         setPlayingField(gameMode.updatePlayingField(playingField))
 
-        (updatedPlayer, "Group successfully placed.")
+        (updatedPlayerWithFlag, "Group successfully placed.")
     }
 
     def appendTokenToRow(tokenString: String, index: Int): (Player, String) = {

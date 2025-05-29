@@ -1,6 +1,6 @@
 package de.htwg.se.rummikub.model
 
-case class Player(name: String, tokens: List[Token] = List(), commandHistory: List[String] = List(), firstMoveTokens: List[Token] = List()) {
+case class Player(name: String, tokens: List[Token] = List(), commandHistory: List[String] = List(), firstMoveTokens: List[Token] = List(), hasCompletedFirstMove: Boolean = false) {
 
   override def toString: String = {
     s"Player: $name"
