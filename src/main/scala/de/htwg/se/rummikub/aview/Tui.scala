@@ -14,9 +14,11 @@ class Tui(controller: Controller) extends Reactor with GameView(controller) {
         println("Creating a new game...")
 
         askAmountOfPlayers
+        println(askAmountOfPlayers)
         val amountPlayers = readLine().toInt
 
         askPlayerNames
+        println(askPlayerNames)
         val names = readLine().split(",").map(_.trim).toList
 
         controller.setupNewGame(amountPlayers, names)

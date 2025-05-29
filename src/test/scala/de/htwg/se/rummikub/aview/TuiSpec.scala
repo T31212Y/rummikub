@@ -15,13 +15,13 @@ class TuiSpec extends AnyWordSpec with Matchers {
     val tui = new Tui(controller)
 
     "show welcome message" in {
-      val welcome = tui.showWelcome.mkString("\n") + "\n"
+      val welcome = tui.showWelcome
       welcome should not be empty
-      welcome should include ("Welcome to")
+      welcome.exists(_.contains("Welcome to")) should be (true)
     }
 
     "show help text" in {
-      tui.showHelp should be ("Type 'help' for a list of commands.")
+      tui.showHelp should include ("Type 'help' for a list of commands.")
     }
 
     "show help page" in {
@@ -39,12 +39,15 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "ask for player names" in {
-      tui.askPlayerNames should include ("Please enter the names of the players (comma-separated):")
+      tui.askPlayerNames should be ("Please enter the names of the players (comma-separated):")
     }
 
     "show goodbye message" in {
+      tui.inputCommands("quit")
+      controller.gameEnded = true
       tui.showGoodbye should include ("Thank you for playing Rummikub! Goodbye!")
     }
+
 
     "handle 'new' command" in {
       val in = new ByteArrayInputStream("2\nAlice,Bob\n".getBytes)
@@ -123,6 +126,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
       Console.withOut(new PrintStream(out)) {
         tui.processGameInput("pass")
       }
+      println("output test" + out.toString)
       out.toString should include ("ended their turn")
     }
 
