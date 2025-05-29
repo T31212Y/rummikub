@@ -8,6 +8,7 @@ import scala.swing._
 import scala.swing.event._
 import javax.swing.BorderFactory
 import javax.swing.border.TitledBorder
+import javax.swing.ImageIcon
 
 class Gui(controller: Controller) extends Frame with Reactor with GameView(controller) {
 
@@ -100,6 +101,9 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
       })
       contents += new MenuItem(Action("commands after game begins") {
         Dialog.showMessage(parent = null, showAvailableCommands.mkString("\n"), title = "Help Page")
+      })
+      contents += new MenuItem(Action("game manual") {
+        showManualImages()
       })
     }
   }
@@ -314,6 +318,37 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
         case None =>
           stateLabel.text = "No input provided."
       }
+  }
+
+  def showManualImages(): Unit = {
+    val img1 = new Label {
+      icon = new ImageIcon(getClass.getResource("/gameManualP1.jpg"))
+    }
+
+    val img2 = new Label {
+      icon = new ImageIcon(getClass.getResource("/gameManualP2.jpg"))
+    }
+
+    val panel = new BoxPanel(Orientation.Vertical)
+    val imgLabels = Seq(img1, img2)
+
+    imgLabels.foreach { label =>
+      panel.contents += label
+      panel.contents += Swing.VStrut(10)
+    }
+
+    val scrollPane = new ScrollPane(panel) {
+      preferredSize = new Dimension(1200, 700)
+    }
+
+    val helpFrame = new Frame {
+      title = "Game Manual"
+      contents = scrollPane
+      size = new Dimension(1220, 720)
+      centerOnScreen()
+    }
+
+    helpFrame.visible = true
   }
 
   visible = true
