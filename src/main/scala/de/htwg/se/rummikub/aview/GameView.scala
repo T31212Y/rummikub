@@ -25,6 +25,19 @@ trait GameView(controller: Controller) {
               "quit - Exit the game"
       )
   }
+
+  def showAvailableCommands: Vector[String] = {
+    Vector("Available commands:",
+            "draw - Draw a token from the stack and pass your turn",
+            "pass - Pass your turn",
+            "row - Play a row of tokens",
+            "group - Play a group of tokens",
+            "appendToRow - Append a token to an existing row",
+            "appendToGroup - Append a token to an existing group",
+            "undo - Undo last move",
+            "redo - Redo last undone move"
+          )
+  }
   
   def showGoodbye: String = {
     if (controller.gameEnded) {

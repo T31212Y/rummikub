@@ -95,8 +95,11 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
     }
     contents += new Menu("Help") {
       mnemonic = Key.H
-      contents += new MenuItem(Action("help") {
-        Dialog.showMessage(parent = null, showHelpPage.mkString("\n"), title = "Help")
+      contents += new MenuItem(Action("commands before game begins") {
+        Dialog.showMessage(parent = null, showHelpPage.mkString("\n"), title = "Help Page")
+      })
+      contents += new MenuItem(Action("commands after game begins") {
+        Dialog.showMessage(parent = null, showAvailableCommands.mkString("\n"), title = "Help Page")
       })
     }
   }
