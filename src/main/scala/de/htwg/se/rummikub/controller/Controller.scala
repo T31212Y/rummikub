@@ -1,13 +1,14 @@
 package de.htwg.se.rummikub.controller
 
 import de.htwg.se.rummikub.model._
-import de.htwg.se.rummikub.util.Observable
 import de.htwg.se.rummikub.state.GameState
 import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 import de.htwg.se.rummikub.util.{Command, UndoManager}
 import de.htwg.se.rummikub.util.commands.{AddRowCommand, AddGroupCommand, AppendTokenCommand}
 
-class Controller(var gameMode: GameModeTemplate) extends Observable {
+import scala.swing.Publisher
+
+class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
     var playingField: Option[PlayingField] = None
     var validFirstMoveThisTurn: Boolean = false
@@ -26,7 +27,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             GameState(field.innerField, field.players.toVector, field.boards.toVector, 0, field.stack)
         }
         gameEnded = false
-        notifyObservers
+        publish(UpdateEvent())
     }
 
     def startGame(): Unit = {
@@ -39,6 +40,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
         val newState = gameState.get.copy(players = updatedPlayers, stack = updatedStack)
         setStateInternal(newState)
+        publish(UpdateEvent())
     }
 
     def createTokenStack(): TokenStack = {
@@ -55,7 +57,7 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
     def setPlayingField(pf: Option[PlayingField]): Unit = {
         this.playingField = pf
-        notifyObservers
+        publish(UpdateEvent())
     }
 
     def playingfieldToString: String = {
@@ -96,6 +98,11 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             validFirstMoveThisTurn = false
             turnStartState = None
             val message = s"${currentPlayer.name} ended their turn. It's now ${nextState.currentPlayer.name}'s turn."
+
+            setStateInternal(nextState)
+            setPlayingField(gameMode.updatePlayingField(playingField))
+            publish(UpdateEvent())
+
             (nextState, message)
         }
     }
@@ -181,28 +188,30 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     }
 
     def changeStringListToTokenList(list: List[String]): List[Token] = { 
-      list.flatMap { tokenString =>
-        val tokenParts = tokenString.split(":")
-        val tokenFactory = new StandardTokenFactory
+        list.map { tokenString =>
+            val tokenParts = tokenString.split(":")
+            val tokenFactory = new StandardTokenFactory
 
-        if (tokenParts.length < 2) {
-          None // oder throw new IllegalArgumentException("Invalid token input.")
-        } else if (tokenParts(0) == "J") {
-          tokenParts(1) match {
-            case "red"   => Some(tokenFactory.createJoker(Color.RED))
-            case "black" => Some(tokenFactory.createJoker(Color.BLACK))
-            case _       => throw new IllegalArgumentException(s"Invalid joker color: ${tokenParts(1)}")
-          }
-        } else {
-          tokenParts(1) match {
-            case "red"   => Some(tokenFactory.createNumToken(tokenParts(0).toInt, Color.RED))
-            case "blue"  => Some(tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLUE))
-            case "green" => Some(tokenFactory.createNumToken(tokenParts(0).toInt, Color.GREEN))
-            case "black" => Some(tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLACK))
-            case _       => throw new IllegalArgumentException(s"Invalid token color: ${tokenParts(1)}")
-          }
+            if (tokenParts(0) == "J") {
+                tokenParts(1) match {
+                    case "red" => tokenFactory.createJoker(Color.RED)
+                    case "black" => tokenFactory.createJoker(Color.BLACK)
+                    case _ => {
+                        throw new IllegalArgumentException(s"Invalid joker color: ${tokenParts(1)}")
+                    }
+                }
+            } else  {
+                tokenParts(1) match {
+                    case "red" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.RED)
+                    case "blue" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLUE)
+                    case "green" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.GREEN)
+                    case "black" => tokenFactory.createNumToken(tokenParts(0).toInt, Color.BLACK)
+                    case _ => {
+                        throw new IllegalArgumentException(s"Invalid token color: ${tokenParts(1)}")
+                    }
+                }
+            }
         }
-      }
     }
 
     def beginTurn(currentPlayer: Player): Unit = {
@@ -246,10 +255,8 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
     }
 
     def executeAddGroup(group: Group, player: Player, stack: TokenStack): Unit = {
-      if (!getState.players.exists(_.name == player.name))
-        throw new NoSuchElementException(player.name)
-      val cmd = new AddGroupCommand(this, group, player, stack)
-      undoManager.doStep(cmd)
+        val cmd = new AddGroupCommand(this, group, player, stack)
+        undoManager.doStep(cmd)
     }
 
     def executeAppendToRow(token: Token, rowIndex: Int, player: Player): Unit = {
@@ -262,8 +269,14 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         undoManager.doStep(cmd)
     }
 
-    def undo(): Unit = undoManager.undoStep()
-    def redo(): Unit = undoManager.redoStep()
+    def undo(): Unit = {
+        undoManager.undoStep()
+        publish(UpdateEvent())
+    }
+    def redo(): Unit = {
+        undoManager.redoStep()
+        publish(UpdateEvent())
+    } 
 
     private def getUpdatedPlayerAfterMove(currentPlayer: Player, newTokens: List[Token]): Player = {
         val updatedPlayer = currentPlayer.addToFirstMoveTokens(newTokens)
@@ -292,8 +305,10 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         setStateInternal(updatedState)
 
         val (finalState, message) = passTurn(updatedState, true)
-        setStateInternal(finalState)
 
+        setStateInternal(finalState)
+        setPlayingField(gameMode.updatePlayingField(playingField))
+        //publish(UpdateEvent())
         (finalState, message)
     }
 
@@ -316,6 +331,11 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
             return (updatedPlayer, "Your move is not valid for the first move requirement.")
 
         validFirstMoveThisTurn = true
+
+        val newState = getState.updateCurrentPlayer(updatedPlayer)
+
+        setStateInternal(newState)
+        setPlayingField(gameMode.updatePlayingField(playingField))
 
         (updatedPlayer, "Row successfully placed.")
     }
@@ -340,6 +360,11 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
         validFirstMoveThisTurn = true
 
+        val newState = getState.updateCurrentPlayer(updatedPlayer)
+
+        setStateInternal(newState)
+        setPlayingField(gameMode.updatePlayingField(playingField))
+
         (updatedPlayer, "Group successfully placed.")
     }
 
@@ -355,6 +380,11 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
         executeAppendToRow(token, index, currentPlayer)
 
         val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, List(token))
+
+        val newState = getState.updateCurrentPlayer(updatedPlayer)
+
+        setStateInternal(newState)
+        setPlayingField(gameMode.updatePlayingField(playingField))
 
         (updatedPlayer, s"Token appended to row at index $index.")
     }
@@ -372,11 +402,16 @@ class Controller(var gameMode: GameModeTemplate) extends Observable {
 
         val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, List(token))
 
+        val newState = getState.updateCurrentPlayer(updatedPlayer)
+
+        setStateInternal(newState)
+        setPlayingField(gameMode.updatePlayingField(playingField))
+
         (updatedPlayer, s"Token appended to group at index $index.")
     }
     
     def endGame(): Unit = {
         gameEnded = true
-        notifyObservers
+        publish(UpdateEvent())
     }
 }
