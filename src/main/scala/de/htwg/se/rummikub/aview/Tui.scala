@@ -1,15 +1,27 @@
 package de.htwg.se.rummikub.aview
 
-import de.htwg.se.rummikub.controller.Controller
-import de.htwg.se.rummikub.util.Observer
+import de.htwg.se.rummikub.controller._
 
 import scala.io.StdIn.readLine
 
-class Tui(controller: Controller) extends GameView(controller) with Observer {
+import scala.swing.Reactor
 
-    controller.add(this)
+class Tui(controller: Controller) extends Reactor with GameView(controller) {
 
-    def playGame: Unit = {
+    listenTo(controller)
+
+    override def createNewGame: Unit = {
+        println("Creating a new game...")
+
+        askAmountOfPlayers
+        val amountPlayers = readLine().toInt
+
+        askPlayerNames
+        val names = readLine().split(",").map(_.trim).toList
+
+        controller.setupNewGame(amountPlayers, names)
+    }
+    override def playGame: Unit = {
         println("Starting the game...")
         println("Drawing tokens for each player...")
         controller.startGame()
@@ -57,7 +69,6 @@ class Tui(controller: Controller) extends GameView(controller) with Observer {
 
             case "pass" => {
                 val (newState, message) = controller.passTurn(controller.getState)
-                controller.setStateInternal(newState)
                 println(message)
             }
 
@@ -66,10 +77,6 @@ class Tui(controller: Controller) extends GameView(controller) with Observer {
                 val tokenStrings = readLine().split(",").map(_.trim).toList
                 val (newPlayer, message) = controller.playGroup(tokenStrings, controller.getState.currentPlayer, controller.getState.currentStack)
                 println(message)
-
-                val newState = controller.getState.updateCurrentPlayer(newPlayer)
-
-                controller.setStateInternal(newState)
             }
 
             case "row" => {
@@ -77,10 +84,6 @@ class Tui(controller: Controller) extends GameView(controller) with Observer {
                 val tokenStrings = readLine().split(",").map(_.trim).toList
                 val (newPlayer, message) = controller.playRow(tokenStrings, controller.getState.currentPlayer, controller.getState.currentStack)
                 println(message)
-
-                val newState = controller.getState.updateCurrentPlayer(newPlayer)
-
-                controller.setStateInternal(newState)
             }
 
             case "appendToRow" => {
@@ -92,10 +95,6 @@ class Tui(controller: Controller) extends GameView(controller) with Observer {
 
                 val (updatedPlayer, message) = controller.appendTokenToRow(tokenInput, index)
                 println(message)
-
-                val newState = controller.getState.updateCurrentPlayer(updatedPlayer)
-
-                controller.setStateInternal(newState)
             }
 
             case "appendToGroup" => {
@@ -107,10 +106,6 @@ class Tui(controller: Controller) extends GameView(controller) with Observer {
 
                 val (updatedPlayer, message) = controller.appendTokenToGroup(tokenInput, index)
                 println(message)
-
-                val newState = controller.getState.updateCurrentPlayer(updatedPlayer)
-
-                controller.setStateInternal(newState)
             }
 
             case "undo" => {
@@ -132,5 +127,8 @@ class Tui(controller: Controller) extends GameView(controller) with Observer {
         }
     }
 
-    override def update: Unit = println(controller.playingfieldToString)
+    reactions += {
+        case _: UpdateEvent =>
+            println(controller.playingfieldToString)
+    }
 }
