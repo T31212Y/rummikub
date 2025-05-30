@@ -256,7 +256,7 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
 
           border = BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(borderColor),
-            s"index: ${rowIndex * groupsPerRow + groupIndex}",
+            s"index ${rowIndex * groupsPerRow + groupIndex}",
             javax.swing.border.TitledBorder.CENTER,
             javax.swing.border.TitledBorder.BOTTOM,
             borderFont,
