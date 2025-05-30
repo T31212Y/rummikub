@@ -3,521 +3,227 @@ package de.htwg.se.rummikub.controller
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.rummikub.model._
-import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
+import de.htwg.se.rummikub.state.GameState
 
 class ControllerSpec extends AnyWordSpec {
+
   "A Controller" should {
-    "detect win if player has no tokens" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah")
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
 
-      val pf = controller.playingField.get.copy(players = List(player1.copy(tokens = Nil), player2.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))))
-      controller.playingField = Some(pf)
-      controller.winGame() shouldBe true
+    val player1 = Player("Alice", List(NumToken(1, Color.RED)))
+    val player2 = Player("Bob", List(NumToken(2, Color.BLUE)))
+    val players = List(player1, player2)
+    val boards = List(
+      Board(0, 0, 2, 2, "dest1", 10),
+      Board(1, 0, 2, 2, "dest2", 10)
+    )
+    val table = Table(16, 90, List())
+    val stack = TokenStack(List(NumToken(3, Color.GREEN)))
+    val pf = PlayingField(players, boards, table, stack)
+    val gameMode = new GameModeTemplate(List("Alice", "Bob")) {
+      override def runGameSetup(): Option[PlayingField] = Some(pf)
+      override def renderPlayingField(field: Option[PlayingField]): String = "Spielfeld"
+      override def createPlayingField(players: List[Player]): Option[PlayingField] = Some(pf)
+      override def updatePlayingField(playingField: Option[PlayingField]): Option[PlayingField] = playingField
     }
-
-    "not detect win when no player won yet" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      val pf = controller.playingField.get.copy(players = List(player1.copy(tokens = List(NumToken(1, Color.RED))), player2.copy(tokens = List(NumToken(2, Color.BLUE)))))
-      controller.playingField = Some(pf)
-      controller.winGame() shouldBe false
-    }
-
-    "set a new playing field" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      controller.playingField.get.players.map(_.name) should contain allElementsOf List("Emilia", "Noah")
-    }
-
-    "convert the playing field to a string" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      controller.playingfieldToString should include ("Emilia")
-      controller.playingfieldToString should include ("Noah")
-    }
-
-    "add a token to a player" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val stack = TokenStack()
-
-      controller.addTokenToPlayer(player1, stack)
-      controller.playingField.get.players.find(_.name == "Emilia").get.tokens.size shouldBe 1
-      stack.tokens.size shouldBe 105
-    }
-
-    "keep the correct first player in playingField.players.head after adding a token" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val stack = TokenStack()
-
-      controller.addTokenToPlayer(player1, stack)
-      controller.playingField.get.players.head.name shouldBe "Emilia"
-      controller.playingField.get.players.head.tokens.nonEmpty shouldBe true
-    }
-
-    "remove a token from a player" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      val token = NumToken(1, Color.RED)
-      val p = player1.copy(tokens = List(token))
-      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-      controller.removeTokenFromPlayer(p, token)
-      controller.playingField.get.players.find(_.name == "Emilia").get.tokens should not contain token
-    }
-
-    "add multiple tokens to a player" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val stack = TokenStack()
-
-      controller.addMultipleTokensToPlayer(player1, stack, 2)
-      controller.playingField.get.players.find(_.name == "Emilia").get.tokens.size shouldBe 2
-      stack.tokens.size shouldBe 104
-    }
-
-    "add a row to the table" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      val row = Row(List("1:red", "2:red", "3:red"))
-
-      val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED)))
-      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-      val added = controller.addRowToTable(row, p)
-      val (tokens, player) = added
-      tokens should contain allOf (NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED))
-    }
-
-    "not add a row if tokens are not on the player's board" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      val row = Row(List("9:red", "10:red", "11:red"))
-
-      val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED)))
-      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-      val added = controller.addRowToTable(row, p)
-      val (tokens, player) = added
-      tokens shouldBe empty
-
-    }
-
-    "add a group to the table" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      val group = Group(List("1:red", "1:blue", "1:black"))
-
-      val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE), NumToken(1, Color.BLACK)))
-      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-      val added = controller.addGroupToTable(group, p)
-      val (tokens, player) = added
-      tokens should contain allOf (NumToken(1, Color.RED), NumToken(1, Color.BLUE), NumToken(1, Color.BLACK))
-    }
-
-    "not add a group if tokens are not on the player's board" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      val group = Group(List("9:red", "9:blue", "9:black"))
-
-      val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-      val added = controller.addGroupToTable(group, p)
-      val (tokens, player) = added
-      tokens shouldBe empty
-    }
-
-    "process game input for 'draw'" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val stack = TokenStack()
-
-      val p = player1.copy(tokens = Nil, commandHistory = Nil)
-      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-      val nextPlayer = controller.processGameInput("draw", p, stack)
-      nextPlayer.name shouldBe "Noah"
-      controller.playingField.get.players.find(_.name == "Emilia").get.tokens.size shouldBe 1
-      stack.tokens.size shouldBe 105
-    }
-
-    "process invalid game input" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val stack = TokenStack()
-
-      val p = player1.copy(tokens = Nil)
-      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-      val nextPlayer = controller.processGameInput("invalid", p, stack)
-      nextPlayer.name shouldBe "Emilia"
-    }
-
-    "process game input for 'row' (invalid)" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val input = new ByteArrayInputStream("1:red,2:red,3:red\n".getBytes)
-
-      Console.withIn(input) {
-        val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED)))
-        controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-        controller.processGameInput("row", p, TokenStack())
-        controller.validFirstMoveThisTurn should be(false)
-      }
-    }
-
-    "process game input for 'row' (valid)" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val input = new ByteArrayInputStream("10:red,11:red,12:red\n".getBytes)
-
-      Console.withIn(input) {
-        val p = player1.copy(tokens = List(NumToken(10, Color.RED), NumToken(11, Color.RED), NumToken(12, Color.RED)))
-        controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-        controller.processGameInput("row", p, TokenStack())
-        controller.validFirstMoveThisTurn should be(true)
-      }
-    }
-
-    "process game input for 'group' (invalid)" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val input = new ByteArrayInputStream("1:red,1:blue,1:black\n".getBytes)
-
-      Console.withIn(input) {
-        val p = player1.copy(tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE), NumToken(1, Color.BLACK)))
-        controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-        controller.processGameInput("group", p, TokenStack())
-        controller.validFirstMoveThisTurn should be(false)
-      }
-    }
-
-    "process game input for 'group' (valid)" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val input = new ByteArrayInputStream("10:red,10:blue,10:black\n".getBytes)
-
-      Console.withIn(input) {
-        val p = player1.copy(tokens = List(NumToken(10, Color.RED), NumToken(10, Color.BLUE), NumToken(10, Color.BLACK)))
-        controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-        controller.processGameInput("group", p, TokenStack())
-        controller.validFirstMoveThisTurn should be(true)
-      }
-    }
+    val controller = new Controller(gameMode)
 
     "setup a new game" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      
-      controller.setupNewGame(2, List("Anna", "Ben"))
-      controller.playingField.get.players.map(_.name) shouldBe List("Anna", "Ben")
-      controller.playingField.get.players.map(_.name) shouldBe List("Anna", "Ben")
+      controller.setupNewGame(2, List("Alice", "Bob"))
+      controller.playingField.isDefined shouldBe true
+      controller.gameState.isDefined shouldBe true
+      controller.gameEnded shouldBe false
     }
 
-    "set the next player" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      val nextPlayer = controller.setNextPlayer(player1)
-      nextPlayer.name shouldBe "Noah"
+    "start a game and distribute tokens" in {
+      controller.setupNewGame(2, List("Alice", "Bob"))
+      controller.startGame()
+      controller.getState.players.foreach(_.tokens.size should be >= 1)
     }
 
-    "set the first player after reaching the last player" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      val nextPlayer = controller.setNextPlayer(player2)
-      nextPlayer.name shouldBe "Emilia"
+    "create token stack, row and group" in {
+      controller.createTokenStack() shouldBe a [TokenStack]
+      controller.createRow(List(NumToken(1, Color.RED))) shouldBe a [Row]
+      controller.createGroup(List(NumToken(1, Color.RED))) shouldBe a [Group]
     }
 
-    "parse token string to integer" in {
-      val tokenString = "10:red"
-      val parts = tokenString.split(":")
-      val result = if (parts(0).forall(_.isDigit)) parts(0).toInt else 0
-      result shouldBe 10
+    "add and remove tokens to/from player" in {
+      val (updatedPlayer, updatedStack) = controller.addTokenToPlayer(player1, stack)
+      updatedPlayer.tokens.size shouldBe player1.tokens.size + 1
+      updatedStack.tokens.size shouldBe stack.tokens.size - 1
+
+      noException should be thrownBy controller.removeTokenFromPlayer(updatedPlayer, updatedPlayer.tokens.head)
     }
 
-    "create a Row from a list of strings" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      val tokensList = List("1:red", "2:blue", "3:green")
-      val row = controller.createRow(tokensList)
-      row shouldBe a[Row]
-      row.getTokens.map(_.toString) should be (List("\u001b[31m 1\u001b[0m", "\u001b[34m 2\u001b[0m", "\u001b[32m 3\u001b[0m"))
-    }
-  
-    "create a Group from a list of strings" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-
-      val tokensList = List("4:red", "4:blue", "4:green")
-      val group = controller.createGroup(tokensList)
-      group shouldBe a[Group]
-      group.getTokens.map(_.toString) should be (List("\u001b[31m 4\u001b[0m", "\u001b[34m 4\u001b[0m", "\u001b[32m 4\u001b[0m"))
+    "add multiple tokens to player" in {
+      val (updatedPlayer, updatedStack) = controller.addMultipleTokensToPlayer(player1, stack, 1)
+      updatedPlayer.tokens.size shouldBe player1.tokens.size + 1
+      updatedStack.tokens.size shouldBe stack.tokens.size - 1
     }
 
-    "not allow to pass turn if no token was played (commandHistory is empty)" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
+    "change string list to token list" in {
+      val tokens = controller.changeStringListToTokenList(List("1:red", "J:black"))
+      tokens.size shouldBe 2
+      tokens.exists {
+        case Joker(_) => true
+        case _ => false
+      } shouldBe true
+    }
 
-      val p = player1.copy(commandHistory = Nil)
-      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-      val outStream = new ByteArrayOutputStream()
-      Console.withOut(new PrintStream(outStream)) {
-        val resultPlayer = controller.passTurn(p, false)
-        resultPlayer.name shouldBe "Emilia"
+    "throw IllegalArgumentException for invalid token color" in {
+      val invalidTokenString = List("1:rainbow")
+      val exception = intercept[IllegalArgumentException] {
+        controller.changeStringListToTokenList(invalidTokenString)
       }
-      outStream.toString should include ("The first move must have a total of at least 30 points. You cannot end your turn.")
+      exception.getMessage should include ("Invalid token color: rainbow")
     }
 
-    "pass turn to next player if draw is called after playing at least one token but less than 30 points" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val stack = TokenStack()
-
-      val p = player1.copy(
-        tokens = Nil,
-        commandHistory = List("row:10:red,10:blue")
-      )
-      controller.playingField = Some(controller.playingField.get.copy(players = List(p, player2)))
-      val nextPlayer = controller.processGameInput("draw", p, stack)
-      nextPlayer.name shouldBe "Noah"
-    }
-
-    "match two Joker tokens as equal in tokensMatch" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-
-      val joker1 = Joker(Color.RED)
-      val joker2 = Joker(Color.BLUE)
-      tokensMatch(joker1, joker2) shouldBe true
-    }
-
-    "not match different token types in tokensMatch" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-
-      val joker = Joker(Color.RED)
-      val numToken = NumToken(1, Color.RED)
-      tokensMatch(joker, numToken) shouldBe false
-    }
-
-    "not allow turn to pass if validateFirstMove is false" in {
-      val player1 = Player("Emilia", tokens = List(NumToken(5, Color.RED))).copy(commandHistory = List("row:5:red"))
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-
-      assert(player1.validateFirstMove() == false)
-
-      val result = controller.passTurn(player1, allowWithoutFirstMove = false)
-
-      result shouldBe player1
-    }
-
-    "pass the turn to the next player when 'pass' is entered and the conditions are met" in {
-      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)))
-      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
-      
-      controller.setupNewGame(2, List("Emilia", "Noah"))
-      controller.playingField = Some(controller.playingField.get.copy(players = List(player1, player2)))
-      controller.validFirstMoveThisTurn = true
-      
-      val stack = TokenStack()
-      val resultPlayer = controller.processGameInput("pass", player1, stack)
-      
-      resultPlayer.name shouldBe "Noah"
-    }
-
-    "passTurn should switch to next player and reset commandHistory if first move is valid" in {
-      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)))
-      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
-        
-      controller.setupNewGame(2, List("Emilia", "Noah"))
-      controller.playingField = Some(controller.playingField.get.copy(players = List(player1, player2)))
-      controller.currentPlayerIndex = 0
-
-      val emiliaFromField = controller.playingField.get.players.head
-
-      val outStream = new ByteArrayOutputStream()
-      Console.withOut(new PrintStream(outStream)) {
-        val result = controller.passTurn(emiliaFromField)
-        result.name shouldBe "Noah"
-        result.commandHistory shouldBe empty
-        controller.currentPlayerIndex shouldBe 1
+    "throw IllegalArgumentException for invalid joker color" in {
+      val invalidJokerString = List("J:rainbow")
+      val exception = intercept[IllegalArgumentException] {
+        controller.changeStringListToTokenList(invalidJokerString)
       }
+      exception.getMessage should include ("Invalid joker color: rainbow")
     }
 
-    "undo and redo should not throw" in {
-      val playerNames = List("Emilia", "Noah")
-      val controller = new Controller(GameModeFactory.createGameMode(2, playerNames).get)
-      controller.setupNewGame(2, playerNames)
+    "add row and group to table" in {
+      controller.setPlayingField(Some(pf))
+      val row = controller.createRow(List(NumToken(1, Color.RED)))
+      val (rowTokens, updatedPlayer1) = controller.addRowToTable(row, player1)
+      rowTokens should not be empty
+      updatedPlayer1.tokens shouldBe empty
+
+      val group = controller.createGroup(List(NumToken(2, Color.BLUE)))
+      val (groupTokens, updatedPlayer2) = controller.addGroupToTable(group, player2)
+      groupTokens should not be empty
+      updatedPlayer2.tokens shouldBe empty
+    }
+
+    "support undo and redo" in {
+      controller.setPlayingField(Some(pf))
+      val row = controller.createRow(List(NumToken(1, Color.RED)))
+      controller.executeAddRow(row, player1, stack)
       noException should be thrownBy controller.undo()
       noException should be thrownBy controller.redo()
     }
 
-    "addTokenToPlayer should add a token" in {
-      val playerNames = List("Emilia", "Noah")
-      val controller = new Controller(GameModeFactory.createGameMode(2, playerNames).get)
-      controller.setupNewGame(2, playerNames)
-      val pf = controller.playingField.get
-      val player = pf.players.head
+    "end the game" in {
+      controller.endGame()
+      controller.gameEnded shouldBe true
+    }
+
+    "not allow to play tokens that are not on the player's board" in {
+      controller.setPlayingField(Some(pf))
+      val fakeToken = NumToken(99, Color.BLACK)
+      val row = controller.createRow(List(fakeToken))
+      val stream = new java.io.ByteArrayOutputStream
+      Console.withOut(stream) {
+        val (tokens, updatedPlayer) = controller.addRowToTable(row, player1)
+        tokens shouldBe empty
+        updatedPlayer shouldBe player1
+      }
+      val output = stream.toString
+      output should include ("You can only play tokens that are on your board")
+    }
+
+    "correctly parse green as token color" in {
+      val tokens = controller.changeStringListToTokenList(List("5:green"))
+      tokens should have size 1
+      tokens.head shouldBe NumToken(5, Color.GREEN)
+    }
+
+    "correctly parse black as token color" in {
+      val tokens = controller.changeStringListToTokenList(List("7:black"))
+      tokens should have size 1
+      tokens.head shouldBe NumToken(7, Color.BLACK)
+    }
+
+    "correctly parse red as joker color" in {
+      val tokens = controller.changeStringListToTokenList(List("J:red"))
+      tokens should have size 1
+      tokens.head shouldBe Joker(Color.RED)
+    }
+
+    "execute add group command" in {
+      controller.setPlayingField(Some(pf))
+      val group = controller.createGroup(List(NumToken(2, Color.BLUE)))
+      controller.executeAddGroup(group, player2, stack)
+      controller.getState.players.find(_.name == "Bob").get.tokens shouldBe empty
+    }
+
+    "throw NoSuchElementException if player is not found" in {
+      val missingPlayer = Player("Charlie")
+      val group = controller.createGroup(List(NumToken(2, Color.BLUE)))
+      val exception = intercept[NoSuchElementException] {
+        controller.executeAddGroup(group, missingPlayer, stack)
+      }
+      exception.getMessage should include ("Charlie")
+    }
+
+    "do nothing if undo is called with no previous state" in {
+      noException should be thrownBy controller.undo()
+      controller.getState shouldBe controller.getState
+    }
+
+    "do nothing if redo is called with no next state" in {
+      noException should be thrownBy controller.redo()
+      controller.getState shouldBe controller.getState
+    }
+
+    "return message if invalid token input is given" in {
+      controller.setPlayingField(Some(pf))
+      val invalidTokenString = List("foo")
+      an [IllegalArgumentException] should be thrownBy {
+        controller.addRowToTable(controller.createRow(controller.changeStringListToTokenList(List("foo"))), player1)
+      }
+    }
+
+    "return message if first move requirement is not met when adding a group" in {
+      controller.setPlayingField(Some(pf))
+      val testPlayer = player1.copy(tokens = List(NumToken(5, Color.RED), NumToken(6, Color.RED), NumToken(7, Color.RED)))
+      val groupTokens = List("5:red", "6:red", "7:red") 
+      val (updatedPlayer, msg) = controller.playGroup(groupTokens, testPlayer, stack)
+      msg should be ("Your move is not valid for the first move requirement.")
+    }
+
+    "passTurn should not allow passing if first move is not completed and ignoreFirstMoveCheck is false" in {
+      val player = Player("Emilia", hasCompletedFirstMove = false)
+      val player2 = Player("Noah")
+      val players = Vector(player, player2)
+      val table = Table(16, 90, List.empty)
+      val boards = Vector.empty[Board]
       val stack = TokenStack()
-      controller.addTokenToPlayer(player, stack)
-      controller.playingField.get.players.find(_.name == "Emilia").get.tokens.size shouldBe 1
+      val state = GameState(table, players, boards, 0, stack)
+
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = Some(PlayingField(players.toList, boards.toList, table, stack))
+
+      val (resultState, message) = controller.passTurn(state)
+      resultState shouldBe state
+      message shouldBe "The first move must have a total of at least 30 points. You cannot end your turn."
     }
 
-    "removeTokenFromPlayer should remove a token" in {
-      val playerNames = List("Emilia", "Noah")
-      val controller = new Controller(GameModeFactory.createGameMode(2, playerNames).get)
-      controller.setupNewGame(2, playerNames)
-      val pf = controller.playingField.get
-      val token = NumToken(1, Color.RED)
-      val player = pf.players.head.copy(tokens = List(token))
-      controller.playingField = Some(pf.copy(players = List(player, pf.players(1))))
-      controller.removeTokenFromPlayer(player, token)
-      controller.playingField.get.players.find(_.name == "Emilia").get.tokens should not contain token
-    }
+    "winGame should return true and print winner if a player has no tokens" in {
+      val winner = Player("Emilia", tokens = List())
+      val loser = Player("Noah", tokens = List(NumToken(1, Color.RED)))
+      val pf = PlayingField(List(winner, loser), List(), Table(0, 0, List()), TokenStack())
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = Some(pf)
 
-    "addMultipleTokensToPlayer should add multiple tokens" in {
-      val playerNames = List("Emilia", "Noah")
-      val controller = new Controller(GameModeFactory.createGameMode(2, playerNames).get)
-      controller.setupNewGame(2, playerNames)
-      val pf = controller.playingField.get
-      val player = pf.players.head
-      val stack = TokenStack()
-      controller.addMultipleTokensToPlayer(player, stack, 3)
-      controller.playingField.get.players.find(_.name == "Emilia").get.tokens.size shouldBe 3
-    }
-
-    "winGame should return true if a player has no tokens" in {
-      val playerNames = List("Emilia", "Noah")
-      val controller = new Controller(GameModeFactory.createGameMode(2, playerNames).get)
-      controller.setupNewGame(2, playerNames)
-      val pf = controller.playingField.get
-      val player1 = pf.players.head.copy(tokens = Nil)
-      val player2 = pf.players(1).copy(tokens = List(NumToken(1, Color.RED)))
-      controller.playingField = Some(pf.copy(players = List(player1, player2)))
-      controller.winGame() shouldBe true
+      val output = new java.io.ByteArrayOutputStream()
+      Console.withOut(new java.io.PrintStream(output)) {
+        controller.winGame() shouldBe true
+      }
+      output.toString should include ("Player Emilia wins the game!")
     }
 
     "winGame should return false if no player has won" in {
-      val playerNames = List("Emilia", "Noah")
-      val controller = new Controller(GameModeFactory.createGameMode(2, playerNames).get)
-      controller.setupNewGame(2, playerNames)
-      val pf = controller.playingField.get
-
-      val player1 = pf.players.head.copy(tokens = List(NumToken(1, Color.RED)))
-      val player2 = pf.players(1).copy(tokens = List(NumToken(2, Color.BLUE)))
-      controller.playingField = Some(pf.copy(players = List(player1, player2)))
-      controller.winGame() shouldBe false
-    }
-
-    "processGameInput should handle unknown command" in {
-      val playerNames = List("Emilia", "Noah")
-      val controller = new Controller(GameModeFactory.createGameMode(2, playerNames).get)
-      controller.setupNewGame(2, playerNames)
-      val pf = controller.playingField.get
-      val player = pf.players.head
-      val stack = TokenStack()
-      val result = controller.processGameInput("foobar", player, stack)
-      result shouldBe player
-    }
-
-    "setNextPlayer should return the given player if playingField is None" in {
-      val player = Player("Emilia")
+      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
+      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
+      val pf = PlayingField(List(player1, player2), List(), Table(0, 0, List()), TokenStack())
       val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
-      controller.playingField = None
+      controller.playingField = Some(pf)
 
-      val result = controller.setNextPlayer(player)
-      result shouldBe player
+      controller.winGame() shouldBe false
     }
 
     "winGame should return false if playingField is None" in {
@@ -527,94 +233,89 @@ class ControllerSpec extends AnyWordSpec {
       controller.winGame() shouldBe false
     }
 
-    "processGameInput should call undo and return the current player for 'undo' command" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val stack = TokenStack()
+    "addGroupToTable should not allow playing tokens not on the player's board" in {
+      val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
+      val token = NumToken(9, Color.BLACK)
+      val group = Group(List(token))
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = Some(PlayingField(List(player), List(), Table(0, 0, List()), TokenStack.apply()))
 
-      var undoCalled = false
-      val testController = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get) {
-        override def undo(): Unit = { undoCalled = true }
+      val stream = new java.io.ByteArrayOutputStream()
+      Console.withOut(stream) {
+        val (tokens, updatedPlayer) = controller.addGroupToTable(group, player)
+        tokens shouldBe empty
+        updatedPlayer shouldBe player
       }
-      testController.setupNewGame(2, players.map(_.name))
-
-      val result = testController.processGameInput("undo", player1, stack)
-      undoCalled shouldBe true
-      result shouldBe player1
+      val output = stream.toString
+      output should include ("You can only play tokens that are on your board")
     }
 
-    "processGameInput should call redo and return the current player for 'redo' command" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val players = List(player1, player2)
-      val controller = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get)
-      controller.setupNewGame(2, players.map(_.name))
-      val stack = TokenStack()
-
-      var redoCalled = false
-      val testController = new Controller(GameModeFactory.createGameMode(2, players.map(_.name)).get) {
-        override def redo(): Unit = { redoCalled = true }
-      }
-      testController.setupNewGame(2, players.map(_.name))
-
-      val result = testController.processGameInput("redo", player1, stack)
-      redoCalled shouldBe true
-      result shouldBe player1
-    }
-
-    "getState should return an empty GameState if playingField is None" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
-      controller.playingField = None
-
-      val state = controller.getState
-      state.table shouldBe Table(16, 90, List.empty)
-      state.players shouldBe empty
-      state.boards shouldBe empty
-      state.currentPlayerIndex shouldBe 0
-    }
-
-    "setNextPlayer should return the first player if current player is not found" in {
-      val player1 = Player("Emilia")
+    "drawFromStackAndPass should handle the None case for turnStartState" in {
+      val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
       val player2 = Player("Noah")
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
-      controller.setupNewGame(2, List("Emilia", "Noah"))
-      val pf = controller.playingField.get
-      controller.playingField = Some(pf.copy(players = List(player1, player2)))
+      val table = Table(16, 90, List.empty)
+      val boards = Vector.empty[Board]
+      val stack = TokenStack.apply()
+      val state = GameState(table, Vector(player, player2), boards, 0, stack)
 
-      val unknownPlayer = Player("Unbekannt")
-      val result = controller.setNextPlayer(unknownPlayer)
-      result shouldBe player1
-      controller.currentPlayerIndex shouldBe 0
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.playingField = Some(PlayingField(List(player), boards.toList, table, stack))
+      controller.gameState = Some(state)
+      controller.turnStartState = None
+
+      val (resultState, message) = controller.drawFromStackAndPass
+
+      resultState.players.head.tokens.nonEmpty shouldBe true
     }
 
-    "setNextPlayer should return the first player if current player is the last in the list" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah")
+    "playRow should return error if row is not valid" in {
       val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
-      controller.setupNewGame(2, List("Emilia", "Noah"))
-      val pf = controller.playingField.get
-      controller.playingField = Some(pf.copy(players = List(player1, player2)))
-
-      val result = controller.setNextPlayer(player2)
-      result shouldBe player1
-      controller.currentPlayerIndex shouldBe 0
+      val player = Player("Emilia")
+      val stack = TokenStack.apply()
+      val (resultPlayer, message) = controller.playRow(List("1:red"), player, stack)
+      resultPlayer shouldBe player
+      message shouldBe "Your move is not valid for the first move requirement."
     }
 
-    "setNextPlayer should return the next player in the list" in {
-      val player1 = Player("Emilia")
-      val player2 = Player("Noah")
-      val player3 = Player("Lina")
-      val controller = new Controller(GameModeFactory.createGameMode(3, List("Emilia", "Noah", "Lina")).get)
-      controller.setupNewGame(3, List("Emilia", "Noah", "Lina"))
-      val pf = controller.playingField.get
-      controller.playingField = Some(pf.copy(players = List(player1, player2, player3)))
+    "playRow should place a valid row and return success message" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val player = Player("Emilia", tokens = List(NumToken(10, Color.RED), NumToken(11, Color.RED), NumToken(12, Color.RED)))
+      val stack = TokenStack.apply()
+      controller.setPlayingField(Some(PlayingField(List(player), List(), Table(0, 0, List()), stack)))
+      val (resultPlayer, message) = controller.playRow(List("10:red", "11:red", "12:red"), player, stack)
+      message shouldBe "Row successfully placed."
+      resultPlayer.hasCompletedFirstMove shouldBe true
+    }
 
-      val result = controller.setNextPlayer(player1)
-      result shouldBe player2
-      controller.currentPlayerIndex shouldBe 1
+    "playGroup should return error if group is not valid" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val player = Player("Emilia")
+      val stack = TokenStack.apply()
+      val (resultPlayer, message) = controller.playGroup(List("1:red"), player, stack)
+      resultPlayer shouldBe player
+      message shouldBe "Your move is not valid for the first move requirement."
+    }
+
+    "playGroup should place a valid group and return success message" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val player = Player("Emilia", tokens = List(NumToken(10, Color.RED), NumToken(10, Color.BLACK), NumToken(10, Color.BLUE)))
+      val stack = TokenStack.apply()
+      controller.setPlayingField(Some(PlayingField(List(player), List(), Table(0, 0, List()), stack)))
+      val (resultPlayer, message) = controller.playGroup(List("10:red", "10:black", "10:blue"), player, stack)
+      message shouldBe "Group successfully placed."
+      resultPlayer.hasCompletedFirstMove shouldBe true
+    }
+
+    "beginTurn should do nothing if commandHistory is not empty" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      controller.turnStartState = None
+      val oldUndoManager = controller.turnUndoManager
+
+      val player = Player("Emilia", commandHistory = List("row:10:red,11:red,12:red"))
+      controller.beginTurn(player)
+
+      controller.turnStartState shouldBe None
+      controller.turnUndoManager shouldBe oldUndoManager
     }
   }
 }

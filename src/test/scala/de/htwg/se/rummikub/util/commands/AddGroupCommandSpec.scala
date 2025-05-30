@@ -11,7 +11,7 @@ class AddGroupCommandSpec extends AnyWordSpec {
   "An AddGroupCommand" should {
     "remove tokens from player and update removedTokens on doStep" in {
         val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
-        val group = Group(List("1:red", "1:blue"))
+        val group = Group(List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
@@ -29,7 +29,7 @@ class AddGroupCommandSpec extends AnyWordSpec {
 
     "restore old state on undoStep" in {
         val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED)))
-        val group = Group(List("1:red"))
+        val group = Group(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
@@ -45,7 +45,7 @@ class AddGroupCommandSpec extends AnyWordSpec {
 
     "print message if no old state on undoStep" in {
         val player = Player("TestPlayer")
-        val group = Group(List("1:red"))
+        val group = Group(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
@@ -63,7 +63,7 @@ class AddGroupCommandSpec extends AnyWordSpec {
 
     "redoStep should call doStep" in {
         val player = Player("TestPlayer")
-        val group = Group(List("1:red"))
+        val group = Group(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))

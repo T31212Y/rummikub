@@ -11,7 +11,7 @@ class AddRowCommandSpec extends AnyWordSpec {
   "An AddRowCommand" should {
     "remove tokens from player and update removedTokens on doStep" in {
         val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-        val row = Row(List("1:red", "2:blue"))
+        val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
@@ -29,7 +29,7 @@ class AddRowCommandSpec extends AnyWordSpec {
 
     "restore old state on undoStep" in {
         val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED)))
-        val row = Row(List("1:red"))
+        val row = Row(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
@@ -45,7 +45,7 @@ class AddRowCommandSpec extends AnyWordSpec {
 
     "print message if no old state on undoStep" in {
         val player = Player("TestPlayer")
-        val row = Row(List("1:red"))
+        val row = Row(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
@@ -63,7 +63,7 @@ class AddRowCommandSpec extends AnyWordSpec {
 
     "redoStep should call doStep" in {
         val player = Player("TestPlayer")
-        val row = Row(List("1:red"))
+        val row = Row(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))

@@ -23,11 +23,29 @@ class PlayerSpec extends AnyWordSpec {
       player2.validateFirstMove() should be(false)
     }
 
+    "return false and print message if first move tokens cannot form valid groups or rows" in {
+      val player = Player("Anki", firstMoveTokens = List(
+        NumToken(1, Color.RED), NumToken(3, Color.BLUE), NumToken(5, Color.BLACK)
+      ))
+      val out = new java.io.ByteArrayOutputStream()
+      Console.withOut(out) {
+        player.validateFirstMove() shouldBe false
+      }
+      out.toString should include ("first move is invalid")
+    }
+
     "add tokens to first move" in {
       val player = Player("Anki")
       val newTokens = List(NumToken(10, Color.RED), NumToken(10, Color.BLUE), NumToken(10, Color.GREEN))
       val updatedPlayer = player.addToFirstMoveTokens(newTokens)
       updatedPlayer.firstMoveTokens should contain theSameElementsAs newTokens
+    }
+
+    "return empty list if clusterTokens finds no valid solution" in {
+      val player = Player("Anki")
+      val impossibleTokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE))
+      val result = player.clusterTokens(impossibleTokens)
+      result shouldBe empty
     }
   }
 }

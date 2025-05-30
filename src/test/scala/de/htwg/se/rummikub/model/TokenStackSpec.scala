@@ -8,7 +8,7 @@ class TokenStackSpec extends AnyWordSpec {
         "remove a token from the stack" in {
             val joker = Joker(Color.BLACK)
             val stack = TokenStack().removeToken(joker) 
-            stack should not contain joker
+            stack.tokens should not contain (joker)
         }
 
         "check if the stack is empty" in {
@@ -32,15 +32,15 @@ class TokenStackSpec extends AnyWordSpec {
         }
         "draw a token from the stack" in {
             val stack = TokenStack()
-            val token = stack.drawToken()
+            val (token, updatedStack) = stack.drawToken()
             token should not be null
-            stack.size should be(105)
+            updatedStack.size should be(105)
         }
-        "draw multiple tokens from the stack" in {
+        "should draw multiple tokens from the stack" in {
             val stack = TokenStack()
-            val tokens = stack.drawMultipleTokens(3)
+            val (tokens, updatedStack) = stack.drawMultipleTokens(3)
             tokens.size should be(3)
-            stack.size should be(103)
+            updatedStack.size should be(103)
         }
     }
 }

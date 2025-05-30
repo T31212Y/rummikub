@@ -68,6 +68,18 @@ class TwoPlayerModeSpec extends AnyWordSpec {
       str should include ("Moritz")
     }
 
+    "render the PlayingField as a string with method render" in {
+      val pf = mode.createPlayingField(players)
+
+      val out = new java.io.ByteArrayOutputStream()
+      Console.withOut(new java.io.PrintStream(out)) {
+        mode.render(pf)
+      }
+
+      out.toString should include ("Azra")
+      out.toString should include ("Moritz")
+    }
+
     "renderPlayingField returns error string if None" in {
       mode.renderPlayingField(None) should include ("No playing field available")
     }
@@ -83,18 +95,18 @@ class TwoPlayerModeSpec extends AnyWordSpec {
     }
 
     "A player's board should split tokens correctly when more than cntTokens are present" in {
-      val stack = new TokenStack()
-      val manyTokens = stack.drawMultipleTokens(30)
-      val player = Player("Azra", manyTokens)
+      val stack = TokenStack.apply()
+      val manyTokensTuple = stack.drawMultipleTokens(30)
+      val player = Player("Azra", manyTokensTuple._1)
       val board = new Board(24, 14, 2, 2, "default", 10)
 
       val updatedOpt = mode.updateBoardSinglePlayer(player, board)
       updatedOpt.isDefined shouldBe true
 
       val updatedBoard = updatedOpt.get
-      updatedBoard.boardELRP12_1 shouldBe board.formatBoardRow(manyTokens.take(mode.cntTokens))
-      updatedBoard.boardELRP12_2 shouldBe board.formatBoardRow(manyTokens.drop(mode.cntTokens))
-      updatedBoard.boardEUD shouldBe board.createBoardFrameSingle(manyTokens.take(mode.cntTokens))
+      updatedBoard.boardELRP12_1 shouldEqual board.formatBoardRow(manyTokensTuple._1.take(mode.cntTokens))
+      updatedBoard.boardELRP12_2 shouldEqual board.formatBoardRow(manyTokensTuple._1.drop(mode.cntTokens))
+      updatedBoard.boardEUD shouldEqual board.createBoardFrameSingle(manyTokensTuple._1.take(mode.cntTokens))
     }
   }
 }

@@ -6,58 +6,112 @@ import org.scalatest.matchers.should.Matchers._
 class RowSpec extends AnyWordSpec {
   "Row" should {
     "be created with a list of tokens" in {
-        val token1 = "7:blue"
-        val token2 = "8:blue"
-        val token3 = "9:blue"
-        val row = Row(List(token1, token2, token3))
         val tokenFactory = new StandardTokenFactory
-        row.getTokens should be (List(tokenFactory.createNumToken(7, Color.BLUE), tokenFactory.createNumToken(8, Color.BLUE), tokenFactory.createNumToken(9, Color.BLUE)))
+        val token1 = tokenFactory.createNumToken(7, Color.BLUE)
+        val token2 = tokenFactory.createNumToken(8, Color.BLUE)
+        val token3 = tokenFactory.createNumToken(9, Color.BLUE)
+        val row = Row(List(token1, token2, token3))
+        row.getTokens should be (List(token1, token2, token3))
     }
 
     "add a token" in {
-      val token = "1:red"
-      val row = Row(List(token))
       val tokenFactory = new StandardTokenFactory
+      val token = tokenFactory.createNumToken(1, Color.RED)
+      val row = Row(List(token))
       val tokenToAdd = tokenFactory.createNumToken(1, Color.RED)
       row.addToken(tokenToAdd)
       row.getTokens should contain (tokenToAdd)
     }
 
     "remove a token" in {
-      val token1 = "11:blue"
-      val token2 = "12:blue"
-      val token3 = "13:blue"
-      val row = Row(List(token1, token2, token3))
       val tokenFactory = new StandardTokenFactory
+      val token1 = tokenFactory.createNumToken(11, Color.BLUE)
+      val token2 = tokenFactory.createNumToken(12, Color.BLUE)
+      val token3 = tokenFactory.createNumToken(13, Color.BLUE)
+      val row = Row(List(token1, token2, token3))
       val tokenToRemove = tokenFactory.createNumToken(13, Color.BLUE)
       row.removeToken(tokenToRemove)
       row.getTokens should not contain (tokenToRemove)
     }
 
     "get tokens" in {
-      val token1 = "13:green"
-      val token2 = "1:green"
-      val token3 = "2:green"
-      val row = Row(List(token1, token2, token3))
       val tokenFactory = new StandardTokenFactory
+      val token1 = tokenFactory.createNumToken(13, Color.GREEN)
+      val token2 = tokenFactory.createNumToken(1, Color.GREEN)
+      val token3 = tokenFactory.createNumToken(2, Color.GREEN)
+      val row = Row(List(token1, token2, token3))
       val tokenToGet = tokenFactory.createNumToken(13, Color.GREEN)
       row.getTokens should contain (tokenToGet)
     }
 
     "have a correct string representation" in {
-      val token1 = "5:red"
-      val token2 = "6:red"
-      val token3 = "J:red"
-      val token4 = "J:black"
+      val tokenFactory = new StandardTokenFactory
+      val token1 = tokenFactory.createNumToken(5, Color.RED)
+      val token2 = tokenFactory.createNumToken(6, Color.RED)
+      val token3 = tokenFactory.createJoker(Color.RED)
+      val token4 = tokenFactory.createJoker(Color.BLACK)
       val row = Row(List(token1, token2, token3, token4))
       row.toString should be (row.getTokens.map(_.toString).mkString(" "))
     }
 
     "change string list to token list" in {
-      val tokenStrings = List("1:red", "2:blue", "3:green", "4:black")
-      val row = Row(tokenStrings)
       val tokenFactory = new StandardTokenFactory
-      row.changeStringListToTokenList(tokenStrings) should be (List(tokenFactory.createNumToken(1, Color.RED), tokenFactory.createNumToken(2, Color.BLUE), tokenFactory.createNumToken(3, Color.GREEN), tokenFactory.createNumToken(4, Color.BLACK)))
+      val token1 = tokenFactory.createNumToken(5, Color.RED)
+      val token2 = tokenFactory.createNumToken(6, Color.RED)
+      val token3 = tokenFactory.createJoker(Color.RED)
+      val token4 = tokenFactory.createJoker(Color.BLACK)
+      val row = Row(List(token1, token2, token3, token4))
+      row.toString should be (row.getTokens.map(_.toString).mkString(" "))
+    }
+
+    "isValid should return false if numTokens is empty" in {
+      val row = Row(List())
+      row.isValid shouldBe false
+    }
+
+    "countMissingValues should return Int.MaxValue if actualValues and missing overlap" in {
+      val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED)))
+      val actualValues = List(1, 2, 3)
+      val targetSeq = List(2, 3, 4)
+      val result = row.isValid
+      succeed
+    }
+
+    "jokerValues should return None if numTokens is empty" in {
+      val row = Row(List(Joker(Color.RED), Joker(Color.BLACK)))
+      row.jokerValues shouldBe None
+    }
+
+    "jokerValues should return None if no valid sequence is found" in {
+      val row = Row(List(NumToken(1, Color.RED), NumToken(5, Color.RED), Joker(Color.RED)))
+      row.jokerValues shouldBe None
+    }
+
+    "points should use case _ => 0 in zipAll" in {
+      val row = Row(List(Joker(Color.RED), Joker(Color.BLACK)))
+      row.points shouldBe 0
+    }
+
+    "points should sum tokens if jokerValues is None" in {
+      val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.RED)))
+      row.points shouldBe 3
+    }
+
+    "return Int.MaxValue in countMissingValues if actualValues and missing overlap" in {
+      val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED)))
+      val targetSeq = List(1, 2, 3, 3)
+      val actualValues = List(1, 2, 3)
+      val method = row.getClass.getDeclaredMethod("countMissingValues", classOf[List[Int]], classOf[List[Int]])
+      method.setAccessible(true)
+      val result = method.invoke(row, targetSeq, actualValues).asInstanceOf[Int]
+
+      result shouldBe Int.MaxValue
+    }
+
+    "points should sum only NumToken values if jokerValues is None" in {
+      val dummyToken = NumToken(0, Color.RED)
+      val row = Row(List(NumToken(5, Color.RED), dummyToken))
+      row.points shouldBe 5
     }
   }
 }

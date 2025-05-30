@@ -15,17 +15,17 @@ class TuiSpec extends AnyWordSpec with Matchers {
     val tui = new Tui(controller)
 
     "show welcome message" in {
-      val welcome = tui.showWelcome()
+      val welcome = tui.showWelcome
       welcome should not be empty
-      welcome.head should be ("Welcome to")
+      welcome.exists(_.contains("Welcome to")) should be (true)
     }
 
     "show help text" in {
-      tui.showHelp() should be ("Type 'help' for a list of commands.")
+      tui.showHelp should include ("Type 'help' for a list of commands.")
     }
 
     "show help page" in {
-      val helpPage = tui.showHelpPage()
+      val helpPage = tui.showHelpPage
       helpPage should not be empty
       helpPage should be (Vector("Available commands:",
                "new - Create a new game",
@@ -35,16 +35,19 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "ask for number of players" in {
-      tui.askAmountOfPlayers() should be ("Please enter the number of players (2-4):")
+      tui.askAmountOfPlayers should be ("Please enter the number of players (2-4):")
     }
 
     "ask for player names" in {
-      tui.askPlayerNames() should include ("Please enter the names of the players (comma-separated):")
+      tui.askPlayerNames should be ("Please enter the names of the players (comma-separated):")
     }
 
     "show goodbye message" in {
-      tui.showGoodbye() should include ("Thank you for playing Rummikub! Goodbye!")
+      tui.inputCommands("quit")
+      controller.gameEnded = true
+      tui.showGoodbye should include ("Thank you for playing Rummikub! Goodbye!")
     }
+
 
     "handle 'new' command" in {
       val in = new ByteArrayInputStream("2\nAlice,Bob\n".getBytes)
@@ -102,30 +105,123 @@ class TuiSpec extends AnyWordSpec with Matchers {
       outContent.toString should not include ("Exception")
     }
 
-    "print error if no players are available when starting the game" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List()).get)
-      val tui = new Tui(controller)
-      controller.playingField = Some(PlayingField(Nil, Nil, null)) 
-
+    "print invalid command for unknown input" in {
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
-        tui.inputCommands("start")
+        tui.processGameInput("foobar")
       }
-      out.toString should include ("No players available.")
+      out.toString should include ("Invalid command.")
     }
 
-    "not throw if playingField is None when starting the game" in {
+    "handle 'draw' command" in {
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+        tui.processGameInput("draw")
+      }
+      out.toString should include ("Drawing a token")
+    }
+
+    "handle 'pass' command" in {
+      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)), hasCompletedFirstMove = true)
+      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
       val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
       val tui = new Tui(controller)
-      controller.playingField = None 
+      
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      controller.playingField = Some(controller.playingField.get.copy(players = List(player1, player2)))
+      
+      val stack = TokenStack()
 
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
-
-        tui.inputCommands("start")
+        tui.processGameInput("pass")
       }
-    
-      succeed
+      println("output test" + out.toString)
+      out.toString should include ("ended their turn")
+    }
+
+    "handle 'undo' and 'redo' commands" in {
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+        tui.processGameInput("undo")
+        tui.processGameInput("redo")
+      }
+      out.toString should include ("Undo successful.")
+    }
+
+    "handle 'end' command" in {
+      controller.gameEnded = false
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+        tui.processGameInput("end")
+      }
+      out.toString should include ("Exiting the game")
+      controller.gameEnded shouldBe true
+    }
+
+    "handle 'group' command" in {
+      val in = new ByteArrayInputStream("1:red,2:blue\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("group")
+        }
+        out.toString should (include ("Enter the tokens to play as group") or include ("Group"))
+      }
+    }
+
+    "handle 'row' command" in {
+      val in = new ByteArrayInputStream("1:red,2:blue\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("row")
+        }
+        out.toString should (include ("Enter the tokens to play as row") or include ("Row"))
+      }
+    }
+
+    "handle 'appendToRow' command" in {
+      val in = new ByteArrayInputStream("1:red\n0\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("appendToRow")
+        }
+        out.toString should include ("Enter the token to append")
+      }
+    }
+
+    "handle 'appendToGroup' command" in {
+      val in = new ByteArrayInputStream("1:red\n0\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("appendToGroup")
+        }
+        out.toString should include ("Enter the token to append")
+      }
+    }
+
+    "display the available commands" in {
+      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val tui = new Tui(controller)
+
+      val result = tui.showAvailableCommands
+
+      val expected = Vector(
+        "Available commands:",
+        "draw - Draw a token from the stack and pass your turn",
+        "pass - Pass your turn",
+        "row - Play a row of tokens",
+        "group - Play a group of tokens",
+        "appendToRow - Append a token to an existing row",
+        "appendToGroup - Append a token to an existing group",
+        "undo - Undo last move",
+        "redo - Redo last undone move"
+      )
+
+      result shouldBe expected
     }
   }
 }

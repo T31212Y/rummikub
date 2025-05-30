@@ -11,10 +11,12 @@ class TwoPlayerFieldDirector(builder: PlayingFieldBuilder) {
       val boardP2 = new Board(cntEdgeSpaces, cntTokens, 2, 1, "down")
 
       val innerField = new Table(cntRows - 4, boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)) - 2)
-  
+      val stack = TokenStack.apply()
+
       builder.setPlayers(players)
         .setBoards(List(boardP1, boardP2))
         .setInnerField(innerField)
+        .setStack(stack)
         .build()
     }
 }
