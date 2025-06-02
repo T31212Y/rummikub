@@ -1,6 +1,9 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 
-case class Player(name: String, tokens: List[Token] = List(), commandHistory: List[String] = List(), firstMoveTokens: List[Token] = List(), hasCompletedFirstMove: Boolean = false) {
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.{Token, TokenStructure, Row, Group}
+
+case class Player(name: String, tokens: List[Token] = List(), commandHistory: List[String] = List(), firstMoveTokens: List[Token] = List(), hasCompletedFirstMove: Boolean = false) extends PlayerInterface {
 
   override def toString: String = {
     s"Player: $name"
