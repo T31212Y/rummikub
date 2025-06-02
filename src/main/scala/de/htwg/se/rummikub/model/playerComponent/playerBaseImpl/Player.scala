@@ -9,7 +9,7 @@ case class Player(name: String, tokens: List[Token] = List(), commandHistory: Li
     s"Player: $name"
   }
 
-  def validateFirstMove(): Boolean = {
+  override def validateFirstMove: Boolean = {
     val structures = clusterTokens(firstMoveTokens)
 
     if (structures.isEmpty) {
@@ -25,17 +25,17 @@ case class Player(name: String, tokens: List[Token] = List(), commandHistory: Li
     } else true
   }
 
-  def addToFirstMoveTokens(newTokens: List[Token]): Player = {
+  override def addToFirstMoveTokens(newTokens: List[Token]): Player = {
     this.copy(firstMoveTokens = this.firstMoveTokens ++ newTokens)
   }
 
-  def deepCopy: Player = this.copy(
+  override def deepCopy: Player = this.copy(
     tokens = this.tokens.map(identity),
     firstMoveTokens = this.firstMoveTokens.map(identity),
     commandHistory = this.commandHistory.map(identity)
   )
 
-  def clusterTokens(tokens: List[Token]): List[TokenStructure] = {
+  override def clusterTokens(tokens: List[Token]): List[TokenStructure] = {
     
     def backtrack(remaining: List[Token], acc: List[TokenStructure]): Option[List[TokenStructure]] = {
       if (remaining.isEmpty) {

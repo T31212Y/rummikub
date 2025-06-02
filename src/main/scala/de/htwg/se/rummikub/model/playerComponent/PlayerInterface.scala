@@ -2,9 +2,9 @@ package de.htwg.se.rummikub.model.playerComponent
 
 import de.htwg.se.rummikub.model.{Token, TokenStructure}
 
-trait Player {
+trait PlayerInterface {
   def validateFirstMove: Boolean
-  def addToFirstMoveTokens(newTokens: List[Token]): Player
-  def deepCopy: Player
+  def addToFirstMoveTokens(newTokens: List[Token]): PlayerInterface
+  def deepCopy: PlayerInterface
   def clusterTokens(tokens: List[Token]): List[TokenStructure]
 }
