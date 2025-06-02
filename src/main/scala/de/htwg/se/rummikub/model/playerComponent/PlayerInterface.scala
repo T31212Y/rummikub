@@ -1,10 +1,12 @@
 package de.htwg.se.rummikub.model.playerComponent
 
-import de.htwg.se.rummikub.model.{Token, TokenStructure}
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+
+import de.htwg.se.rummikub.model.TokenStructure
 
 trait PlayerInterface {
   def validateFirstMove: Boolean
-  def addToFirstMoveTokens(newTokens: List[Token]): PlayerInterface
+  def addToFirstMoveTokens(newTokens: List[TokenInterface]): PlayerInterface
   def deepCopy: PlayerInterface
-  def clusterTokens(tokens: List[Token]): List[TokenStructure]
+  def clusterTokens(tokens: List[TokenInterface]): List[TokenStructure]
 }
