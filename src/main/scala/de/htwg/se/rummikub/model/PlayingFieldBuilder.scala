@@ -1,4 +1,6 @@
 package de.htwg.se.rummikub.model
+import playerComponent.Player
+import playerComponent.playerBaseImpl.Player
 
 trait PlayingFieldBuilder {
     def setPlayers(players: List[Player]): PlayingFieldBuilder

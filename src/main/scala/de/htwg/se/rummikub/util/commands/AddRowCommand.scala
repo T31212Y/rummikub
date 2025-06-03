@@ -4,6 +4,8 @@ import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.controller.Controller
 import de.htwg.se.rummikub.util.Command
 import de.htwg.se.rummikub.state.GameState
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.tokenComponent.Token
 
 class AddRowCommand(controller: Controller, row: Row, player: Player, stack: TokenStack) extends Command {
 

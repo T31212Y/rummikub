@@ -1,6 +1,7 @@
 package de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl
 
 import scala.util.Random
+
 import de.htwg.se.rummikub.model.TokenStructureComponent.TokenStructureInterface
 
 case class TokenStack(tokens: List[TokenStructureInterface]) {
