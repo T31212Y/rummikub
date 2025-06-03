@@ -1,40 +1,46 @@
 package de.htwg.se.rummikub.model
 
 import scala.util.{Try, Failure, Success}
-import playingfieldComponent.PlayingField
-import playingfieldComponent.playingFieldBaseImpl.Table
+import de.htwg.se.rummikub.model.playingfieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.TableInterface
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.BoardInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.TokenStackInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl.PlayingField
+
 
 class StandardPlayingFieldBuilder extends PlayingFieldBuilder {
-    private var players: Option[List[Player]] = None
-    private var boards: Option[List[Board]] = None
-    private var innerField: Option[Table] = None
-    private var stack: Option[TokenStack] = None
+    private var players: Option[List[PlayerInterface]] = None
+    private var boards: Option[List[BoardInterface]] = None
+    private var innerField: Option[TableInterface] = None
+    private var stack: Option[TokenStackInterface] = None
 
-    override def setPlayers(players: List[Player]): PlayingFieldBuilder = {
+    override def setPlayers(players: List[PlayerInterface]): PlayingFieldBuilder = {
       this.players = Some(players)
       this
     }
 
-    override def setBoards(boards: List[Board]): PlayingFieldBuilder = {
+    override def setBoards(boards: List[BoardInterface]): PlayingFieldBuilder = {
       this.boards = Some(boards)
       this
     }
 
-    override def setInnerField(innerField: Table): PlayingFieldBuilder = {
+    override def setInnerField(innerField: TableInterface): PlayingFieldBuilder = {
       this.innerField = Some(innerField)
       this
     }
 
-    override def setStack(stack: TokenStack): PlayingFieldBuilder = {
+    override def setStack(stack: TokenStackInterface): PlayingFieldBuilder = {
       this.stack = Some(stack)
       this
     }
 
-    override def build(): PlayingField = {
+    override def build(): PlayingFieldInterface = {
       val p = players.getOrElse(throw new IllegalStateException("Players not set"))
       val b = boards.getOrElse(throw new IllegalStateException("Boards not set"))
       val i = innerField.getOrElse(throw new IllegalStateException("InnerField not set"))
       val s = stack.getOrElse(throw new IllegalStateException("Stack not set"))
       PlayingField(p, b, i, s)
+
     }
 }
