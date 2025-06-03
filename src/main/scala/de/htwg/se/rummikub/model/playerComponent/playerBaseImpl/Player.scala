@@ -1,11 +1,11 @@
 package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.TokenStructureComponent.TokenStructureInterface
 
-import de.htwg.se.rummikub.model.TokenStructureComponent.{TokenStructure, Row, Group}
+import de.htwg.se.rummikub.model.TokenStructureComponent.TokenStructureBaseImpl.{Row, Group}
 
-case class Player(name: String, tokens: List[TokenInterface] = List(), commandHistory: List[String] = List(), firstMoveTokens: List[TokenInterface] = List(), hasCompletedFirstMove: Boolean = false) extends PlayerInterface {
+case class Player(name: String, tokens: List[TokenStructureInterface] = List(), commandHistory: List[String] = List(), firstMoveTokens: List[TokenStructureInterface] = List(), hasCompletedFirstMove: Boolean = false) extends PlayerInterface {
 
   override def toString: String = {
     s"Player: $name"
@@ -27,7 +27,7 @@ case class Player(name: String, tokens: List[TokenInterface] = List(), commandHi
     } else true
   }
 
-  override def addToFirstMoveTokens(newTokens: List[TokenInterface]): Player = {
+  override def addToFirstMoveTokens(newTokens: List[TokenStructureInterface]): Player = {
     this.copy(firstMoveTokens = this.firstMoveTokens ++ newTokens)
   }
 
@@ -37,9 +37,9 @@ case class Player(name: String, tokens: List[TokenInterface] = List(), commandHi
     commandHistory = this.commandHistory.map(identity)
   )
 
-  override def clusterTokens(tokens: List[TokenInterface]): List[TokenStructure] = {
+  override def clusterTokens(tokens: List[TokenStructureInterface]): List[TokenStructureInterface] = {
     
-    def backtrack(remaining: List[TokenInterface], acc: List[TokenStructure]): Option[List[TokenStructure]] = {
+    def backtrack(remaining: List[TokenStructureInterface], acc: List[TokenStructureInterface]): Option[List[TokenStructureInterface]] = {
       if (remaining.isEmpty) {
         Some(acc)
       } else {
@@ -51,8 +51,9 @@ case class Player(name: String, tokens: List[TokenInterface] = List(), commandHi
           subset <- remaining.combinations(size)
         } yield {
           val ts = subset.toList
-          val group = Group(ts)
-          val row = Row(ts)
+          val tokenList = ts.flatMap(_.tokens)
+          val group = Group(tokenList)
+          val row = Row(tokenList)
           List(group, row).filter(_.isValid).map(validSet => (validSet, ts))
         }
 
