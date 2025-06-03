@@ -3,7 +3,7 @@ package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 
-import de.htwg.se.rummikub.model.{TokenStructure, Row, Group}
+import de.htwg.se.rummikub.model.TokenStructureComponent.{TokenStructure, Row, Group}
 
 case class Player(name: String, tokens: List[TokenInterface] = List(), commandHistory: List[String] = List(), firstMoveTokens: List[TokenInterface] = List(), hasCompletedFirstMove: Boolean = false) extends PlayerInterface {
 
