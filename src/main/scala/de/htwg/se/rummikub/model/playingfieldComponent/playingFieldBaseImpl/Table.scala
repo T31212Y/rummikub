@@ -2,7 +2,7 @@ package de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl
 
 import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 
-import de.htwg.se.rummikub.model.TokenStructureComponent.TokenStructureInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 
 case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[TokenStructureInterface]] = List()) {
 

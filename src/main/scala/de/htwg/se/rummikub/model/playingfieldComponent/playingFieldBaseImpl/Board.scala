@@ -1,6 +1,6 @@
 package de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl
 
-import de.htwg.se.rummikub.model.TokenStructureComponent.TokenStructureInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 
 case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsInRow: Int, dest: String, maxLen: Int = 90) {
 
