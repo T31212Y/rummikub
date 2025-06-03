@@ -4,16 +4,23 @@ import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.controller.Controller
 import de.htwg.se.rummikub.util.Command
 import de.htwg.se.rummikub.state.GameState
-import de.htwg.se.rummikub.model.TokenStructureComponent.Group
-import de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl.TokenStack
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
-class AddGroupCommand(controller: Controller, group: Group, player: Player, stack: TokenStack) extends Command {
+class AddGroupCommand(controller: Controller, group: TokenStructureInterface, player: PlayerInterface, stack: PlayingFieldInterface) extends Command {
 
-  var oldState: Option[GameState] = Some(controller.getState)
-  var removedTokens: List[Token] = List()
+  private var oldState: Option[GameState] = None
+  private var removedTokens: List[TokenInterface] = List()
+  private var executed: Boolean = false
 
   override def doStep(): Unit = {
-    val (tokensRemoved, updatedPlayer) = controller.addGroupToTable(group, player)
+    if (!executed) {
+      oldState = Some(controller.getState)
+      executed = true
+    }
+    val (tokensRemoved, updatedPlayer) = controller.addGroupToTable(group.asInstanceOf[de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group], player)
     tokensRemoved.foreach(t => controller.removeTokenFromPlayer(updatedPlayer, t))
     removedTokens = tokensRemoved
   }
