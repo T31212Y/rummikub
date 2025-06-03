@@ -1,34 +1,26 @@
 package de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl
 
-import scala.util.Random
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{StandardTokenFactory}
+import de.htwg.se.rummikub.model.playingfieldComponent.TokenStackInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
+import scala.util.Random
 
-case class TokenStack(tokens: List[TokenStructureInterface]) {
+case class TokenStack(tokens: List[TokenStructureInterface]) extends TokenStackInterface {
 
-  def drawToken(): (TokenStructureInterface, TokenStack) = {
+  def drawToken(): (TokenStructureInterface, TokenStackInterface) = {
     val token = tokens.head
     val updatedStack = TokenStack(tokens.tail)
     (token, updatedStack)
   }
 
-  def drawMultipleTokens(n: Int): (List[TokenStructureInterface], TokenStack) = {
+  def drawMultipleTokens(n: Int): (List[TokenStructureInterface], TokenStackInterface) = {
     val drawn = tokens.take(n)
     val updatedStack = TokenStack(tokens.drop(n))
     (drawn, updatedStack)
   }
 
-  def removeToken(token: TokenStructureInterface): TokenStack =
+  def removeToken(token: TokenStructureInterface): TokenStackInterface =
     TokenStack(tokens.filterNot(_ == token))
-
-  def removeMultipleTokens(n: Int): (List[TokenStructureInterface], TokenStack) = {
-    val removed = tokens.take(n)
-    val updatedStack = TokenStack(tokens.drop(n))
-    (removed, updatedStack)
-  }
-
-  def removeAllTokens(): TokenStack =
-    TokenStack(List())
 
   def isEmpty: Boolean = tokens.isEmpty
 
