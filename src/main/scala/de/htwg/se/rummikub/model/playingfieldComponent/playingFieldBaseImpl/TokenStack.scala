@@ -1,7 +1,7 @@
 package de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl
 
 import scala.util.Random
-
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{StandardTokenFactory}
 import de.htwg.se.rummikub.model.TokenStructureComponent.TokenStructureInterface
 
 case class TokenStack(tokens: List[TokenStructureInterface]) {
@@ -41,7 +41,8 @@ case class TokenStack(tokens: List[TokenStructureInterface]) {
 object TokenStack {
   def apply(): TokenStack = {
     val tokenFactory = new StandardTokenFactory
-    val allTokens = Random.shuffle(tokenFactory.generateAllTokens())
-    new TokenStack(allTokens)
+    val allTokens = Random.shuffle(tokenFactory.generateAllTokens)
+    val tokenStructures = allTokens.map(_.asInstanceOf[TokenStructureInterface])
+    new TokenStack(tokenStructures)
   }
 }
