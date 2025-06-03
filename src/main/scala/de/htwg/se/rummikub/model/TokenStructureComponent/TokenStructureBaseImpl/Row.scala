@@ -4,9 +4,17 @@ import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{Joker, NumToken}
 import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
 
-case class Row(row: List[TokenInterface]) extends TokenStructureInterface(row) {
+case class Row(tokens: List[TokenInterface]) extends TokenStructureInterface {
 
-  def isValid: Boolean = {
+  override def getTokens: List[TokenInterface] = tokens
+
+  override def addToken(token: TokenInterface): TokenStructureInterface =
+    copy(tokens = tokens :+ token)
+
+  override def removeToken(token: TokenInterface): TokenStructureInterface =
+    copy(tokens = tokens.filterNot(_ == token))
+
+  override def isValid: Boolean = {
     if (tokens.size < 3 || tokens.size > 13) return false
 
     val (jokers, nonJokers) = tokens.partition(_.isInstanceOf[Joker])
@@ -20,26 +28,23 @@ case class Row(row: List[TokenInterface]) extends TokenStructureInterface(row) {
     hasValidSequenceWithJokers(nums, jokers.length, totalLength)
   }
 
-  private def hasUniformColor(tokens: List[(Int, Color)]): Boolean = {
+  private def hasUniformColor(tokens: List[(Int, Color)]): Boolean =
     tokens.map(_._2).distinct.size == 1
-  }
 
-  private def generateCyclicSequence(start: Int, length: Int): List[Int] = {
+  private def generateCyclicSequence(start: Int, length: Int): List[Int] =
     LazyList.iterate(start)(_ % 13 + 1).take(length).toList
-  }
 
   private def countMissingValues(targetSeq: List[Int], actualValues: List[Int]): Int = {
     val missing = targetSeq.diff(actualValues)
     if ((actualValues.toSet & missing.toSet).nonEmpty) Int.MaxValue else missing.size
   }
 
-  private def hasValidSequenceWithJokers(values: List[Int], jokers: Int, totalLength: Int): Boolean = {
+  private def hasValidSequenceWithJokers(values: List[Int], jokers: Int, totalLength: Int): Boolean =
     (1 to 13).exists { start =>
       val sequence = generateCyclicSequence(start, totalLength)
       val neededJokers = countMissingValues(sequence, values)
       neededJokers <= jokers
     }
-  }
 
   def jokerValues: Option[List[Int]] = {
     val (jokers, nonJokers) = tokens.partition(_.isInstanceOf[Joker])
@@ -62,6 +67,7 @@ case class Row(row: List[TokenInterface]) extends TokenStructureInterface(row) {
         tokens.zipAll(jVals, null, 0).map {
           case (NumToken(n, _), _) => n
           case (_: Joker, jVal)    => jVal
+          case _                   => 0
         }.sum
       case None =>
         tokens.collect { case NumToken(n, _) => n }.sum

@@ -1,9 +1,18 @@
 package de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl
+
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{Joker, NumToken}
 import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
 
-case class Group(group: List[TokenInterface]) extends TokenStructureInterface(group) {
+case class Group(tokens: List[TokenInterface]) extends TokenStructureInterface {
+
+  override def getTokens: List[TokenInterface] = tokens
+
+  override def addToken(token: TokenInterface): TokenStructureInterface =
+    copy(tokens = tokens :+ token)
+
+  override def removeToken(token: TokenInterface): TokenStructureInterface =
+    copy(tokens = tokens.filterNot(_ == token))
 
   override def isValid: Boolean = {
     if (tokens.size < 3 || tokens.size > 4) return false
@@ -31,6 +40,7 @@ case class Group(group: List[TokenInterface]) extends TokenStructureInterface(gr
     tokens.map {
       case NumToken(n, _) => n
       case _: Joker       => jVal
+      case _              => 0
     }.sum
   }
 }
