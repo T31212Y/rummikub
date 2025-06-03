@@ -1,8 +1,8 @@
 package de.htwg.se.rummikub.model.TokenStructureComponent.TokenStructureBaseImpl
 import de.htwg.se.rummikub.model.TokenStructureComponent.TokenStructureInterface
 
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{Color, Joker, NumToken}
-import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, ColorInterface}
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{Joker, NumToken, StandardTokenFactory}
+import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
  
 case class Row(row: List[TokenInterface]) extends TokenStructureInterface(row) {
 
