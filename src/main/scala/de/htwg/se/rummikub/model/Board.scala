@@ -1,4 +1,5 @@
 package de.htwg.se.rummikub.model
+import tokenComponent.Token
 
 case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsInRow: Int, dest: String, maxLen: Int = 90) {
 

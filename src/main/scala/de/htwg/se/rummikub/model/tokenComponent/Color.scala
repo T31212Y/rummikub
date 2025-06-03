@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl
+package de.htwg.se.rummikub.model.tokenComponent
 
 enum Color(val value: Int) {
   case RED extends Color(1)

@@ -1,6 +1,7 @@
 package de.htwg.se.rummikub.model
 
 import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
+import tokenComponent.Token
 
 case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = List()) {
 

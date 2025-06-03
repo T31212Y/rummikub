@@ -1,4 +1,5 @@
 package de.htwg.se.rummikub.model
+import playerComponent.playerBaseImpl.Player
 
 case class ThreePlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
 

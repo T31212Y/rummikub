@@ -1,6 +1,7 @@
 package de.htwg.se.rummikub.util
 
 import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
 object GameModeUtils {
 
