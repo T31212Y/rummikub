@@ -7,9 +7,8 @@ import de.htwg.se.rummikub.util.{Command, UndoManager}
 import de.htwg.se.rummikub.util.commands.{AddRowCommand, AddGroupCommand, AppendTokenCommand}
 
 import scala.swing.Publisher
-import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
-import de.htwg.se.rummikub.model.tokenComponent.Token
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
+import de.htwg.se.rummikub.model.TokenStructureComponent.Row
+import de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl.Table
 
 class Controller(var gameMode: GameModeTemplate) extends Publisher {
 

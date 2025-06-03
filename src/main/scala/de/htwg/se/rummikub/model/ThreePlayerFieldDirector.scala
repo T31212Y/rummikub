@@ -1,4 +1,6 @@
 package de.htwg.se.rummikub.model
+import playingfieldComponent.PlayingField
+import playingfieldComponent.playingFieldBaseImpl.Table
 
 class ThreePlayerFieldDirector(builder: PlayingFieldBuilder) {
   

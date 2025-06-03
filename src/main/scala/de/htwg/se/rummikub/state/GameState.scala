@@ -1,6 +1,8 @@
 package de.htwg.se.rummikub.state
 
 import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.model.playingfieldComponent.Board
+import de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl.Table
 
 case class GameState(
   table: Table,

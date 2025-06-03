@@ -1,4 +1,6 @@
 package de.htwg.se.rummikub.model
+import playingfieldComponent.PlayingField
+import playingfieldComponent.playingFieldBaseImpl.Table
 
 case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
 

@@ -1,4 +1,5 @@
 package de.htwg.se.rummikub.model
+import playingfieldComponent.PlayingField
 
 abstract class GameModeTemplate(playerNames: List[String]) {
 

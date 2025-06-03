@@ -1,6 +1,8 @@
 package de.htwg.se.rummikub.model
 
 import scala.util.{Try, Failure, Success}
+import playingfieldComponent.PlayingField
+import playingfieldComponent.playingFieldBaseImpl.Table
 
 class StandardPlayingFieldBuilder extends PlayingFieldBuilder {
     private var players: Option[List[Player]] = None
