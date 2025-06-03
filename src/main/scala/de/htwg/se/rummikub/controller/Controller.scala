@@ -7,12 +7,17 @@ import de.htwg.se.rummikub.util.{Command, UndoManager}
 import de.htwg.se.rummikub.util.commands.{AddRowCommand, AddGroupCommand, AppendTokenCommand}
 
 import scala.swing.Publisher
-import de.htwg.se.rummikub.model.TokenStructureComponent.Row
-import de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl.Table
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl.{TokenStack, Board, Table}
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.{Row, Group}
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+
 
 class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
-    var playingField: Option[PlayingField] = None
+    var playingField: Option[PlayingFieldInterface] = None
     var gameState: Option[GameState] = None
     var currentPlayerIndex: Int = 0
     var turnStartState: Option[GameState] = None
@@ -33,7 +38,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
     def startGame(): Unit = {
         val stack = getState.stack
-        val (updatedPlayers, updatedStack) = gameState.get.players.foldLeft((Vector.empty[Player], stack)) {
+        val (updatedPlayers, updatedStack) = gameState.get.players.foldLeft((Vector.empty[PlayerInterface], stack)) {
             case ((playersAcc, stackAcc), player) =>
             val (updatedPlayer, newStack) = addMultipleTokensToPlayer(player, stackAcc, 14)
             (playersAcc :+ updatedPlayer, newStack)
@@ -48,15 +53,15 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         TokenStack()
     }
 
-    def createRow(r: List[Token]): Row = {
+    def createRow(r: List[TokenInterface]): Row = {
         Row(r)
     }
 
-    def createGroup(g: List[Token]): Group = {
+    def createGroup(g: List[TokenInterface]): Group = {
         Group(g)
     }
 
-    def setPlayingField(pf: Option[PlayingField]): Unit = {
+    def setPlayingField(pf: Option[PlayingFieldInterface]): Unit = {
         this.playingField = pf
         publish(UpdateEvent())
     }
