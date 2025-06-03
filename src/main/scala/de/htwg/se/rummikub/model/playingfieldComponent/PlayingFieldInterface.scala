@@ -5,6 +5,25 @@ import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 
 trait BoardInterface {
   def toStringRepresentation: String
+
+  def boardELRP12_1: String
+  def boardELRP12_2: String
+  def boardELRP34_1: String
+  def boardELRP34_2: String
+  def boardEUD: String
+
+  def formatBoardRow(tokens: List[TokenStructureInterface]): String
+  def formatEmptyBoardRow(length: Int): String
+  def createBoardFrameSingle(tokens: List[TokenStructureInterface]): String
+  def createBoardFrameDouble(tokens1: List[TokenStructureInterface], tokens2: List[TokenStructureInterface]): String
+
+  def boardELRP12_1_=(value: String): Unit
+  def boardELRP12_2_=(value: String): Unit
+  def boardELRP34_1_=(value: String): Unit
+  def boardELRP34_2_=(value: String): Unit
+  def boardEUD_=(value: String): Unit
+
+  def size(row: String): Int
 }
 
 trait TableInterface {

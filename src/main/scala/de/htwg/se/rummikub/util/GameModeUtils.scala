@@ -1,56 +1,60 @@
 package de.htwg.se.rummikub.util
 
-import de.htwg.se.rummikub.model._
-import de.htwg.se.rummikub.model.playingfieldComponent.Board
+import de.htwg.se.rummikub.model.playingfieldComponent.BoardInterface
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
 object GameModeUtils {
 
-    val cntRows = 20
-    val cntTokens = 24
+  val cntRows = 20
+  val cntTokens = 24
 
-    def updateBoardSinglePlayer(player: Player, board: Board): Option[Board] = {
-        if (player.tokens.size <= cntTokens) {
-          board.boardELRP12_1 = board.formatBoardRow(player.tokens)
-          board.boardELRP12_2 = board.formatEmptyBoardRow(board.size(board.boardELRP12_1) - 4)
-          board.boardEUD = board.createBoardFrameSingle(player.tokens)
-        } else {
-          board.boardELRP12_1 = board.formatBoardRow(player.tokens.take(cntTokens))
-          board.boardELRP12_2 = board.formatBoardRow(player.tokens.drop(cntTokens))
-          board.boardEUD = board.createBoardFrameSingle(player.tokens.take(cntTokens))
-        }
-        Some(board)
+  def updateBoardSinglePlayer(player: PlayerInterface, board: BoardInterface): BoardInterface = {
+    if (player.getTokens.size <= cntTokens) {
+      board.boardELRP12_1 = board.formatBoardRow(player.getTokens)
+      board.boardELRP12_2 = board.formatEmptyBoardRow(board.size(board.boardELRP12_1) - 4)
+      board.boardEUD = board.createBoardFrameSingle(player.getTokens)
+    } else {
+      board.boardELRP12_1 = board.formatBoardRow(player.getTokens.take(cntTokens))
+      board.boardELRP12_2 = board.formatBoardRow(player.getTokens.drop(cntTokens))
+      board.boardEUD = board.createBoardFrameSingle(player.getTokens.take(cntTokens))
     }
+    board
+  }
 
-    def updateBoardMultiPlayer(players: List[Player], board: Board): Option[Board] = {
-        if (players(0).tokens.size <= cntTokens) {
-            board.boardELRP12_1 = board.formatBoardRow(players(0).tokens)
-            board.boardELRP12_2 = board.formatEmptyBoardRow(board.size(board.boardELRP12_1) - 4)
-        } else {
-            board.boardELRP12_1 = board.formatBoardRow(players(0).tokens.take(cntTokens))
-            board.boardELRP12_2 = board.formatBoardRow(players(0).tokens.drop(cntTokens))
-        }
-     
-        if (players(1).tokens.size <= cntTokens) {
-            board.boardELRP34_1 = board.formatBoardRow(players(1).tokens)
-            board.boardELRP34_2 = board.formatEmptyBoardRow(board.size(board.boardELRP34_1) - 4)
-        } else {
-            board.boardELRP34_1 = board.formatBoardRow(players(1).tokens.take(cntTokens))
-            board.boardELRP34_2 = board.formatBoardRow(players(1).tokens.drop(cntTokens))
-        }
-
-        board.boardEUD = board.createBoardFrameDouble(players(0).tokens.take(cntTokens), players(1).tokens.take(cntTokens))
-        Some(board)
+  def updateBoardMultiPlayer(players: List[PlayerInterface], board: BoardInterface): BoardInterface = {
+    if (players.nonEmpty) {
+      val p1 = players.head
+      if (p1.getTokens.size <= cntTokens) {
+        board.boardELRP12_1 = board.formatBoardRow(p1.getTokens)
+        board.boardELRP12_2 = board.formatEmptyBoardRow(board.size(board.boardELRP12_1) - 4)
+      } else {
+        board.boardELRP12_1 = board.formatBoardRow(p1.getTokens.take(cntTokens))
+        board.boardELRP12_2 = board.formatBoardRow(p1.getTokens.drop(cntTokens))
+      }
     }
-
-    def lineWithPlayerName(char: String, length: Int, player: String): Option[String] = {
-        val len = length - player.length - 5
-        Some(char.repeat(5) + player + char * len)
+    if (players.length > 1) {
+      val p2 = players(1)
+      if (p2.getTokens.size <= cntTokens) {
+        board.boardELRP34_1 = board.formatBoardRow(p2.getTokens)
+        board.boardELRP34_2 = board.formatEmptyBoardRow(board.size(board.boardELRP34_1) - 4)
+      } else {
+        board.boardELRP34_1 = board.formatBoardRow(p2.getTokens.take(cntTokens))
+        board.boardELRP34_2 = board.formatBoardRow(p2.getTokens.drop(cntTokens))
+      }
+      board.boardEUD = board.createBoardFrameDouble(players(0).getTokens.take(cntTokens), p2.getTokens.take(cntTokens))
     }
+    board
+  }
 
-    def lineWith2PlayerNames(char: String, length: Int, player1: String, player2: String): Option[String] = {
-        val len = length - player1.length - player2.length - 10
-        Some(char.repeat(5) + player1 + char * len + player2 + char.repeat(5))
-    }
+  def lineWithPlayerName(char: String, length: Int, player: String): String = {
+    val len = length - player.length - 5
+    char.repeat(5) + player + char * len
+  }
 
-    def cleanRenderOutput(input: String): String = input.replace("x", " ").replace("y", " ")
+  def lineWith2PlayerNames(char: String, length: Int, player1: String, player2: String): String = {
+    val len = length - player1.length - player2.length - 10
+    char.repeat(5) + player1 + char * len + player2 + char.repeat(5)
+  }
+
+  def cleanRenderOutput(input: String): String = input.replace("x", " ").replace("y", " ")
 }

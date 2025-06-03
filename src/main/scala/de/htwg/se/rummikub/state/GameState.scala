@@ -1,15 +1,15 @@
 package de.htwg.se.rummikub.state
 
 import de.htwg.se.rummikub.model._
-import de.htwg.se.rummikub.model.playingfieldComponent.Board
+import de.htwg.se.rummikub.model.playingfieldComponent.BoardInterface
 import de.htwg.se.rummikub.model.playingfieldComponent.playingFieldBaseImpl.Table
 
 case class GameState(
   table: Table,
-  players: Vector[Player],
-  boards: Vector[Board],
+  players: Vector[PlayerInterface],
+  boards: Vector[BoardInterface],
   currentPlayerIndex: Int,
-  stack: TokenStack
+  stack: TokenStackInterface
 ) {
 
   def currentPlayer: Player = players(currentPlayerIndex)

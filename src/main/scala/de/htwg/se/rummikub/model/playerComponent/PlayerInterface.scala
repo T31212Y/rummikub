@@ -9,4 +9,6 @@ trait PlayerInterface {
   def addToFirstMoveTokens(newTokens: List[TokenInterface]): PlayerInterface
   def deepCopy: PlayerInterface
   def clusterTokens(tokens: List[TokenInterface]): List[TokenStructureInterface]
+  def getTokens: List[TokenStructureInterface]
+
 }
