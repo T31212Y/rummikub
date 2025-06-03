@@ -5,11 +5,11 @@ import de.htwg.se.rummikub.controller.Controller
 import de.htwg.se.rummikub.util.Command
 import de.htwg.se.rummikub.state.GameState
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
-import de.htwg.se.rummikub.model.playingfieldComponent.PlayingFieldInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.TokenStackInterface
 
-class AddGroupCommand(controller: Controller, group: TokenStructureInterface, player: PlayerInterface, stack: PlayingFieldInterface) extends Command {
+class AddGroupCommand(controller: Controller, group: TokenStructureInterface, player: PlayerInterface, stack: TokenStackInterface) extends Command {
 
   private var oldState: Option[GameState] = None
   private var removedTokens: List[TokenInterface] = List()
