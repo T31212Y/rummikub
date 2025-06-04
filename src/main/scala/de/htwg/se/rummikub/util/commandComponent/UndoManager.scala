@@ -1,11 +1,12 @@
-package de.htwg.se.rummikub.util
+package de.htwg.se.rummikub.util.commandComponent
+import de.htwg.se.rummikub.util.commandComponent.CommandInterface
 
 
 class UndoManager {
-  private var undoStack: List[Command] = Nil
-  private var redoStack: List[Command] = Nil
+  private var undoStack: List[CommandInterface] = Nil
+  private var redoStack: List[CommandInterface] = Nil
 
-  def doStep(cmd: Command) = {
+  def doStep(cmd: CommandInterface) = {
     undoStack = cmd::undoStack
     cmd.doStep()
   }
