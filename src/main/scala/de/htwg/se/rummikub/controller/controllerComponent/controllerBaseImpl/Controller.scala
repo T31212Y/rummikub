@@ -1,6 +1,6 @@
-package de.htwg.se.rummikub.controllerComponent.controllerBaseImpl
+package de.htwg.se.rummikub.controller.controller.controllerBaseImpl
 
-import de.htwg.se.rummikub.controllerComponent.ControllerInterface
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.state.GameState
 import de.htwg.se.rummikub.util.TokenUtils.tokensMatch

@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.controllerComponent
+package de.htwg.se.rummikub.controller.controllerComponent
 
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.state.GameState

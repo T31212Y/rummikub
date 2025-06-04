@@ -1,23 +1,25 @@
 package de.htwg.se.rummikub.model
-import playingfieldComponent.PlayingField
-import playingfieldComponent.playingFieldBaseImpl.Table
-import builderComponent.StandardPlayingFieldBuilder
+import de.htwg.se.rummikub.model.playingfieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.TableInterface
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.BoardInterface
 
 case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
 
-    override def createPlayingField(players: List[Player]): Option[PlayingField] = {
+    override def createPlayingField(players: List[PlayerInterface]): Option[PlayingFieldInterface] = {
         if (players.isEmpty) {
             println("Cannot create playing field: No players provided.")
             None
         } else {
-            val builder = new StandardPlayingFieldBuilder
+            val builder = new PlayingFieldBuilderInterface
             val director = new FourPlayerFieldDirector(builder)
 
             Some(director.construct(players))
         }
     }
 
-    override def updatePlayingField(playingField: Option[PlayingField]): Option[PlayingField] = {
+    override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = {
         playingField.map { field =>
             if (field.players.size < 4) {
                 println("Not enough players to update.")
@@ -43,7 +45,7 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
         }
     }
 
-    override def renderPlayingField(playingField: Option[PlayingField]): String = {
+    override def renderPlayingField(playingField: Option[PlayingFieldInterface]): String = {
         playingField match {
             case Some(field) =>
                 val player1 = field.players(0)
@@ -65,7 +67,7 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
         }
     }
 
-    override def updateBoardSinglePlayer(player: Player, board: Board): Option[Board] = None
+    override def updateBoardSinglePlayer(player: PlayerInterface, board: BoardInterface): Option[BoardInterface] = None
 
     override def lineWithPlayerName(char: String, length: Int, player: String): Option[String] = None
 }
