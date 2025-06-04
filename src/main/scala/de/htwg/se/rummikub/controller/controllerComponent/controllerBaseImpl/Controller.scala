@@ -4,9 +4,9 @@ import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.state.GameState
 import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
-import de.htwg.se.rummikub.util.commandComponent.UndoManager
+import de.htwg.se.rummikub.util.UndoManager
 import de.htwg.se.rummikub.model.playingfieldComponent.PlayingFieldInterface
-import de.htwg.se.rummikub.util.commandComponent.CommandInterface
+import de.htwg.se.rummikub.util.CommandInterface
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
@@ -15,7 +15,6 @@ import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryIn
 import de.htwg.se.rummikub.model.tokenComponent.TokenFactoryInterface
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeFactory
 import de.htwg.se.rummikub.model.tokenComponent.Color
-//import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeTemplate
 
 
 class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
