@@ -83,4 +83,9 @@ case class Player(
 
   override def clearCommandHistory: PlayerInterface = this.copy(commandHistory = List())
 
+  override def withCompletedFirstMove(flag: Boolean): PlayerInterface = {
+    this.copy(hasCompletedFirstMoveFlag = flag)
+  }
+
+
 }

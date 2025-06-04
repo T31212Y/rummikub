@@ -14,5 +14,7 @@ trait PlayerInterface {
   def withTokens(tokens: List[TokenStructureInterface]): PlayerInterface
   def hasCompletedFirstMove: Boolean
   def clearCommandHistory: PlayerInterface
+  def withCompletedFirstMove(flag: Boolean): PlayerInterface
+
 
 }
