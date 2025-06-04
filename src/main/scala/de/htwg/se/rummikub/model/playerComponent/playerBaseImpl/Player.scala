@@ -2,14 +2,14 @@ package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 
 case class Player(
   name: String,
-  tokens: List[TokenStructureInterface] = List(),
+  tokens: List[TokenInterface] = List(),
   commandHistory: List[String] = List(),
-  firstMoveTokens: List[TokenStructureInterface] = List(),
-  hasCompletedFirstMoveFlag: Boolean = false,
-  tokenStructureFactory: TokenStructureFactoryInterface
+  firstMoveTokens: List[TokenInterface] = List(),
+  hasCompletedFirstMoveFlag: Boolean = false
 ) extends PlayerInterface {
 
   override def toString: String = {
@@ -42,9 +42,9 @@ case class Player(
     commandHistory = this.commandHistory.map(identity)
   )
 
-  override def clusterTokens(tokens: List[TokenStructureInterface]): List[TokenStructureInterface] = {
+  override def clusterTokens(tokens: List[TokenInterface]): List[TokenInterface] = {
 
-    def backtrack(remaining: List[TokenStructureInterface], acc: List[TokenStructureInterface]): Option[List[TokenStructureInterface]] = {
+    def backtrack(remaining: List[TokenInterface], acc: List[TokenInterface]): Option[List[TokenInterface]] = {
       if (remaining.isEmpty) {
         Some(acc)
       } else {
@@ -74,7 +74,7 @@ case class Player(
     backtrack(tokens, List()).getOrElse(List())
   }
 
-  override def withTokens(tokens: List[TokenStructureInterface]): PlayerInterface = {
+  override def withTokens(tokens: List[TokenInterface]): PlayerInterface = {
     this.copy(tokens = tokens)
   }
 

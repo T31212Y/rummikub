@@ -3,10 +3,11 @@ package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.{PlayerInterface, PlayerFactoryInterface}
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 
-class StandardPlayerFactory(private val factory: Option[TokenStructureFactoryInterface] = None) extends PlayerFactoryInterface {
+class StandardPlayerFactory extends PlayerFactoryInterface {
 
-  private var tokenStructureFactory: Option[TokenStructureFactoryInterface] = factory
+  /*private var tokenStructureFactory: Option[TokenStructureFactoryInterface] = factory
 
   override def setTokenStructureFactory(factory: TokenStructureFactoryInterface): PlayerFactoryInterface = {
     tokenStructureFactory = Some(factory)
@@ -22,5 +23,14 @@ class StandardPlayerFactory(private val factory: Option[TokenStructureFactoryInt
 
   override def createPlayers(names: List[String]): List[PlayerInterface] = {
     names.map(createPlayer)
-  }
+  }*/
+
+  override def create(name: String, 
+  tokens: List[TokenInterface], 
+  commandHistory: List[String], 
+  firstMoveTokens: List[TokenInterface], 
+  hasCompletedFirstMoveFlag: Boolean
+  ): PlayerInterface = {
+    new Player(name, tokens, commandHistory, firstMoveTokens, hasCompletedFirstMoveFlag)
+  } 
 }
