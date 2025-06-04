@@ -9,7 +9,8 @@ case class Player(
   tokens: List[TokenInterface] = List(),
   commandHistory: List[String] = List(),
   firstMoveTokens: List[TokenInterface] = List(),
-  hasCompletedFirstMoveFlag: Boolean = false
+  hasCompletedFirstMoveFlag: Boolean = false,
+  tokenStructureFactory: TokenStructureFactoryInterface
 ) extends PlayerInterface {
 
   override def toString: String = {
@@ -32,7 +33,7 @@ case class Player(
     } else true
   }
 
-  override def addToFirstMoveTokens(newTokens: List[TokenStructureInterface]): Player = {
+  override def addToFirstMoveTokens(newTokens: List[TokenInterface]): Player = {
     this.copy(firstMoveTokens = this.firstMoveTokens ++ newTokens)
   }
 
@@ -42,9 +43,9 @@ case class Player(
     commandHistory = this.commandHistory.map(identity)
   )
 
-  override def clusterTokens(tokens: List[TokenInterface]): List[TokenInterface] = {
+  override def clusterTokens(tokens: List[TokenInterface]): List[TokenStructureInterface] = {
 
-    def backtrack(remaining: List[TokenInterface], acc: List[TokenInterface]): Option[List[TokenInterface]] = {
+    def backtrack(remaining: List[TokenInterface], acc: List[TokenStructureInterface]): Option[List[TokenStructureInterface]] = {
       if (remaining.isEmpty) {
         Some(acc)
       } else {
@@ -56,9 +57,8 @@ case class Player(
           subset <- remaining.combinations(size)
         } yield {
           val ts = subset.toList
-          val tokenList = ts.flatMap(_.getTokens)
-          val group: TokenStructureInterface = tokenStructureFactory.createGroup(tokenList)
-          val row: TokenStructureInterface = tokenStructureFactory.createRow(tokenList)
+          val group: TokenStructureInterface = tokenStructureFactory.createGroup(ts)
+          val row: TokenStructureInterface = tokenStructureFactory.createRow(ts)
           List(group, row).filter(_.isValid).map(validSet => (validSet, ts))
         }
 

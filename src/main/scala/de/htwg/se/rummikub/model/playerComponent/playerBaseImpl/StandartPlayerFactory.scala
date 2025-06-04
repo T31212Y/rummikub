@@ -26,11 +26,12 @@ class StandardPlayerFactory extends PlayerFactoryInterface {
   }*/
 
   override def create(name: String, 
-  tokens: List[TokenInterface], 
-  commandHistory: List[String], 
-  firstMoveTokens: List[TokenInterface], 
-  hasCompletedFirstMoveFlag: Boolean
+  tokens: List[TokenInterface] = List(), 
+  commandHistory: List[String] = List(), 
+  firstMoveTokens: List[TokenInterface] = List(), 
+  hasCompletedFirstMoveFlag: Boolean = false,
+  tokenStructureFactory: TokenStructureFactoryInterface
   ): PlayerInterface = {
-    new Player(name, tokens, commandHistory, firstMoveTokens, hasCompletedFirstMoveFlag)
+    new Player(name, tokens, commandHistory, firstMoveTokens, hasCompletedFirstMoveFlag, tokenStructureFactory)
   } 
 }

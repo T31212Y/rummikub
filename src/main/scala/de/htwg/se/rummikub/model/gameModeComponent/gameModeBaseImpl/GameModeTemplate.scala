@@ -5,23 +5,26 @@ import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.playingfieldComponent.{PlayingFieldInterface, BoardInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeInterface
 
-abstract class GameModeTemplate(playerNames: List[String]) extends GameModeInterface {
+abstract class GameModeTemplate(
+  playerNames: List[String],
+  playerFactory: PlayerFactoryInterface,
+  tokenStructureFactory: TokenStructureFactoryInterface
+  ) extends GameModeInterface {
 
   val cntRows: Int = 20
   val cntTokens: Int = 24
   val cntEdgeSpaces: Int = 15
 
-  def tokenStructureFactory: TokenStructureFactoryInterface
+  //def tokenStructureFactory: TokenStructureFactoryInterface
 
   def runGameSetup(): Option[PlayingFieldInterface] = {
     val players = createPlayers()
     val playingField = createPlayingField(players)
-    val updatedPlayingField = updatePlayingField(playingField)
-    updatedPlayingField
+    updatePlayingField(playingField)
   }
 
   def createPlayers(): List[PlayerInterface] = {
-    playerNames.map(name => new Player(name, tokenStructureFactory = tokenStructureFactory))
+    playerNames.map(name => playerFactory.create(name = name, tokenStructureFactory = tokenStructureFactory))
   }
 
   def createPlayingField(players: List[PlayerInterface]): Option[PlayingFieldInterface]
