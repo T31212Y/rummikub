@@ -247,7 +247,7 @@ class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
         val copiedPlayers = field.getPlayers.map(_.deepCopy)
         val copiedBoards = field.getBoards.map(identity)
         GameState(
-            table = field.innerField,
+            table = field.getInnerField,
             players = copiedPlayers.toVector,
             boards = copiedBoards.toVector,
             currentPlayerIndex = currentPlayerIndex,
