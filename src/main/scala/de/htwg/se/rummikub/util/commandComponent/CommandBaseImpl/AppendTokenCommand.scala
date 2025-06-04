@@ -1,11 +1,12 @@
 package de.htwg.se.rummikub.util.commandComponent.CommandBaseImpl
 
-import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.util.commandComponent.CommandInterface
-import de.htwg.se.rummikub.controllerComponent.ControllerInterface
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 import de.htwg.se.rummikub.state.GameState
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.{PlayingFieldInterface, TableInterface}
 
 class AppendTokenCommand(
     controller: ControllerInterface,
@@ -23,20 +24,13 @@ class AppendTokenCommand(
       return
     }
 
-    val updatedTokensOnTable = controller.playingField.get.innerField.tokensOnTable.zipWithIndex.map {
-      case (tokenList, i) if i == index => tokenList :+ token
-      case (tokenList, _)               => tokenList
-    }
+    val pf = controller.playingField.get
+    val table = pf.getInnerField
+    val tokensOnTable = table.getRow(index).getOrElse(List())
+    val updatedRow = tokensOnTable :+ token.asInstanceOf[TokenStructureInterface]
 
-    val finalTokensOnTable =
-      if (index >= updatedTokensOnTable.length)
-        updatedTokensOnTable ++ List.fill(index - updatedTokensOnTable.length + 1)(List()).updated(index, List(token))
-      else updatedTokensOnTable
-
-    controller.playingField = controller.playingField.map { pf =>
-      pf.copy(innerField = pf.innerField.copy(tokensOnTable = finalTokensOnTable))
-    }
-
+    val updatedTable = table.updateRow(index, updatedRow)
+    controller.setPlayingField(Some(pf.setInnerField(updatedTable)))
     controller.removeTokenFromPlayer(player, token)
   }
 
