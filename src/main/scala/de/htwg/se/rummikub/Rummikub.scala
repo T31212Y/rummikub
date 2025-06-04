@@ -2,7 +2,7 @@ package de.htwg.se.rummikub
 
 import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 import de.htwg.se.rummikub.aview._
-import de.htwg.se.rummikub.model.gameModeComponent.GameModeFactory
+import de.htwg.se.rummikub.model.gameModeComponent.GameModeFactoryInterface
 
 import scala.io.StdIn.readLine
 import de.htwg.se.rummikub.aview.gui.Gui
