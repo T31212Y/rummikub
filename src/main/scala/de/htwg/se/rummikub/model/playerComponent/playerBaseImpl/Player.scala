@@ -9,7 +9,7 @@ case class Player(
   commandHistory: List[String] = List(),
   firstMoveTokens: List[TokenStructureInterface] = List(),
   hasCompletedFirstMove: Boolean = false,
-  tokenStructureFactory: TokenStructureFactoryInterface // Factory als Feld
+  tokenStructureFactory: TokenStructureFactoryInterface
 ) extends PlayerInterface {
 
   override def toString: String = {
