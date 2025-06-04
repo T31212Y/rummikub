@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.util.commandComponent
+package de.htwg.se.rummikub.util
 
 trait CommandInterface {
   def doStep(): Unit

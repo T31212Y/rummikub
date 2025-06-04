@@ -13,6 +13,10 @@ import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 import de.htwg.se.rummikub.model.playingfieldComponent.{TokenStackInterface, TableInterface}
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenFactoryInterface
+import de.htwg.se.rummikub.model.gameModeComponent.GameModeFactory
+import de.htwg.se.rummikub.model.tokenComponent.Color
+//import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeTemplate
+
 
 class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
     override var playingField: Option[PlayingFieldInterface] = None
