@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.util.commandComponent
+package de.htwg.se.rummikub.util
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._

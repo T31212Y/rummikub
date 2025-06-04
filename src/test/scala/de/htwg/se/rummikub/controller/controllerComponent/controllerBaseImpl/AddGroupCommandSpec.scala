@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.util.commandComponent.commandBaseImpl
+package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
@@ -6,21 +6,21 @@ import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.controller.Controller
 import de.htwg.se.rummikub.state.GameState
 
-class AddRowCommandSpec extends AnyWordSpec {
+class AddGroupCommandSpec extends AnyWordSpec {
 
-  "An AddRowCommand" should {
+  "An AddGroupCommand" should {
     "remove tokens from player and update removedTokens on doStep" in {
-        val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-        val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
+        val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
+        val group = Group(List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
         val testToken = NumToken(1, Color.RED)
-        val testToken2 = NumToken(2, Color.BLUE)
+        val testToken2 = NumToken(1, Color.BLUE)
         val updatedPlayer = player.copy(tokens = List())
 
-        val cmd = new AddRowCommand(controller, row, player, stack)
+        val cmd = new AddGroupCommand(controller, group, player, stack)
 
         cmd.doStep()
 
@@ -29,13 +29,13 @@ class AddRowCommandSpec extends AnyWordSpec {
 
     "restore old state on undoStep" in {
         val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED)))
-        val row = Row(List(NumToken(1, Color.RED)))
+        val group = Group(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
         val initialState = controller.getState
-        val cmd = new AddRowCommand(controller, row, player, stack)
+        val cmd = new AddGroupCommand(controller, group, player, stack)
 
         cmd.doStep()
         cmd.undoStep()
@@ -45,12 +45,12 @@ class AddRowCommandSpec extends AnyWordSpec {
 
     "print message if no old state on undoStep" in {
         val player = Player("TestPlayer")
-        val row = Row(List(NumToken(1, Color.RED)))
+        val group = Group(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
-        val cmd = new AddRowCommand(controller, row, player, stack) {
+        val cmd = new AddGroupCommand(controller, group, player, stack) {
             oldState = None
         }
 
@@ -63,14 +63,14 @@ class AddRowCommandSpec extends AnyWordSpec {
 
     "redoStep should call doStep" in {
         val player = Player("TestPlayer")
-        val row = Row(List(NumToken(1, Color.RED)))
+        val group = Group(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
         val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
         var doStepCalled = false
 
-        val cmd = new AddRowCommand(controller, row, player, stack) {
+        val cmd = new AddGroupCommand(controller, group, player, stack) {
             override def doStep(): Unit = doStepCalled = true
         }
         cmd.redoStep()
