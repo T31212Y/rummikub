@@ -1,6 +1,7 @@
 package de.htwg.se.rummikub
 
-import de.htwg.se.rummikub.model.{Player, PlayingField, GameModeFactory}
+import de.htwg.se.rummikub.model.{PlayingField, GameModeFactory}
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 import de.htwg.se.rummikub.controller.Controller
 import de.htwg.se.rummikub.aview.Tui
 

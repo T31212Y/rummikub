@@ -210,7 +210,7 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
 
   def updatePlayerBoardTitle(state: GameState): Unit = {
     val titledBorder = playerBoardPanel.border.asInstanceOf[TitledBorder]
-    titledBorder.setTitle(s"${state.currentPlayer.name} ")
+    titledBorder.setTitle(s"${state.currentPlayer.getName} ")
 
     playerBoardPanel.repaint()
     playerBoardPanel.revalidate()
@@ -221,7 +221,7 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
 
     val currentPlayer = controller.getState.currentPlayer
 
-    for ((token, index) <- currentPlayer.tokens.zipWithIndex) {
+    for ((token, index) <- currentPlayer.getTokens.zipWithIndex) {
       val panel = TokenPanel(token, controller)
       playerBoardPanel.contents += panel
     }
@@ -304,7 +304,7 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
     val currentPlayer = controller.getState.currentPlayer
     val stack = controller.getState.currentStack
     controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
-    stateLabel.text = currentPlayer.name + ", it's your turn!"
+    stateLabel.text = currentPlayer.getName + ", it's your turn!"
 
     controller.beginTurn(currentPlayer)
 

@@ -1,12 +1,20 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 
-case class Player(name: String, tokens: List[Token] = List(), commandHistory: List[String] = List(), firstMoveTokens: List[Token] = List(), hasCompletedFirstMove: Boolean = false) {
+import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+
+case class Player(name: String, 
+  tokens: List[Token] = List(), 
+  commandHistory: List[String] = List(), 
+  firstMoveTokens: List[Token] = List(), 
+  hasCompletedFirstMove: Boolean = false
+) extends PlayerInterface {
 
   override def toString: String = {
     s"Player: $name"
   }
 
-  def validateFirstMove(): Boolean = {
+  override def validateFirstMove: Boolean = {
     val structures = clusterTokens(firstMoveTokens)
 
     if (structures.isEmpty) {
@@ -22,17 +30,17 @@ case class Player(name: String, tokens: List[Token] = List(), commandHistory: Li
     } else true
   }
 
-  def addToFirstMoveTokens(newTokens: List[Token]): Player = {
+  override def addToFirstMoveTokens(newTokens: List[Token]): Player = {
     this.copy(firstMoveTokens = this.firstMoveTokens ++ newTokens)
   }
 
-  def deepCopy: Player = this.copy(
+  override def deepCopy: Player = this.copy(
     tokens = this.tokens.map(identity),
     firstMoveTokens = this.firstMoveTokens.map(identity),
     commandHistory = this.commandHistory.map(identity)
   )
 
-  def clusterTokens(tokens: List[Token]): List[TokenStructure] = {
+  override def clusterTokens(tokens: List[Token]): List[TokenStructure] = {
     
     def backtrack(remaining: List[Token], acc: List[TokenStructure]): Option[List[TokenStructure]] = {
       if (remaining.isEmpty) {
@@ -61,5 +69,29 @@ case class Player(name: String, tokens: List[Token] = List(), commandHistory: Li
     }
 
     backtrack(tokens, List()).getOrElse(List())
+  }
+
+  override def getName: String = {
+    name
+  }
+
+  override def getTokens: List[Token] = {
+    tokens
+  }
+
+  override def getCommandHistory: List[String] = {
+    commandHistory
+  }
+
+  override def getFirstMoveTokens: List[Token] = {
+    firstMoveTokens
+  }
+
+  override def getHasCompletedFirstMove: Boolean = {
+    hasCompletedFirstMove
+  }
+
+  override def updated(newTokens: List[Token], newCommandHistory: List[String], newHasCompletedFirstMove: Boolean): PlayerInterface = {
+    copy(tokens = newTokens, commandHistory = newCommandHistory, hasCompletedFirstMove = newHasCompletedFirstMove)
   }
 }

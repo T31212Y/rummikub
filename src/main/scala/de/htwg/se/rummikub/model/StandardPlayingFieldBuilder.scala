@@ -1,14 +1,15 @@
 package de.htwg.se.rummikub.model
 
 import scala.util.{Try, Failure, Success}
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
 class StandardPlayingFieldBuilder extends PlayingFieldBuilder {
-    private var players: Option[List[Player]] = None
+    private var players: Option[List[PlayerInterface]] = None
     private var boards: Option[List[Board]] = None
     private var innerField: Option[Table] = None
     private var stack: Option[TokenStack] = None
 
-    override def setPlayers(players: List[Player]): PlayingFieldBuilder = {
+    override def setPlayers(players: List[PlayerInterface]): PlayingFieldBuilder = {
       this.players = Some(players)
       this
     }

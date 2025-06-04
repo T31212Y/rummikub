@@ -1,8 +1,9 @@
 package de.htwg.se.rummikub.model
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
 case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
 
-    override def createPlayingField(players: List[Player]): Option[PlayingField] = {
+    override def createPlayingField(players: List[PlayerInterface]): Option[PlayingField] = {
         if (players.isEmpty) {
             println("Cannot create playing field: No players provided.")
             None
@@ -53,8 +54,8 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
 
                 val innerField = field.innerField
 
-                val edgeUp = lineWith2PlayerNames("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)), player1.name, player3.name).getOrElse("") + "\n"
-                val edgeDown = lineWith2PlayerNames("*", boardP24.size(boardP24.wrapBoardRowDouble(boardP24.boardELRP12_1, boardP24.boardELRP34_1)), player2.name, player4.name).getOrElse("") + "\n"
+                val edgeUp = lineWith2PlayerNames("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)), player1.getName, player3.getName).getOrElse("") + "\n"
+                val edgeDown = lineWith2PlayerNames("*", boardP24.size(boardP24.wrapBoardRowDouble(boardP24.boardELRP12_1, boardP24.boardELRP34_1)), player2.getName, player4.getName).getOrElse("") + "\n"
 
                 s"$edgeUp${boardP13.toString()}${innerField.toString()}${boardP24.toString()}$edgeDown\n".replace("x", " ").replace("y", " ")
             case None =>
@@ -62,7 +63,7 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
         }
     }
 
-    override def updateBoardSinglePlayer(player: Player, board: Board): Option[Board] = None
+    override def updateBoardSinglePlayer(player: PlayerInterface, board: Board): Option[Board] = None
 
     override def lineWithPlayerName(char: String, length: Int, player: String): Option[String] = None
 }

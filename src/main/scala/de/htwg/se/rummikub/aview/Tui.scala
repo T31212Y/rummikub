@@ -35,7 +35,7 @@ class Tui(controller: Controller) extends Reactor with GameView(controller) {
             val stack = controller.getState.currentStack
 
             controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
-            println(currentPlayer.name + ", it's your turn!\n")
+            println(currentPlayer.getName + ", it's your turn!\n")
             println("Available commands:")
             println("group - Play a group of tokens")
             println("row - Play a row of tokens")
@@ -59,7 +59,7 @@ class Tui(controller: Controller) extends Reactor with GameView(controller) {
         val stack = controller.getState.currentStack
         val gameInput = input.toLowerCase.trim
 
-        val updatedPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ gameInput)
+        val updatedPlayer = currentPlayer.updated(newTokens = currentPlayer.getTokens, newCommandHistory = currentPlayer.getCommandHistory :+ gameInput, newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove)
         controller.setStateInternal(controller.getState.updateCurrentPlayer(updatedPlayer))
 
         input match {

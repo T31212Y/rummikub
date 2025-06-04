@@ -3,9 +3,9 @@ package de.htwg.se.rummikub.aview
 import de.htwg.se.rummikub.controller.Controller
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.se.rummikub.model._
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
 class TuiSpec extends AnyWordSpec with Matchers {
 

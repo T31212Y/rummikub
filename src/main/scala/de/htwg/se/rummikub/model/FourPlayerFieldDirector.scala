@@ -1,12 +1,14 @@
 package de.htwg.se.rummikub.model
 
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+
 class FourPlayerFieldDirector(builder: PlayingFieldBuilder) {
   
   val cntRows: Int = 20
   val cntTokens: Int = 24
   val cntEdgeSpaces: Int = 15
 
-  def construct(players: List[Player]): PlayingField = {
+  def construct(players: List[PlayerInterface]): PlayingField = {
     val boardP13 = new Board(cntEdgeSpaces, cntTokens, 4, 2, "up")
     val boardP24 = new Board(cntEdgeSpaces, cntTokens, 4, 2, "down")
 

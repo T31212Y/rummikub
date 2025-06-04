@@ -5,6 +5,7 @@ import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.controller.Controller
 import de.htwg.se.rummikub.state.GameState
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
 class AppendTokenCommandSpec extends AnyWordSpec {
   "An AppendTokenCommand" should {

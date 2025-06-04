@@ -1,8 +1,10 @@
 package de.htwg.se.rummikub.model
 
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+
 case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
 
-    override def createPlayingField(players: List[Player]): Option[PlayingField] = {
+    override def createPlayingField(players: List[PlayerInterface]): Option[PlayingField] = {
         if (players.isEmpty) {
             println("Cannot create playing field: No players provided.")
             None
@@ -53,8 +55,8 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(pla
 
                 val innerField = field.innerField
 
-                val edgeUp = lineWithPlayerName("*", boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)), player1.name).getOrElse("") + "\n"
-                val edgeDown = lineWithPlayerName("*", boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)), player2.name).getOrElse("") + "\n"
+                val edgeUp = lineWithPlayerName("*", boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)), player1.getName).getOrElse("") + "\n"
+                val edgeDown = lineWithPlayerName("*", boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)), player2.getName).getOrElse("") + "\n"
             
                  s"$edgeUp${boardP1.toString()}${innerField.toString()}${boardP2.toString()}$edgeDown\n".replace("x", " ").replace("y", " ")    
             case None =>
@@ -62,7 +64,7 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(pla
         }
     }
 
-    override def updateBoardMultiPlayer(players: List[Player], board: Board): Option[Board] = None
+    override def updateBoardMultiPlayer(players: List[PlayerInterface], board: Board): Option[Board] = None
 
     override def lineWith2PlayerNames(char: String, length: Int, player1: String, player2: String): Option[String] = None
 }

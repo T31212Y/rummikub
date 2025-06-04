@@ -2,7 +2,7 @@ package de.htwg.se.rummikub.state
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
 class GameStateSpec extends AnyWordSpec {
   "A GameState" should {

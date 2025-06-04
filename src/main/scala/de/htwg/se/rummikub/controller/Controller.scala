@@ -6,6 +6,8 @@ import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 import de.htwg.se.rummikub.util.{Command, UndoManager}
 import de.htwg.se.rummikub.util.commands.{AddRowCommand, AddGroupCommand, AppendTokenCommand}
 
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+
 import scala.swing.Publisher
 
 class Controller(var gameMode: GameModeTemplate) extends Publisher {
@@ -31,7 +33,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
     def startGame(): Unit = {
         val stack = getState.stack
-        val (updatedPlayers, updatedStack) = gameState.get.players.foldLeft((Vector.empty[Player], stack)) {
+        val (updatedPlayers, updatedStack) = gameState.get.players.foldLeft((Vector.empty[PlayerInterface], stack)) {
             case ((playersAcc, stackAcc), player) =>
             val (updatedPlayer, newStack) = addMultipleTokensToPlayer(player, stackAcc, 14)
             (playersAcc :+ updatedPlayer, newStack)
@@ -63,25 +65,25 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         gameMode.renderPlayingField(playingField)
     }
 
-    def addTokenToPlayer(player: Player, stack: TokenStack): (Player, TokenStack) = {
+    def addTokenToPlayer(player: PlayerInterface, stack: TokenStack): (PlayerInterface, TokenStack) = {
         val (token, updatedStack) = stack.drawToken()
-        val updatedPlayer = player.copy(tokens = player.tokens :+ token)
+        val updatedPlayer = player.updated(newTokens = player.getTokens :+ token, newCommandHistory = player.getCommandHistory, newHasCompletedFirstMove = player.getHasCompletedFirstMove)
 
         (updatedPlayer, updatedStack)
     }
 
-    def removeTokenFromPlayer(player: Player, token: Token): Unit = {
+    def removeTokenFromPlayer(player: PlayerInterface, token: Token): Unit = {
         playingField = playingField.map { field =>
             field.copy(players = field.players.map {
-                case p if p.name == player.name => p.copy(tokens = p.tokens.filterNot(_.equals(token)))
+                case p if p.getName == player.getName => p.updated(newTokens = p.getTokens.filterNot(_.equals(token)), newCommandHistory = p.getCommandHistory, newHasCompletedFirstMove = p.getHasCompletedFirstMove)
                 case p => p
             })
         }
     }
 
-    def addMultipleTokensToPlayer(player: Player, stack: TokenStack, amt: Int): (Player, TokenStack) = {
+    def addMultipleTokensToPlayer(player: PlayerInterface, stack: TokenStack, amt: Int): (PlayerInterface, TokenStack) = {
         val (tokensToAdd, updatedStack) = stack.drawMultipleTokens(amt)
-        val updatedPlayer = player.copy(tokens = player.tokens ++ tokensToAdd)
+        val updatedPlayer = player.updated(newTokens = player.getTokens ++ tokensToAdd, newCommandHistory = player.getCommandHistory, newHasCompletedFirstMove = player.getHasCompletedFirstMove)
 
         (updatedPlayer, updatedStack)
     }
@@ -89,13 +91,13 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
     def passTurn(state: GameState, ignoreFirstMoveCheck: Boolean = false): (GameState, String) = {
         val currentPlayer = state.currentPlayer
 
-        if (!ignoreFirstMoveCheck && !currentPlayer.hasCompletedFirstMove) {
+        if (!ignoreFirstMoveCheck && !currentPlayer.getHasCompletedFirstMove) {
             val message = "The first move must have a total of at least 30 points. You cannot end your turn."
             (state, message)
         } else {
             val nextState = setNextPlayer(state)
             turnStartState = None
-            val message = s"${state.currentPlayer.name} ended their turn. It's now ${nextState.currentPlayer.name}'s turn."
+            val message = s"${state.currentPlayer.getName} ended their turn. It's now ${nextState.currentPlayer.getName}'s turn."
 
             setStateInternal(nextState)
             setPlayingField(gameMode.updatePlayingField(playingField))
@@ -109,16 +111,16 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         val current = state.currentPlayerIndex
         val nextIndex = (current + 1) % state.players.size
 
-        val cleared = state.players(nextIndex).copy(commandHistory = List())
+        val cleared = state.players(nextIndex).updated(newTokens = state.players(nextIndex).getTokens, newCommandHistory = List(), newHasCompletedFirstMove = state.players(nextIndex).getHasCompletedFirstMove)
         state.updatePlayerIndex(nextIndex).updateCurrentPlayer(cleared)
     }
 
     def winGame(): Boolean = {
         playingField match {
             case Some(field) =>
-                field.players.find(_.tokens.isEmpty) match {
+                field.players.find(_.getTokens.isEmpty) match {
                     case Some(winner) =>
-                        println(s"Player ${winner.name} wins the game!")
+                        println(s"Player ${winner.getName} wins the game!")
                         true
                     case None => false
                 }
@@ -126,24 +128,24 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         }
     }
 
-    def addRowToTable(row: Row, currentPlayer: Player): (List[Token], Player) = {
+    def addRowToTable(row: Row, currentPlayer: PlayerInterface): (List[Token], PlayerInterface) = {
         val unmatched = row.tokens.filterNot(tokenInRow =>
-          currentPlayer.tokens.exists(playerToken => tokensMatch(tokenInRow, playerToken))
+          currentPlayer.getTokens.exists(playerToken => tokensMatch(tokenInRow, playerToken))
         )
       
         if (unmatched.nonEmpty) {
             println(s"You can only play tokens that are on your board: ${unmatched.mkString(", ")}")
             (List.empty, currentPlayer)
         } else {
-            val remainingTokens = currentPlayer.tokens.filterNot(playerToken =>
+            val remainingTokens = currentPlayer.getTokens.filterNot(playerToken =>
                 row.tokens.exists(tokenInRow => tokensMatch(tokenInRow, playerToken))
             )
 
-            val updatedPlayer = currentPlayer.copy(tokens = remainingTokens, commandHistory = currentPlayer.commandHistory :+ s"row:${row.tokens.mkString(",")}").addToFirstMoveTokens(row.tokens)
+            val updatedPlayer = currentPlayer.updated(newTokens = remainingTokens, newCommandHistory = currentPlayer.getCommandHistory :+ s"row:${row.tokens.mkString(",")}", newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove).addToFirstMoveTokens(row.tokens)
             val updatedTable = playingField.get.innerField.add(row.tokens)
 
             val updatedPlayers = playingField.get.players.map {
-                    case p if p.name == currentPlayer.name => updatedPlayer
+                    case p if p.getName == currentPlayer.getName => updatedPlayer
                     case p => p
             }
 
@@ -155,24 +157,24 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         }
     }
 
-    def addGroupToTable(group: Group, currentPlayer: Player): (List[Token], Player) = {
+    def addGroupToTable(group: Group, currentPlayer: PlayerInterface): (List[Token], PlayerInterface) = {
         val unmatched = group.tokens.filterNot(tokenInGroup =>
-          currentPlayer.tokens.exists(playerToken => tokensMatch(tokenInGroup, playerToken))
+          currentPlayer.getTokens.exists(playerToken => tokensMatch(tokenInGroup, playerToken))
         )
 
         if (unmatched.nonEmpty) {
             println(s"You can only play tokens that are on your board: ${unmatched.mkString(", ")}")
             (List.empty, currentPlayer)
         } else {
-            val remainingTokens = currentPlayer.tokens.filterNot(playerToken =>
+            val remainingTokens = currentPlayer.getTokens.filterNot(playerToken =>
                 group.tokens.exists(tokenInGroup => tokensMatch(tokenInGroup, playerToken))
             )
 
-            val updatedPlayer = currentPlayer.copy(tokens = remainingTokens, commandHistory = currentPlayer.commandHistory :+ s"group:${group.tokens.mkString(",")}").addToFirstMoveTokens(group.tokens)
+            val updatedPlayer = currentPlayer.updated(newTokens = remainingTokens, newCommandHistory = currentPlayer.getCommandHistory :+ s"group:${group.tokens.mkString(",")}", newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove).addToFirstMoveTokens(group.tokens)
             val updatedTable = playingField.get.innerField.add(group.tokens)
 
             val updatedPlayers = playingField.get.players.map {
-                    case p if p.name == currentPlayer.name => updatedPlayer
+                    case p if p.getName == currentPlayer.getName => updatedPlayer
                     case p => p
             }
 
@@ -213,8 +215,8 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         }
     }
 
-    def beginTurn(currentPlayer: Player): Unit = {
-        if (currentPlayer.commandHistory.isEmpty) {
+    def beginTurn(currentPlayer: PlayerInterface): Unit = {
+        if (currentPlayer.getCommandHistory.isEmpty) {
             turnStartState = Some(getState)
             turnUndoManager = new UndoManager
         }
@@ -249,24 +251,24 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         this.currentPlayerIndex = state.currentPlayerIndex
     }
 
-    def executeAddRow(row: Row, player: Player, stack: TokenStack): Unit = {
+    def executeAddRow(row: Row, player: PlayerInterface, stack: TokenStack): Unit = {
         val cmd = new AddRowCommand(this, row, player, stack)
         turnUndoManager.doStep(cmd)
     }
 
-    def executeAddGroup(group: Group, player: Player, stack: TokenStack): Unit = {
-      if (!getState.players.exists(_.name == player.name))
-        throw new NoSuchElementException(player.name)
+    def executeAddGroup(group: Group, player: PlayerInterface, stack: TokenStack): Unit = {
+      if (!getState.players.exists(_.getName == player.getName))
+        throw new NoSuchElementException(player.getName)
       val cmd = new AddGroupCommand(this, group, player, stack)
       turnUndoManager.doStep(cmd)
     }
 
-    def executeAppendToRow(token: Token, rowIndex: Int, player: Player): Unit = {
+    def executeAppendToRow(token: Token, rowIndex: Int, player: PlayerInterface): Unit = {
         val cmd = new AppendTokenCommand(this, token, rowIndex, isRow = true, player)
         turnUndoManager.doStep(cmd)
     }
 
-    def executeAppendToGroup(token: Token, groupIndex: Int, player: Player): Unit = {
+    def executeAppendToGroup(token: Token, groupIndex: Int, player: PlayerInterface): Unit = {
         val cmd = new AppendTokenCommand(this, token, groupIndex, isRow = false, player)
         turnUndoManager.doStep(cmd)
     }
@@ -280,12 +282,12 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         publish(UpdateEvent())
     } 
 
-    private def getUpdatedPlayerAfterMove(currentPlayer: Player, newTokens: List[Token]): Player = {
+    private def getUpdatedPlayerAfterMove(currentPlayer: PlayerInterface, newTokens: List[Token]): PlayerInterface = {
         val updatedPlayer = currentPlayer.addToFirstMoveTokens(newTokens)
 
         playingField = playingField.map { field =>
             val updatedPlayers = field.players.map {
-            case p if p.name == updatedPlayer.name => updatedPlayer
+            case p if p.getName == updatedPlayer.getName => updatedPlayer
             case p => p
             }
             field.copy(players = updatedPlayers)
@@ -313,7 +315,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         (finalState, message)
     }
 
-    def playRow(tokenStrings: List[String], currentPlayer: Player, stack: TokenStack): (Player, String) = {
+    def playRow(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStack): (PlayerInterface, String) = {
         val tokens = changeStringListToTokenList(tokenStrings)
 
         val row = createRow(tokens)
@@ -325,7 +327,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
         val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, row.tokens)
 
-        val updatedPlayerWithFlag = updatedPlayer.copy(hasCompletedFirstMove = true)
+        val updatedPlayerWithFlag = updatedPlayer.updated(newTokens = updatedPlayer.getTokens, newCommandHistory = updatedPlayer.getCommandHistory, newHasCompletedFirstMove = true)
 
         val newState = getState.updateCurrentPlayer(updatedPlayerWithFlag)
 
@@ -335,7 +337,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         (updatedPlayerWithFlag, "Row successfully placed.")
     }
 
-    def playGroup(tokenStrings: List[String], currentPlayer: Player, stack: TokenStack): (Player, String) = {
+    def playGroup(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStack): (PlayerInterface, String) = {
         val tokens = changeStringListToTokenList(tokenStrings)
 
         val group = createGroup(tokens)
@@ -347,7 +349,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
         val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, group.tokens)
 
-        val updatedPlayerWithFlag = updatedPlayer.copy(hasCompletedFirstMove = true)
+        val updatedPlayerWithFlag = updatedPlayer.updated(newTokens = updatedPlayer.getTokens, newCommandHistory = updatedPlayer.getCommandHistory, newHasCompletedFirstMove = true)
 
         val newState = getState.updateCurrentPlayer(updatedPlayerWithFlag)
 
@@ -357,7 +359,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         (updatedPlayerWithFlag, "Group successfully placed.")
     }
 
-    def appendTokenToRow(tokenString: String, index: Int): (Player, String) = {
+    def appendTokenToRow(tokenString: String, index: Int): (PlayerInterface, String) = {
         val tokenList = changeStringListToTokenList(List(tokenString))
 
         val token = tokenList.head
@@ -375,7 +377,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         (updatedPlayer, s"Token appended to row at index $index.")
     }
 
-    def appendTokenToGroup(tokenString: String, index: Int): (Player, String) = {
+    def appendTokenToGroup(tokenString: String, index: Int): (PlayerInterface, String) = {
         val tokenList = changeStringListToTokenList(List(tokenString))
 
         val token = tokenList.head

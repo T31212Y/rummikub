@@ -4,6 +4,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.state.GameState
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
 class ControllerSpec extends AnyWordSpec {
 

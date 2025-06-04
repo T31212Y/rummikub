@@ -1,8 +1,10 @@
 package de.htwg.se.rummikub.model
 
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+
 case class ThreePlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
 
-    override def createPlayingField(players: List[Player]): Option[PlayingField] = {
+    override def createPlayingField(players: List[PlayerInterface]): Option[PlayingField] = {
         if (players.isEmpty) {
             println("Cannot create playing field: No players provided.")
             None
@@ -55,8 +57,8 @@ case class ThreePlayerMode(playerNames: List[String]) extends GameModeTemplate(p
 
                 val innerField = field.innerField
 
-                val edgeUp = lineWith2PlayerNames("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)), player1.name, player3.name).getOrElse("") + "\n"
-                val edgeDown = lineWithPlayerName("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)), player2.name).getOrElse("") + "\n"
+                val edgeUp = lineWith2PlayerNames("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)), player1.getName, player3.getName).getOrElse("") + "\n"
+                val edgeDown = lineWithPlayerName("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)), player2.getName).getOrElse("") + "\n"
 
                 s"$edgeUp${boardP13.toString()}${innerField.toString()}${boardP2.toString()}$edgeDown\n".replace("x", " ").replace("y", " ")
             case None =>
