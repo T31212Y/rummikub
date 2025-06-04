@@ -40,7 +40,7 @@ case class ThreePlayerMode(playerNames: List[String]) extends GameModeTemplate(p
                     updatedBoardP2
                 )
 
-                val updatedInnerField = new Table(cntRows - 4, boardP13.size(boardP13.wrapBoardRowDouble(boardP13.getBoardELRP12_1, boardP13.getBoardELRP34_1)) - 2, field.innerField.tokensOnTable)
+                val updatedInnerField = new Table(cntRows - 4, boardP13.size(boardP13.wrapBoardRowDouble(boardP13.getBoardELRP12_1, boardP13.getBoardELRP34_1)) - 2, field.innerField.getTokensOnTable)
 
                 field.copy(boards = updatedBoards, innerField = updatedInnerField)
             }

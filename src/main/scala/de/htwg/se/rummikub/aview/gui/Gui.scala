@@ -233,7 +233,7 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
   def updateTable: Unit = {
     tablePanel.contents.clear()
 
-    val tableTokens = controller.getState.table.tokensOnTable
+    val tableTokens = controller.getState.table.getTokensOnTable
 
     val groupsPerRow = 5
     val rows = tableTokens.grouped(groupsPerRow).toSeq

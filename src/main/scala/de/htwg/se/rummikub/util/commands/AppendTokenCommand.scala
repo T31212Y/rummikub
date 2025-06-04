@@ -17,7 +17,7 @@ class AppendTokenCommand(controller: Controller, token: TokenInterface, index: I
       println("No state available.")
       return
     }
-    val updatedTokensOnTable = controller.playingField.get.innerField.tokensOnTable.zipWithIndex.map {
+    val updatedTokensOnTable = controller.playingField.get.innerField.getTokensOnTable.zipWithIndex.map {
       case (tokenList, i) if i == index => tokenList :+ token
       case (tokenList, _)               => tokenList
     }
@@ -28,7 +28,7 @@ class AppendTokenCommand(controller: Controller, token: TokenInterface, index: I
       else updatedTokensOnTable
 
     controller.playingField = controller.playingField.map { pf =>
-      pf.copy(innerField = pf.innerField.copy(tokensOnTable = finalTokensOnTable))
+      pf.copy(innerField = pf.innerField.updated(newTokensOnTable = finalTokensOnTable))
     }
 
     controller.removeTokenFromPlayer(player, token)

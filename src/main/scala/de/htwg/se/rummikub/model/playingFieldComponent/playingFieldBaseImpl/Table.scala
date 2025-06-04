@@ -3,18 +3,23 @@ package de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl
 import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.TableInterface
 
-case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[TokenInterface]] = List()) {
+case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[TokenInterface]] = List()) extends TableInterface {
 
     val emptyRow = "|" + (" " * length) + "|\n"
 
-    def deleteColorCodes(tableRow: String): String = {
+    override def getCntRows: Int = cntRows
+    override def getLength: Int = length
+    override def getTokensOnTable: List[List[TokenInterface]] = tokensOnTable
+
+    override def deleteColorCodes(tableRow: String): String = {
         tableRow.replaceAll("\u001B\\[[;\\d]*m", "")
     }
 
-    def add (e: List[TokenInterface]): Table = this.copy(tokensOnTable = this.tokensOnTable :+ e)
+    override def add(e: List[TokenInterface]): TableInterface = this.copy(tokensOnTable = this.tokensOnTable :+ e)
 
-    def remove(tokensToRemove: List[TokenInterface]): Table = {
+    override def remove(tokensToRemove: List[TokenInterface]): TableInterface = {
         val removalBuffer = scala.collection.mutable.ListBuffer.from(tokensToRemove)
 
         val updatedTokensOnTable = tokensOnTable.map { row =>
@@ -33,11 +38,11 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[TokenInterf
         this.copy(tokensOnTable = updatedTokensOnTable)
     }
 
-    def getRow(index: Int): Option[List[TokenInterface]] = {
+    override def getRow(index: Int): Option[List[TokenInterface]] = {
         tokensOnTable.lift(index)
     }
 
-    def getGroup(index: Int): Option[List[TokenInterface]] = {
+    override def getGroup(index: Int): Option[List[TokenInterface]] = {
         tokensOnTable.lift(index)
     }
 
@@ -60,5 +65,9 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[TokenInterf
                 formattedRows
             }
         }
+    }
+
+    override def updated(newTokensOnTable: List[List[TokenInterface]]): TableInterface = {
+        copy(tokensOnTable = newTokensOnTable)
     }
 }

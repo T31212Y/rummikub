@@ -39,7 +39,7 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(pla
                 val updatedInnerField = new Table(
                     cntRows - 4,
                     boardP1.size(boardP1.wrapBoardRowSingle(boardP1.getBoardELRP12_1)) - 2,
-                    field.innerField.tokensOnTable
+                    field.innerField.getTokensOnTable
                 )
 
                 field.copy(boards = updatedBoards, innerField = updatedInnerField)

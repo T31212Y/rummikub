@@ -37,7 +37,7 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
                     updateBoardMultiPlayer(List(player2, player4), boardP24).fold(boardP24)(identity)
                 )
 
-                val updatedInnerField = new Table(cntRows - 4, boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)) - 2, field.innerField.tokensOnTable)
+                val updatedInnerField = new Table(cntRows - 4, boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)) - 2, field.innerField.getTokensOnTable)
 
                 field.copy(boards = updatedBoards, innerField = updatedInnerField)
             }
