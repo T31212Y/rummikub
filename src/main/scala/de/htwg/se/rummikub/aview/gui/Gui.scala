@@ -9,8 +9,9 @@ import scala.swing.event._
 import javax.swing.BorderFactory
 import javax.swing.border.TitledBorder
 import javax.swing.ImageIcon
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
-class Gui(controller: Controller) extends Frame with Reactor with GameView(controller) {
+class Gui(controller: ControllerInterface) extends Frame with Reactor with GameView(controller) {
 
   listenTo(controller)
   reactions += {
@@ -221,7 +222,7 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
 
     val currentPlayer = controller.getState.currentPlayer
 
-    for ((token, index) <- currentPlayer.tokens.zipWithIndex) {
+    for ((token, index) <- currentPlayer.getTokens.zipWithIndex) {
       val panel = TokenPanel(token, controller)
       playerBoardPanel.contents += panel
     }
