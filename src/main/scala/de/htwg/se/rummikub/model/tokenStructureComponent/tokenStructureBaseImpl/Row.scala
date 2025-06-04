@@ -1,13 +1,22 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl
 
-import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
-import de.htwg.se.rummikub.model.tokenComponent.Color
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{NumToken, Joker}
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
  
-case class Row(row: List[TokenInterface]) extends TokenStructure(row) {
+case class Row(row: List[TokenInterface]) extends TokenStructureInterface {
 
-    def isValid: Boolean = {
+    var tokens: List[TokenInterface] = row
+
+    override def getTokens: List[TokenInterface] = tokens
+    override def addToken(token: TokenInterface): Unit = tokens = tokens :+ token
+    override def removeToken(token: TokenInterface): Unit = tokens = tokens.filterNot(_.equals(token))
+
+    override def toString: String = {
+        tokens.map(_.toString).mkString(" ")
+    }
+
+    override def isValid: Boolean = {
         if (tokens.size < 3 || tokens.size > 13) return false
 
         val (jokers, nonJokers) = tokens.partition(_.isInstanceOf[Joker])
@@ -59,6 +68,7 @@ case class Row(row: List[TokenInterface]) extends TokenStructure(row) {
             else None
         }.collectFirst { case Some(vals) => vals }
     }
+
     override def points: Int = {
         jokerValues match {
         case Some(jVals) =>

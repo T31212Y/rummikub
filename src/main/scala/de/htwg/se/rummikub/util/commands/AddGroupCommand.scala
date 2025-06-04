@@ -7,6 +7,7 @@ import de.htwg.se.rummikub.state.GameState
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group
 
 class AddGroupCommand(controller: Controller, group: Group, player: PlayerInterface, stack: TokenStack) extends Command {
 

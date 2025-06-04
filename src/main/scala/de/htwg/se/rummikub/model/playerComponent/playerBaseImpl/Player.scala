@@ -3,6 +3,10 @@ package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
+
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Row
 
 case class Player(name: String, 
   tokens: List[TokenInterface] = List(), 
@@ -41,9 +45,9 @@ case class Player(name: String,
     commandHistory = this.commandHistory.map(identity)
   )
 
-  override def clusterTokens(tokens: List[TokenInterface]): List[TokenStructure] = {
+  override def clusterTokens(tokens: List[TokenInterface]): List[TokenStructureInterface] = {
     
-    def backtrack(remaining: List[TokenInterface], acc: List[TokenStructure]): Option[List[TokenStructure]] = {
+    def backtrack(remaining: List[TokenInterface], acc: List[TokenStructureInterface]): Option[List[TokenStructureInterface]] = {
       if (remaining.isEmpty) {
         Some(acc)
       } else {

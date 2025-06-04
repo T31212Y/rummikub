@@ -12,6 +12,8 @@ import scala.swing.Publisher
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
 import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Row
 
 class Controller(var gameMode: GameModeTemplate) extends Publisher {
 

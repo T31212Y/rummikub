@@ -1,11 +1,20 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl
 
-import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
-import de.htwg.se.rummikub.model.tokenComponent.Color
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{NumToken, Joker}
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 
-case class Group(group: List[TokenInterface]) extends TokenStructure(group) {
+case class Group(group: List[TokenInterface]) extends TokenStructureInterface {
+
+    var tokens: List[TokenInterface] = group
+
+    override def getTokens: List[TokenInterface] = tokens
+    override def addToken(token: TokenInterface): Unit = tokens = tokens :+ token
+    override def removeToken(token: TokenInterface): Unit = tokens = tokens.filterNot(_.equals(token))
+
+    override def toString: String = {
+        tokens.map(_.toString).mkString(" ")
+    }
 
     override def isValid: Boolean = {
         if (tokens.size < 3 || tokens.size > 4) return false
