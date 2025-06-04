@@ -1,7 +1,6 @@
-package de.htwg.se.rummikub.model.gameModeComponent
+package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
 import scala.util.{Try, Success, Failure}
-import gameModeComponent.FourPlayerMode
 
 object GameModeFactory {
   def createGameMode(amtPlayers: Int, playerNames: List[String]): Try[GameModeTemplate] = amtPlayers match {

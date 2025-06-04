@@ -1,7 +1,7 @@
 package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
-import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.playerComponent.{PlayerInterface, PlayerFactoryInterface}
 import de.htwg.se.rummikub.model.playingfieldComponent.{PlayingFieldInterface, BoardInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeInterface
 
@@ -14,8 +14,6 @@ abstract class GameModeTemplate(
   val cntRows: Int = 20
   val cntTokens: Int = 24
   val cntEdgeSpaces: Int = 15
-
-  //def tokenStructureFactory: TokenStructureFactoryInterface
 
   def runGameSetup(): Option[PlayingFieldInterface] = {
     val players = createPlayers()
