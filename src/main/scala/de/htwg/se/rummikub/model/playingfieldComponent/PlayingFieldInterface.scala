@@ -24,6 +24,10 @@ trait BoardInterface {
   def boardEUD_=(value: String): Unit
 
   def size(row: String): Int
+
+  def wrapBoardRowSingle(board: String): String
+  def wrapBoardRowDouble(board1: String, board2: String): String
+
 }
 
 trait TableInterface {
