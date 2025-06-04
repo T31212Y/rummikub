@@ -1,11 +1,16 @@
 package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
 
-import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.{Row, Group}
-
-case class Player(name: String, tokens: List[TokenStructureInterface] = List(), commandHistory: List[String] = List(), firstMoveTokens: List[TokenStructureInterface] = List(), hasCompletedFirstMove: Boolean = false) extends PlayerInterface {
+case class Player(
+  name: String,
+  tokens: List[TokenStructureInterface] = List(),
+  commandHistory: List[String] = List(),
+  firstMoveTokens: List[TokenStructureInterface] = List(),
+  hasCompletedFirstMove: Boolean = false,
+  tokenStructureFactory: TokenStructureFactoryInterface // Factory als Feld
+) extends PlayerInterface {
 
   override def toString: String = {
     s"Player: $name"
@@ -38,7 +43,7 @@ case class Player(name: String, tokens: List[TokenStructureInterface] = List(), 
   )
 
   override def clusterTokens(tokens: List[TokenStructureInterface]): List[TokenStructureInterface] = {
-    
+
     def backtrack(remaining: List[TokenStructureInterface], acc: List[TokenStructureInterface]): Option[List[TokenStructureInterface]] = {
       if (remaining.isEmpty) {
         Some(acc)
@@ -52,8 +57,8 @@ case class Player(name: String, tokens: List[TokenStructureInterface] = List(), 
         } yield {
           val ts = subset.toList
           val tokenList = ts.flatMap(_.getTokens)
-          val group = Group(tokenList)
-          val row = Row(tokenList)
+          val group: TokenStructureInterface = tokenStructureFactory.createGroup(tokenList)
+          val row: TokenStructureInterface = tokenStructureFactory.createRow(tokenList)
           List(group, row).filter(_.isValid).map(validSet => (validSet, ts))
         }
 
