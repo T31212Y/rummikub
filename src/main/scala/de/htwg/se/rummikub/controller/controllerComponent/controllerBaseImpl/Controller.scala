@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.controller.controller.controllerBaseImpl
+package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 
 import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 import de.htwg.se.rummikub.model._
@@ -238,22 +238,20 @@ class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
     }
 
     def beginTurn(currentPlayer: PlayerInterface): Unit = {
-        if (currentPlayer.commandHistory.isEmpty) {
         turnStartState = Some(getState)
         turnUndoManager = new UndoManager
-        }
     }
 
     def getState: GameState = playingField match {
         case Some(field) =>
-        val copiedPlayers = field.players.map(_.deepCopy)
-        val copiedBoards = field.boards.map(identity)
+        val copiedPlayers = field.getPlayers.map(_.deepCopy)
+        val copiedBoards = field.getBoards.map(identity)
         GameState(
             table = field.innerField,
             players = copiedPlayers.toVector,
             boards = copiedBoards.toVector,
             currentPlayerIndex = currentPlayerIndex,
-            stack = field.stack
+            stack = field.getStack
         )
         case None => GameState(
         table = null, 
@@ -267,7 +265,7 @@ class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
     def setStateInternal(state: GameState): Unit = {
         this.gameState = Some(state)
         this.playingField = Some(
-        PlayingFieldInterface(state.players.toList, state.boards.toList, state.table, state.stack)
+        gameMode.playingFieldFactory.createPlayingField(state.players.toList, state.boards.toList, state.table, state.stack)
         )
         this.currentPlayerIndex = state.currentPlayerIndex
     }
@@ -281,7 +279,6 @@ class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
         val cmd = new AddGroupCommand(this, group, player, stack)
         turnUndoManager.doStep(cmd)
     }
-
     def executeAppendToRow(token: TokenInterface, rowIndex: Int, player: PlayerInterface): Unit = {
         val cmd = new AppendTokenCommand(this, token, rowIndex, isRow = true, player)
         turnUndoManager.doStep(cmd)
@@ -328,10 +325,7 @@ class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
 
     val (_, updatedPlayer) = addRowToTable(row, currentPlayer)
 
-    val updatedPlayerWithFlag = updatedPlayer match {
-        case p: Player => p.copy(hasCompletedFirstMoveFlag = true)
-        case other     => other 
-    }
+    val updatedPlayerWithFlag = updatedPlayer.withCompletedFirstMove(true)
 
     val newState = getState.updateCurrentPlayer(updatedPlayerWithFlag)
     setStateInternal(newState)
