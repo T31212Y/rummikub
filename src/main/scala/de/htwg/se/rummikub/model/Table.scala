@@ -2,7 +2,9 @@ package de.htwg.se.rummikub.model
 
 import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 
-case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = List()) {
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+
+case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[TokenInterface]] = List()) {
 
     val emptyRow = "|" + (" " * length) + "|\n"
 
@@ -10,13 +12,13 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = L
         tableRow.replaceAll("\u001B\\[[;\\d]*m", "")
     }
 
-    def add (e: List[Token]): Table = this.copy(tokensOnTable = this.tokensOnTable :+ e)
+    def add (e: List[TokenInterface]): Table = this.copy(tokensOnTable = this.tokensOnTable :+ e)
 
-    def remove(tokensToRemove: List[Token]): Table = {
+    def remove(tokensToRemove: List[TokenInterface]): Table = {
         val removalBuffer = scala.collection.mutable.ListBuffer.from(tokensToRemove)
 
         val updatedTokensOnTable = tokensOnTable.map { row =>
-            row.foldLeft(List.empty[Token]) { (acc, token) =>
+            row.foldLeft(List.empty[TokenInterface]) { (acc, token) =>
                 val indexOpt = removalBuffer.indexWhere(t => tokensMatch(t, token))
 
                 if (indexOpt != -1) {
@@ -31,11 +33,11 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[Token]] = L
         this.copy(tokensOnTable = updatedTokensOnTable)
     }
 
-    def getRow(index: Int): Option[List[Token]] = {
+    def getRow(index: Int): Option[List[TokenInterface]] = {
         tokensOnTable.lift(index)
     }
 
-    def getGroup(index: Int): Option[List[Token]] = {
+    def getGroup(index: Int): Option[List[TokenInterface]] = {
         tokensOnTable.lift(index)
     }
 

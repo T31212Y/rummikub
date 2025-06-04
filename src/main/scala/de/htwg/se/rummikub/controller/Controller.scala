@@ -9,6 +9,9 @@ import de.htwg.se.rummikub.util.commands.{AddRowCommand, AddGroupCommand, Append
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
 import scala.swing.Publisher
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
 class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
@@ -48,11 +51,11 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         TokenStack()
     }
 
-    def createRow(r: List[Token]): Row = {
+    def createRow(r: List[TokenInterface]): Row = {
         Row(r)
     }
 
-    def createGroup(g: List[Token]): Group = {
+    def createGroup(g: List[TokenInterface]): Group = {
         Group(g)
     }
 
@@ -72,7 +75,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         (updatedPlayer, updatedStack)
     }
 
-    def removeTokenFromPlayer(player: PlayerInterface, token: Token): Unit = {
+    def removeTokenFromPlayer(player: PlayerInterface, token: TokenInterface): Unit = {
         playingField = playingField.map { field =>
             field.copy(players = field.players.map {
                 case p if p.getName == player.getName => p.updated(newTokens = p.getTokens.filterNot(_.equals(token)), newCommandHistory = p.getCommandHistory, newHasCompletedFirstMove = p.getHasCompletedFirstMove)
@@ -128,7 +131,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         }
     }
 
-    def addRowToTable(row: Row, currentPlayer: PlayerInterface): (List[Token], PlayerInterface) = {
+    def addRowToTable(row: Row, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface) = {
         val unmatched = row.tokens.filterNot(tokenInRow =>
           currentPlayer.getTokens.exists(playerToken => tokensMatch(tokenInRow, playerToken))
         )
@@ -157,7 +160,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         }
     }
 
-    def addGroupToTable(group: Group, currentPlayer: PlayerInterface): (List[Token], PlayerInterface) = {
+    def addGroupToTable(group: Group, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface) = {
         val unmatched = group.tokens.filterNot(tokenInGroup =>
           currentPlayer.getTokens.exists(playerToken => tokensMatch(tokenInGroup, playerToken))
         )
@@ -186,7 +189,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         }
     }
 
-    def changeStringListToTokenList(list: List[String]): List[Token] = { 
+    def changeStringListToTokenList(list: List[String]): List[TokenInterface] = { 
         list.map { tokenString =>
             val tokenParts = tokenString.split(":")
             if (tokenParts.length < 2)
@@ -263,12 +266,12 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
       turnUndoManager.doStep(cmd)
     }
 
-    def executeAppendToRow(token: Token, rowIndex: Int, player: PlayerInterface): Unit = {
+    def executeAppendToRow(token: TokenInterface, rowIndex: Int, player: PlayerInterface): Unit = {
         val cmd = new AppendTokenCommand(this, token, rowIndex, isRow = true, player)
         turnUndoManager.doStep(cmd)
     }
 
-    def executeAppendToGroup(token: Token, groupIndex: Int, player: PlayerInterface): Unit = {
+    def executeAppendToGroup(token: TokenInterface, groupIndex: Int, player: PlayerInterface): Unit = {
         val cmd = new AppendTokenCommand(this, token, groupIndex, isRow = false, player)
         turnUndoManager.doStep(cmd)
     }
@@ -282,7 +285,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         publish(UpdateEvent())
     } 
 
-    private def getUpdatedPlayerAfterMove(currentPlayer: PlayerInterface, newTokens: List[Token]): PlayerInterface = {
+    private def getUpdatedPlayerAfterMove(currentPlayer: PlayerInterface, newTokens: List[TokenInterface]): PlayerInterface = {
         val updatedPlayer = currentPlayer.addToFirstMoveTokens(newTokens)
 
         playingField = playingField.map { field =>

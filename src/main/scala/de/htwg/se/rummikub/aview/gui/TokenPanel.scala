@@ -9,8 +9,12 @@ import java.awt.Dimension
 import de.htwg.se.rummikub.controller.Controller
 
 import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
-case class TokenPanel(token: Token, controller: Controller) extends BorderPanel {
+case class TokenPanel(token: TokenInterface, controller: Controller) extends BorderPanel {
   preferredSize = new Dimension(40, 60)
   background = new java.awt.Color(245, 245, 220)
   opaque = true

@@ -6,11 +6,12 @@ import de.htwg.se.rummikub.util.Command
 import de.htwg.se.rummikub.state.GameState
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 
 class AddGroupCommand(controller: Controller, group: Group, player: PlayerInterface, stack: TokenStack) extends Command {
 
   var oldState: Option[GameState] = Some(controller.getState)
-  var removedTokens: List[Token] = List()
+  var removedTokens: List[TokenInterface] = List()
 
   override def doStep(): Unit = {
     val (tokensRemoved, updatedPlayer) = controller.addGroupToTable(group, player)

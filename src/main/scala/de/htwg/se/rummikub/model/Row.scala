@@ -1,6 +1,11 @@
 package de.htwg.se.rummikub.model
+
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
  
-case class Row(row: List[Token]) extends TokenStructure(row) {
+case class Row(row: List[TokenInterface]) extends TokenStructure(row) {
 
     def isValid: Boolean = {
         if (tokens.size < 3 || tokens.size > 13) return false

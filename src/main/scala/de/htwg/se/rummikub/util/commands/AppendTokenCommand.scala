@@ -6,8 +6,9 @@ import de.htwg.se.rummikub.controller.Controller
 import de.htwg.se.rummikub.state.GameState
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 
-class AppendTokenCommand(controller: Controller, token: Token, index: Int, isRow: Boolean, player: PlayerInterface) extends Command {
+class AppendTokenCommand(controller: Controller, token: TokenInterface, index: Int, isRow: Boolean, player: PlayerInterface) extends Command {
 
   var oldState: Option[GameState] = Some(controller.getState)
 

@@ -2,11 +2,12 @@ package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 
 case class Player(name: String, 
-  tokens: List[Token] = List(), 
+  tokens: List[TokenInterface] = List(), 
   commandHistory: List[String] = List(), 
-  firstMoveTokens: List[Token] = List(), 
+  firstMoveTokens: List[TokenInterface] = List(), 
   hasCompletedFirstMove: Boolean = false
 ) extends PlayerInterface {
 
@@ -30,7 +31,7 @@ case class Player(name: String,
     } else true
   }
 
-  override def addToFirstMoveTokens(newTokens: List[Token]): Player = {
+  override def addToFirstMoveTokens(newTokens: List[TokenInterface]): Player = {
     this.copy(firstMoveTokens = this.firstMoveTokens ++ newTokens)
   }
 
@@ -40,9 +41,9 @@ case class Player(name: String,
     commandHistory = this.commandHistory.map(identity)
   )
 
-  override def clusterTokens(tokens: List[Token]): List[TokenStructure] = {
+  override def clusterTokens(tokens: List[TokenInterface]): List[TokenStructure] = {
     
-    def backtrack(remaining: List[Token], acc: List[TokenStructure]): Option[List[TokenStructure]] = {
+    def backtrack(remaining: List[TokenInterface], acc: List[TokenStructure]): Option[List[TokenStructure]] = {
       if (remaining.isEmpty) {
         Some(acc)
       } else {
@@ -75,7 +76,7 @@ case class Player(name: String,
     name
   }
 
-  override def getTokens: List[Token] = {
+  override def getTokens: List[TokenInterface] = {
     tokens
   }
 
@@ -83,7 +84,7 @@ case class Player(name: String,
     commandHistory
   }
 
-  override def getFirstMoveTokens: List[Token] = {
+  override def getFirstMoveTokens: List[TokenInterface] = {
     firstMoveTokens
   }
 
@@ -91,7 +92,7 @@ case class Player(name: String,
     hasCompletedFirstMove
   }
 
-  override def updated(newTokens: List[Token], newCommandHistory: List[String], newHasCompletedFirstMove: Boolean): PlayerInterface = {
+  override def updated(newTokens: List[TokenInterface], newCommandHistory: List[String], newHasCompletedFirstMove: Boolean): PlayerInterface = {
     copy(tokens = newTokens, commandHistory = newCommandHistory, hasCompletedFirstMove = newHasCompletedFirstMove)
   }
 }

@@ -2,6 +2,7 @@ package de.htwg.se.rummikub.model
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
+import tokenComponent.tokenBaseImpl.Joker
 
 class TokenStackSpec extends AnyWordSpec {
     "TokenStack" should {

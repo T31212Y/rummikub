@@ -2,24 +2,27 @@ package de.htwg.se.rummikub.model
 
 import scala.util.Random
 
-case class TokenStack(tokens: List[Token]) {
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
 
-  def drawToken(): (Token, TokenStack) = {
+case class TokenStack(tokens: List[TokenInterface]) {
+
+  def drawToken(): (TokenInterface, TokenStack) = {
     val token = tokens.head
     val updatedStack = TokenStack(tokens.tail)
     (token, updatedStack)
   }
 
-  def drawMultipleTokens(n: Int): (List[Token], TokenStack) = {
+  def drawMultipleTokens(n: Int): (List[TokenInterface], TokenStack) = {
     val drawn = tokens.take(n)
     val updatedStack = TokenStack(tokens.drop(n))
     (drawn, updatedStack)
   }
 
-  def removeToken(token: Token): TokenStack =
+  def removeToken(token: TokenInterface): TokenStack =
     TokenStack(tokens.filterNot(_ == token))
 
-  def removeMultipleTokens(n: Int): (List[Token], TokenStack) = {
+  def removeMultipleTokens(n: Int): (List[TokenInterface], TokenStack) = {
     val removed = tokens.take(n)
     val updatedStack = TokenStack(tokens.drop(n))
     (removed, updatedStack)

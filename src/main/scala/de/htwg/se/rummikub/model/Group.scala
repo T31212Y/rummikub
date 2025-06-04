@@ -1,6 +1,11 @@
 package de.htwg.se.rummikub.model
 
-case class Group(group: List[Token]) extends TokenStructure(group) {
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
+
+case class Group(group: List[TokenInterface]) extends TokenStructure(group) {
 
     override def isValid: Boolean = {
         if (tokens.size < 3 || tokens.size > 4) return false

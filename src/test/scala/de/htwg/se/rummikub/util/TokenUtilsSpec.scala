@@ -2,7 +2,7 @@ package de.htwg.se.rummikub.util
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
 
 class TokenUtilsSpec extends AnyWordSpec {
   "TokenUtils" should {
