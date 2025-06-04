@@ -27,7 +27,6 @@ trait BoardInterface {
 
   def wrapBoardRowSingle(board: String): String
   def wrapBoardRowDouble(board1: String, board2: String): String
-
 }
 
 trait TableInterface {

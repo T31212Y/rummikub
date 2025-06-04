@@ -55,13 +55,13 @@ case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsI
     s"| $emptyRow |"
   }
 
-  def wrapBoardRowSingle(board: String): String = {
+  override def wrapBoardRowSingle(board: String): String = {
     val left = "|" + (" " * cntEdgeSpaces)
     val right = (" " * cntEdgeSpaces) + "|"
     s"$left$board$right"
   }
 
-  def wrapBoardRowDouble(board1: String, board2: String): String = {
+  override def wrapBoardRowDouble(board1: String, board2: String): String = {
     val left = "|" + (" " * cntEdgeSpaces)
     val middle = (" " * cntEdgeSpaces)
     val right = (" " * cntEdgeSpaces) + "|"
