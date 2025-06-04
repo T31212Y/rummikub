@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.gameModeComponent.gameMode4PlayerImpl
 import de.htwg.se.rummikub.model.playingfieldComponent.PlayingFieldInterface
 import de.htwg.se.rummikub.model.playingfieldComponent.TableInterface
 import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface

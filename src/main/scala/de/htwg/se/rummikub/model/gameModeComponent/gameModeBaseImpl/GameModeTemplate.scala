@@ -1,12 +1,11 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
-import playingfieldComponent.PlayingFieldInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playingfieldComponent.PlayingFieldInterface
-import de.htwg.se.rummikub.model.playingfieldComponent.BoardInterface
+import de.htwg.se.rummikub.model.playingfieldComponent.{PlayingFieldInterface, BoardInterface}
+import de.htwg.se.rummikub.model.gameModeComponent.GameModeInterface
 
-abstract class GameModeTemplate(playerNames: List[String]) {
+abstract class GameModeTemplate(playerNames: List[String]) extends GameModeInterface {
 
   val cntRows: Int = 20
   val cntTokens: Int = 24
