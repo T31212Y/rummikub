@@ -3,7 +3,7 @@ package de.htwg.se.rummikub.model
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{TokenStack, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{PlayingField}
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 abstract class GameModeTemplate(playerNames: List[String]) {
 

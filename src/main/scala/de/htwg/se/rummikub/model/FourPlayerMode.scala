@@ -1,7 +1,7 @@
 package de.htwg.se.rummikub.model
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, TokenStack, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, PlayingField}
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 
 case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {

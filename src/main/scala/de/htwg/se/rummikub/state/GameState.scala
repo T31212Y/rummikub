@@ -4,23 +4,24 @@ import de.htwg.se.rummikub.model._
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{TokenStack, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{PlayingField}
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.TableInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
 
 case class GameState(
   table: TableInterface,
   players: Vector[PlayerInterface],
   boards: Vector[BoardInterface],
   currentPlayerIndex: Int,
-  stack: TokenStack
+  stack: TokenStackInterface
 ) {
 
   def currentPlayer: PlayerInterface = players(currentPlayerIndex)
 
   def currentBoard: BoardInterface = boards(currentPlayerIndex)
 
-  def currentStack: TokenStack = stack
+  def currentStack: TokenStackInterface = stack
 
   def updateCurrentPlayer(updatedPlayer: PlayerInterface): GameState =
     copy(players = players.updated(currentPlayerIndex, updatedPlayer))
@@ -37,7 +38,7 @@ case class GameState(
   def updateTable(newTable: TableInterface): GameState =
     copy(table = newTable)
 
-  def updateStack(newStack: TokenStack): GameState =
+  def updateStack(newStack: TokenStackInterface): GameState =
     copy(stack = newStack)
   
   def updatePlayerIndex(newIndex: Int): GameState =

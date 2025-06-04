@@ -15,7 +15,8 @@ import de.htwg.se.rummikub.model.tokenComponent.Color
 import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group
 import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Row
 
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, TokenStack, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{TokenStack, Table, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
 
 class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
@@ -51,7 +52,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         publish(UpdateEvent())
     }
 
-    def createTokenStack(): TokenStack = {
+    def createTokenStack(): TokenStackInterface = {
         TokenStack()
     }
 
@@ -72,8 +73,8 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         gameMode.renderPlayingField(playingField)
     }
 
-    def addTokenToPlayer(player: PlayerInterface, stack: TokenStack): (PlayerInterface, TokenStack) = {
-        val (token, updatedStack) = stack.drawToken()
+    def addTokenToPlayer(player: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, TokenStackInterface) = {
+        val (token, updatedStack) = stack.drawToken
         val updatedPlayer = player.updated(newTokens = player.getTokens :+ token, newCommandHistory = player.getCommandHistory, newHasCompletedFirstMove = player.getHasCompletedFirstMove)
 
         (updatedPlayer, updatedStack)
@@ -88,7 +89,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         }
     }
 
-    def addMultipleTokensToPlayer(player: PlayerInterface, stack: TokenStack, amt: Int): (PlayerInterface, TokenStack) = {
+    def addMultipleTokensToPlayer(player: PlayerInterface, stack: TokenStackInterface, amt: Int): (PlayerInterface, TokenStackInterface) = {
         val (tokensToAdd, updatedStack) = stack.drawMultipleTokens(amt)
         val updatedPlayer = player.updated(newTokens = player.getTokens ++ tokensToAdd, newCommandHistory = player.getCommandHistory, newHasCompletedFirstMove = player.getHasCompletedFirstMove)
 
@@ -258,12 +259,12 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         this.currentPlayerIndex = state.currentPlayerIndex
     }
 
-    def executeAddRow(row: Row, player: PlayerInterface, stack: TokenStack): Unit = {
+    def executeAddRow(row: Row, player: PlayerInterface, stack: TokenStackInterface): Unit = {
         val cmd = new AddRowCommand(this, row, player, stack)
         turnUndoManager.doStep(cmd)
     }
 
-    def executeAddGroup(group: Group, player: PlayerInterface, stack: TokenStack): Unit = {
+    def executeAddGroup(group: Group, player: PlayerInterface, stack: TokenStackInterface): Unit = {
       if (!getState.players.exists(_.getName == player.getName))
         throw new NoSuchElementException(player.getName)
       val cmd = new AddGroupCommand(this, group, player, stack)
@@ -322,7 +323,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         (finalState, message)
     }
 
-    def playRow(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStack): (PlayerInterface, String) = {
+    def playRow(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
         val tokens = changeStringListToTokenList(tokenStrings)
 
         val row = createRow(tokens)
@@ -344,7 +345,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         (updatedPlayerWithFlag, "Row successfully placed.")
     }
 
-    def playGroup(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStack): (PlayerInterface, String) = {
+    def playGroup(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
         val tokens = changeStringListToTokenList(tokenStrings)
 
         val group = createGroup(tokens)
