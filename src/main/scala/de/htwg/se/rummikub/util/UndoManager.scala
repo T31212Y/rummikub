@@ -1,5 +1,5 @@
 package de.htwg.se.rummikub.util
-import de.htwg.se.rummikub.util.commandComponent.CommandInterface
+import de.htwg.se.rummikub.util.CommandInterface
 
 
 class UndoManager {
