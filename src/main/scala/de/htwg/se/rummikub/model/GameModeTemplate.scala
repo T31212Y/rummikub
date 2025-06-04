@@ -3,6 +3,8 @@ package de.htwg.se.rummikub.model
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, TokenStack, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 abstract class GameModeTemplate(playerNames: List[String]) {
 
     val cntRows: Int = 20
@@ -29,37 +31,37 @@ abstract class GameModeTemplate(playerNames: List[String]) {
 
     def renderPlayingField(playingField: Option[PlayingField]): String
 
-    def updateBoardSinglePlayer(player: PlayerInterface, board: Board): Option[Board] = {
+    def updateBoardSinglePlayer(player: PlayerInterface, board: BoardInterface): Option[BoardInterface] = {
         if (player.getTokens.size <= cntTokens) {
-          board.boardELRP12_1 = board.formatBoardRow(player.getTokens)
-          board.boardELRP12_2 = board.formatEmptyBoardRow(board.size(board.boardELRP12_1) - 4)
-          board.boardEUD = board.createBoardFrameSingle(player.getTokens)
+          board.setBoardELRP12_1(board.formatBoardRow(player.getTokens))
+          board.setBoardELRP12_2(board.formatEmptyBoardRow(board.size(board.getBoardELRP12_1) - 4))
+          board.setBoardEUD(board.createBoardFrameSingle(player.getTokens))
         } else {
-          board.boardELRP12_1 = board.formatBoardRow(player.getTokens.take(cntTokens))
-          board.boardELRP12_2 = board.formatBoardRow(player.getTokens.drop(cntTokens))
-          board.boardEUD = board.createBoardFrameSingle(player.getTokens.take(cntTokens))
+          board.setBoardELRP12_1(board.formatBoardRow(player.getTokens.take(cntTokens)))
+          board.setBoardELRP12_2(board.formatBoardRow(player.getTokens.drop(cntTokens)))
+          board.setBoardEUD(board.createBoardFrameSingle(player.getTokens.take(cntTokens)))
         }
         Some(board)
     }
 
-    def updateBoardMultiPlayer(players: List[PlayerInterface], board: Board): Option[Board] = {
+    def updateBoardMultiPlayer(players: List[PlayerInterface], board: BoardInterface): Option[BoardInterface] = {
         if (players(0).getTokens.size <= cntTokens) {
-            board.boardELRP12_1 = board.formatBoardRow(players(0).getTokens)
-            board.boardELRP12_2 = board.formatEmptyBoardRow(board.size(board.boardELRP12_1) - 4)
+            board.setBoardELRP12_1(board.formatBoardRow(players(0).getTokens))
+            board.setBoardELRP12_2(board.formatEmptyBoardRow(board.size(board.getBoardELRP12_1) - 4))
         } else {
-            board.boardELRP12_1 = board.formatBoardRow(players(0).getTokens.take(cntTokens))
-            board.boardELRP12_2 = board.formatBoardRow(players(0).getTokens.drop(cntTokens))
+            board.setBoardELRP12_1(board.formatBoardRow(players(0).getTokens.take(cntTokens)))
+            board.setBoardELRP12_2(board.formatBoardRow(players(0).getTokens.drop(cntTokens)))
         }
      
         if (players(1).getTokens.size <= cntTokens) {
-            board.boardELRP34_1 = board.formatBoardRow(players(1).getTokens)
-            board.boardELRP34_2 = board.formatEmptyBoardRow(board.size(board.boardELRP34_1) - 4)
+            board.setBoardELRP34_1(board.formatBoardRow(players(1).getTokens))
+            board.setBoardELRP34_2(board.formatEmptyBoardRow(board.size(board.getBoardELRP34_1) - 4))
         } else {
-            board.boardELRP34_1 = board.formatBoardRow(players(1).getTokens.take(cntTokens))
-            board.boardELRP34_2 = board.formatBoardRow(players(1).getTokens.drop(cntTokens))
+            board.setBoardELRP34_1(board.formatBoardRow(players(1).getTokens.take(cntTokens)))
+            board.setBoardELRP34_2(board.formatBoardRow(players(1).getTokens.drop(cntTokens)))
         }
 
-        board.boardEUD = board.createBoardFrameDouble(players(0).getTokens.take(cntTokens), players(1).getTokens.take(cntTokens))
+        board.setBoardEUD(board.createBoardFrameDouble(players(0).getTokens.take(cntTokens), players(1).getTokens.take(cntTokens)))
         Some(board)
     }
 

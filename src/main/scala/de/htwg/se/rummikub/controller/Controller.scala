@@ -15,6 +15,8 @@ import de.htwg.se.rummikub.model.tokenComponent.Color
 import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group
 import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Row
 
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, TokenStack, PlayingField}
+
 class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
     var playingField: Option[PlayingField] = None

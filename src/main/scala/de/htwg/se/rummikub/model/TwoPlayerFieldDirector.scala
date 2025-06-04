@@ -2,6 +2,8 @@ package de.htwg.se.rummikub.model
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Board, Table, TokenStack, PlayingField}
+
 class TwoPlayerFieldDirector(builder: PlayingFieldBuilder) {
 
     val cntRows: Int = 20

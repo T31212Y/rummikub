@@ -3,9 +3,12 @@ package de.htwg.se.rummikub.model
 import scala.util.{Try, Failure, Success}
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, TokenStack, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
+
 class StandardPlayingFieldBuilder extends PlayingFieldBuilder {
     private var players: Option[List[PlayerInterface]] = None
-    private var boards: Option[List[Board]] = None
+    private var boards: Option[List[BoardInterface]] = None
     private var innerField: Option[Table] = None
     private var stack: Option[TokenStack] = None
 
@@ -14,7 +17,7 @@ class StandardPlayingFieldBuilder extends PlayingFieldBuilder {
       this
     }
 
-    override def setBoards(boards: List[Board]): PlayingFieldBuilder = {
+    override def setBoards(boards: List[BoardInterface]): PlayingFieldBuilder = {
       this.boards = Some(boards)
       this
     }

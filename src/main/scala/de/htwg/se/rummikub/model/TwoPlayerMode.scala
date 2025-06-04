@@ -2,6 +2,9 @@ package de.htwg.se.rummikub.model
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, TokenStack, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
+
 case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
 
     override def createPlayingField(players: List[PlayerInterface]): Option[PlayingField] = {
@@ -35,7 +38,7 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(pla
 
                 val updatedInnerField = new Table(
                     cntRows - 4,
-                    boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)) - 2,
+                    boardP1.size(boardP1.wrapBoardRowSingle(boardP1.getBoardELRP12_1)) - 2,
                     field.innerField.tokensOnTable
                 )
 
@@ -55,8 +58,8 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(pla
 
                 val innerField = field.innerField
 
-                val edgeUp = lineWithPlayerName("*", boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)), player1.getName).getOrElse("") + "\n"
-                val edgeDown = lineWithPlayerName("*", boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)), player2.getName).getOrElse("") + "\n"
+                val edgeUp = lineWithPlayerName("*", boardP1.size(boardP1.wrapBoardRowSingle(boardP1.getBoardELRP12_1)), player1.getName).getOrElse("") + "\n"
+                val edgeDown = lineWithPlayerName("*", boardP1.size(boardP1.wrapBoardRowSingle(boardP1.getBoardELRP12_1)), player2.getName).getOrElse("") + "\n"
             
                  s"$edgeUp${boardP1.toString()}${innerField.toString()}${boardP2.toString()}$edgeDown\n".replace("x", " ").replace("y", " ")    
             case None =>
@@ -64,7 +67,7 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(pla
         }
     }
 
-    override def updateBoardMultiPlayer(players: List[PlayerInterface], board: Board): Option[Board] = None
+    override def updateBoardMultiPlayer(players: List[PlayerInterface], board: BoardInterface): Option[BoardInterface] = None
 
     override def lineWith2PlayerNames(char: String, length: Int, player1: String, player2: String): Option[String] = None
 }

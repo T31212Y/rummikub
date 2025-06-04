@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl
 
 import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 

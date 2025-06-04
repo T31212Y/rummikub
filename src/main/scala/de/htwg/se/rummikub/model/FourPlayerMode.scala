@@ -1,5 +1,8 @@
 package de.htwg.se.rummikub.model
+
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, TokenStack, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 
 case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
 
@@ -34,7 +37,7 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
                     updateBoardMultiPlayer(List(player2, player4), boardP24).fold(boardP24)(identity)
                 )
 
-                val updatedInnerField = new Table(cntRows - 4, boardP24.size(boardP24.wrapBoardRowDouble(boardP24.boardELRP12_1, boardP24.boardELRP34_1)) - 2, field.innerField.tokensOnTable)
+                val updatedInnerField = new Table(cntRows - 4, boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)) - 2, field.innerField.tokensOnTable)
 
                 field.copy(boards = updatedBoards, innerField = updatedInnerField)
             }
@@ -54,8 +57,8 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
 
                 val innerField = field.innerField
 
-                val edgeUp = lineWith2PlayerNames("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)), player1.getName, player3.getName).getOrElse("") + "\n"
-                val edgeDown = lineWith2PlayerNames("*", boardP24.size(boardP24.wrapBoardRowDouble(boardP24.boardELRP12_1, boardP24.boardELRP34_1)), player2.getName, player4.getName).getOrElse("") + "\n"
+                val edgeUp = lineWith2PlayerNames("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.getBoardELRP12_1, boardP13.getBoardELRP34_1)), player1.getName, player3.getName).getOrElse("") + "\n"
+                val edgeDown = lineWith2PlayerNames("*", boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)), player2.getName, player4.getName).getOrElse("") + "\n"
 
                 s"$edgeUp${boardP13.toString()}${innerField.toString()}${boardP24.toString()}$edgeDown\n".replace("x", " ").replace("y", " ")
             case None =>
@@ -63,7 +66,7 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
         }
     }
 
-    override def updateBoardSinglePlayer(player: PlayerInterface, board: Board): Option[Board] = None
+    override def updateBoardSinglePlayer(player: PlayerInterface, board: BoardInterface): Option[BoardInterface] = None
 
     override def lineWithPlayerName(char: String, length: Int, player: String): Option[String] = None
 }

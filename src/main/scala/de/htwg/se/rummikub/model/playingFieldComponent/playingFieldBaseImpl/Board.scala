@@ -1,8 +1,9 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl
 
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 
-case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsInRow: Int, dest: String, maxLen: Int = 90) {
+case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsInRow: Int, dest: String, maxLen: Int = 90) extends BoardInterface {
 
     var boardELRP12_1 = "| " + ("x " * (amtTokens - 1)) + "|"
     var boardELRP12_2 = "| " + ("x " * (amtTokens - 1)) + "|"
@@ -10,11 +11,44 @@ case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsI
     var boardELRP34_2 = "| " + ("y " * (amtTokens - 1)) + "|"
     var boardEUD = "+" + ("-" * (2 * amtTokens - 1)) + "+"
 
-    def size(board: String): Int = {
+    override def getCntEdgeSpaces: Int = cntEdgeSpaces
+    override def getAmtTokens: Int = amtTokens
+    override def getAmtPlayers: Int = amtPlayers
+    override def getAmtBoardsInRow: Int = amtBoardsInRow
+    override def getDest: String = dest
+    override def getMaxLen: Int = maxLen
+
+    override def getBoardELRP12_1: String = boardELRP12_1
+    override def getBoardELRP12_2: String = boardELRP12_2
+    override def getBoardELRP34_1: String = boardELRP34_1
+    override def getBoardELRP34_2: String = boardELRP34_2
+    override def getBoardEUD: String = boardEUD
+
+    override def setBoardELRP12_1(board: String): Unit = {
+        boardELRP12_1 = board
+    }
+
+    override def setBoardELRP12_2(board: String): Unit = {
+        boardELRP12_2 = board
+    }
+
+    override def setBoardELRP34_1(board: String): Unit = {
+        boardELRP34_1 = board
+    }
+
+    override def setBoardELRP34_2(board: String): Unit = {
+        boardELRP34_2 = board
+    }
+
+    def setBoardEUD(be: String): Unit = {
+        boardEUD = be
+    }
+
+    override def size(board: String): Int = {
         deleteColorCodes(board).length
     }
 
-    def formatBoardRow(row: List[TokenInterface]): String = {
+    override def formatBoardRow(row: List[TokenInterface]): String = {
         val paddedRow = row.padTo(amtTokens, "")
         val formattedNumbers = paddedRow.map {
         case t: TokenInterface => t.toString()
@@ -24,32 +58,32 @@ case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsI
         s"| $formattedNumbers |"
     }
 
-    def formatEmptyBoardRow(length: Int): String = {
+    override def formatEmptyBoardRow(length: Int): String = {
         val emptyRow = " " * length
         s"| $emptyRow |"
     }
 
-    def wrapBoardRowSingle(board: String): String = {
+    override def wrapBoardRowSingle(board: String): String = {
         val left = "|" + (" " * cntEdgeSpaces)
         val right = (" " * cntEdgeSpaces) + "|"
         s"$left$board$right"
     }
 
-    def wrapBoardRowDouble(board1: String, board2: String): String = {
+    override def wrapBoardRowDouble(board1: String, board2: String): String = {
         val left = "|" + (" " * cntEdgeSpaces)
         val middle = (" " * cntEdgeSpaces)
         val right = (" " * cntEdgeSpaces) + "|"
         s"$left$board1$middle$board2$right"
     }
 
-    def wrapBoardRowSingleToDouble(board: String, length: Int): String = {
+    override def wrapBoardRowSingleToDouble(board: String, length: Int): String = {
         val len = (length + 4) / 2
         val left = "|" + (" " * len)
         val right = (" " * len ) + "|"
         s"$left$board$right"
     }
 
-    def createBoardFrameSingle(row: List[TokenInterface]): String = {
+    override def createBoardFrameSingle(row: List[TokenInterface]): String = {
         val board = deleteColorCodes(formatBoardRow(row))
 
         val count = board.length - 2
@@ -58,7 +92,7 @@ case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsI
         wrapBoardRowSingle(frame)
     }
 
-    def createBoardFrameDouble(row1: List[TokenInterface], row2: List[TokenInterface]): String = {
+    override def createBoardFrameDouble(row1: List[TokenInterface], row2: List[TokenInterface]): String = {
         val board1 = deleteColorCodes(formatBoardRow(row1))
         val board2 = deleteColorCodes(formatBoardRow(row2))
 
@@ -71,23 +105,23 @@ case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsI
         wrapBoardRowDouble(frameBoard1, frameBoard2)
     }
 
-    def createBoardFrameFromStringSingle(length: Int): String = {
+    override def createBoardFrameFromStringSingle(length: Int): String = {
         val frame = "+" + ("-" * length) + "+"
         wrapBoardRowSingle(frame)
     }
 
-    def createBoardFrameFromStringDouble(length1: Int, length2: Int): String = {
+    override def createBoardFrameFromStringDouble(length1: Int, length2: Int): String = {
         val frame1 = "+" + ("-" * length1) + "+"
         val frame2 = "+" + ("-" * length2) + "+"
         wrapBoardRowDouble(frame1, frame2)
     }
 
-    def createBoardFrameFromStringSingleToDouble(length: Int): String = {
+    override def createBoardFrameFromStringSingleToDouble(length: Int): String = {
         val frame = "+" + ("-" * length) + "+"
         wrapBoardRowSingleToDouble(frame, maxLen)
     }
 
-    def deleteColorCodes(board: String): String = {
+    override def deleteColorCodes(board: String): String = {
         board.replaceAll("\u001B\\[[;\\d]*m", "")
     }
 
@@ -106,5 +140,9 @@ case class Board(cntEdgeSpaces: Int, amtTokens: Int, amtPlayers: Int, amtBoardsI
             board = createBoardFrameFromStringDouble(size(boardELRP12_1) - 2, size(boardELRP34_1) - 2) + "\n" + wrapBoardRowDouble(boardELRP12_1, boardELRP34_1) + "\n" + createBoardFrameFromStringDouble(size(boardELRP12_2) - 2, size(boardELRP34_2) - 2) + "\n" + wrapBoardRowDouble(boardELRP12_2, boardELRP34_2) + "\n"
         }
         board
+    }
+
+    override def updated(newMaxLen: Int): BoardInterface = {
+        copy(maxLen = newMaxLen)
     }
 }
