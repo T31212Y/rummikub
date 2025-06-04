@@ -17,10 +17,11 @@ import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.
 
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{TokenStack, Table, PlayingField}
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
 
 class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
-    var playingField: Option[PlayingField] = None
+    var playingField: Option[PlayingFieldInterface] = None
     var gameState: Option[GameState] = None
     var currentPlayerIndex: Int = 0
     var turnStartState: Option[GameState] = None
@@ -33,7 +34,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         playingField = gameMode.runGameSetup()
 
         gameState = playingField.map { field =>
-            GameState(field.innerField, field.players.toVector, field.boards.toVector, 0, field.stack)
+            GameState(field.getInnerField, field.getPlayers.toVector, field.getBoards.toVector, 0, field.getStack)
         }
         gameEnded = false
         publish(UpdateEvent())
@@ -64,7 +65,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         Group(g)
     }
 
-    def setPlayingField(pf: Option[PlayingField]): Unit = {
+    def setPlayingField(pf: Option[PlayingFieldInterface]): Unit = {
         this.playingField = pf
         publish(UpdateEvent())
     }
@@ -82,10 +83,10 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
     def removeTokenFromPlayer(player: PlayerInterface, token: TokenInterface): Unit = {
         playingField = playingField.map { field =>
-            field.copy(players = field.players.map {
+            field.updated(newPlayers = field.getPlayers.map {
                 case p if p.getName == player.getName => p.updated(newTokens = p.getTokens.filterNot(_.equals(token)), newCommandHistory = p.getCommandHistory, newHasCompletedFirstMove = p.getHasCompletedFirstMove)
                 case p => p
-            })
+            }, newBoards = field.getBoards, newInnerField = field.getInnerField)
         }
     }
 
@@ -126,7 +127,7 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
     def winGame(): Boolean = {
         playingField match {
             case Some(field) =>
-                field.players.find(_.getTokens.isEmpty) match {
+                field.getPlayers.find(_.getTokens.isEmpty) match {
                     case Some(winner) =>
                         println(s"Player ${winner.getName} wins the game!")
                         true
@@ -150,9 +151,9 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
             )
 
             val updatedPlayer = currentPlayer.updated(newTokens = remainingTokens, newCommandHistory = currentPlayer.getCommandHistory :+ s"row:${row.tokens.mkString(",")}", newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove).addToFirstMoveTokens(row.tokens)
-            val updatedTable = playingField.get.innerField.add(row.tokens)
+            val updatedTable = playingField.get.getInnerField.add(row.tokens)
 
-            val updatedPlayers = playingField.get.players.map {
+            val updatedPlayers = playingField.get.getPlayers.map {
                     case p if p.getName == currentPlayer.getName => updatedPlayer
                     case p => p
             }
@@ -179,9 +180,9 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
             )
 
             val updatedPlayer = currentPlayer.updated(newTokens = remainingTokens, newCommandHistory = currentPlayer.getCommandHistory :+ s"group:${group.tokens.mkString(",")}", newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove).addToFirstMoveTokens(group.tokens)
-            val updatedTable = playingField.get.innerField.add(group.tokens)
+            val updatedTable = playingField.get.getInnerField.add(group.tokens)
 
-            val updatedPlayers = playingField.get.players.map {
+            val updatedPlayers = playingField.get.getPlayers.map {
                     case p if p.getName == currentPlayer.getName => updatedPlayer
                     case p => p
             }
@@ -232,15 +233,15 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
 
     def getState: GameState = playingField match {
         case Some(field) =>
-            val copiedPlayers = field.players.map(_.deepCopy)
-            val copiedBoards = field.boards.map(identity)
+            val copiedPlayers = field.getPlayers.map(_.deepCopy)
+            val copiedBoards = field.getBoards.map(identity)
 
             GameState(
-                table = field.innerField,
+                table = field.getInnerField,
                 players = copiedPlayers.toVector,
                 boards = copiedBoards.toVector,
                 currentPlayerIndex = currentPlayerIndex,
-                stack = field.stack
+                stack = field.getStack
             )
         case None => GameState(
                         table = Table(16, 90, List.empty),
@@ -294,11 +295,11 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
         val updatedPlayer = currentPlayer.addToFirstMoveTokens(newTokens)
 
         playingField = playingField.map { field =>
-            val updatedPlayers = field.players.map {
+            val updatedPlayers = field.getPlayers.map {
             case p if p.getName == updatedPlayer.getName => updatedPlayer
             case p => p
             }
-            field.copy(players = updatedPlayers)
+            field.updated(newPlayers = updatedPlayers, newBoards = field.getBoards, newInnerField = field.getInnerField)
         }
         updatedPlayer
     }

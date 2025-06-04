@@ -2,12 +2,13 @@ package de.htwg.se.rummikub.model
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
 
 case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
 
-    override def createPlayingField(players: List[PlayerInterface]): Option[PlayingField] = {
+    override def createPlayingField(players: List[PlayerInterface]): Option[PlayingFieldInterface] = {
         if (players.isEmpty) {
             println("Cannot create playing field: No players provided.")
             None
@@ -19,17 +20,17 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(pla
         }
     }
 
-    override def updatePlayingField(playingField: Option[PlayingField]): Option[PlayingField] = {
+    override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = {
         playingField.map { field =>
-            if (field.players.size < 2) {
+            if (field.getPlayers.size < 2) {
                 println("Not enough players to update.")
                 field
             } else {
-                val player1 = field.players(0)
-                val player2 = field.players(1)
+                val player1 = field.getPlayers(0)
+                val player2 = field.getPlayers(1)
 
-                val boardP1 = field.boards(0)
-                val boardP2 = field.boards(1)
+                val boardP1 = field.getBoards(0)
+                val boardP2 = field.getBoards(1)
 
                 val updatedBoards = List(
                     updateBoardSinglePlayer(player1, boardP1).fold(boardP1)(identity),
@@ -39,24 +40,24 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(pla
                 val updatedInnerField = new Table(
                     cntRows - 4,
                     boardP1.size(boardP1.wrapBoardRowSingle(boardP1.getBoardELRP12_1)) - 2,
-                    field.innerField.getTokensOnTable
+                    field.getInnerField.getTokensOnTable
                 )
 
-                field.copy(boards = updatedBoards, innerField = updatedInnerField)
+                field.updated(newPlayers = field.getPlayers, newBoards = updatedBoards, newInnerField = updatedInnerField)
             }
         }
     }
 
-    override def renderPlayingField(playingField: Option[PlayingField]): String = {
+    override def renderPlayingField(playingField: Option[PlayingFieldInterface]): String = {
         playingField match {
             case Some(field) =>
-                val player1 = field.players(0)
-                val player2 = field.players(1)
+                val player1 = field.getPlayers(0)
+                val player2 = field.getPlayers(1)
 
-                val boardP1 = field.boards(0)
-                val boardP2 = field.boards(1)
+                val boardP1 = field.getBoards(0)
+                val boardP2 = field.getBoards(1)
 
-                val innerField = field.innerField
+                val innerField = field.getInnerField
 
                 val edgeUp = lineWithPlayerName("*", boardP1.size(boardP1.wrapBoardRowSingle(boardP1.getBoardELRP12_1)), player1.getName).getOrElse("") + "\n"
                 val edgeDown = lineWithPlayerName("*", boardP1.size(boardP1.wrapBoardRowSingle(boardP1.getBoardELRP12_1)), player2.getName).getOrElse("") + "\n"

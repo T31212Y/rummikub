@@ -4,7 +4,6 @@ import de.htwg.se.rummikub.model._
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{PlayingField}
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.TableInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface

@@ -3,10 +3,12 @@ package de.htwg.se.rummikub.model
 import scala.util.{Try, Failure, Success}
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{PlayingField}
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.TableInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
+
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.PlayingField
 
 class StandardPlayingFieldBuilder extends PlayingFieldBuilder {
     private var players: Option[List[PlayerInterface]] = None
@@ -34,7 +36,7 @@ class StandardPlayingFieldBuilder extends PlayingFieldBuilder {
       this
     }
 
-    override def build(): PlayingField = {
+    override def build(): PlayingFieldInterface = {
       val p = players.getOrElse(throw new IllegalStateException("Players not set"))
       val b = boards.getOrElse(throw new IllegalStateException("Boards not set"))
       val i = innerField.getOrElse(throw new IllegalStateException("InnerField not set"))

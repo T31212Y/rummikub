@@ -1,12 +1,13 @@
 package de.htwg.se.rummikub.model
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
 
 case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
 
-    override def createPlayingField(players: List[PlayerInterface]): Option[PlayingField] = {
+    override def createPlayingField(players: List[PlayerInterface]): Option[PlayingFieldInterface] = {
         if (players.isEmpty) {
             println("Cannot create playing field: No players provided.")
             None
@@ -18,44 +19,44 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
         }
     }
 
-    override def updatePlayingField(playingField: Option[PlayingField]): Option[PlayingField] = {
+    override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = {
         playingField.map { field =>
-            if (field.players.size < 4) {
+            if (field.getPlayers.size < 4) {
                 println("Not enough players to update.")
                 field
             } else {
-                val player1 = field.players(0)
-                val player2 = field.players(1)
-                val player3 = field.players(2)
-                val player4 = field.players(3)
+                val player1 = field.getPlayers(0)
+                val player2 = field.getPlayers(1)
+                val player3 = field.getPlayers(2)
+                val player4 = field.getPlayers(3)
 
-                val boardP13 = field.boards(0)
-                val boardP24 = field.boards(1)
+                val boardP13 = field.getBoards(0)
+                val boardP24 = field.getBoards(1)
 
                 val updatedBoards = List(
                     updateBoardMultiPlayer(List(player1, player3), boardP13).fold(boardP13)(identity),
                     updateBoardMultiPlayer(List(player2, player4), boardP24).fold(boardP24)(identity)
                 )
 
-                val updatedInnerField = new Table(cntRows - 4, boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)) - 2, field.innerField.getTokensOnTable)
+                val updatedInnerField = new Table(cntRows - 4, boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)) - 2, field.getInnerField.getTokensOnTable)
 
-                field.copy(boards = updatedBoards, innerField = updatedInnerField)
+                field.updated(newPlayers = field.getPlayers, newBoards = updatedBoards, newInnerField = updatedInnerField)
             }
         }
     }
 
-    override def renderPlayingField(playingField: Option[PlayingField]): String = {
+    override def renderPlayingField(playingField: Option[PlayingFieldInterface]): String = {
         playingField match {
             case Some(field) =>
-                val player1 = field.players(0)
-                val player2 = field.players(1)
-                val player3 = field.players(2)
-                val player4 = field.players(3)
+                val player1 = field.getPlayers(0)
+                val player2 = field.getPlayers(1)
+                val player3 = field.getPlayers(2)
+                val player4 = field.getPlayers(3)
 
-                val boardP13 = field.boards(0)
-                val boardP24 = field.boards(1)
+                val boardP13 = field.getBoards(0)
+                val boardP24 = field.getBoards(1)
 
-                val innerField = field.innerField
+                val innerField = field.getInnerField
 
                 val edgeUp = lineWith2PlayerNames("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.getBoardELRP12_1, boardP13.getBoardELRP34_1)), player1.getName, player3.getName).getOrElse("") + "\n"
                 val edgeDown = lineWith2PlayerNames("*", boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)), player2.getName, player4.getName).getOrElse("") + "\n"
