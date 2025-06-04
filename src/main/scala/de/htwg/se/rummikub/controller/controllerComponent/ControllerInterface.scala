@@ -36,4 +36,6 @@ trait ControllerInterface {
   def appendTokenToRow(tokenString: String, index: Int): (PlayerInterface, String)
   def appendTokenToGroup(tokenString: String, index: Int): (PlayerInterface, String)
   def endGame(): Unit
+  def playingField: Option[PlayingFieldInterface]
+  def gameState: Option[GameState]
 }
