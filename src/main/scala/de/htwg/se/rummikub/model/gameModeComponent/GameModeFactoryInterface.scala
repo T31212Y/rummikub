@@ -1,5 +1,7 @@
 package de.htwg.se.rummikub.model.gameModeComponent
 
+import scala.util.{Try, Success, Failure}
+
 trait GameModeFactoryInterface {
-  def create(mode: Int, playerNames: List[String]): GameModeInterface
+  def createGameMode(amtPlayers: Int, playerNames: List[String]): Try[GameModeInterface]
 }

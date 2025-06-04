@@ -5,11 +5,11 @@ import de.htwg.se.rummikub.model.playerComponent.{PlayerInterface, PlayerFactory
 import de.htwg.se.rummikub.model.playingfieldComponent.{PlayingFieldInterface, BoardInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeInterface
 
-abstract class GameModeTemplate(
-  playerNames: List[String],
-  playerFactory: PlayerFactoryInterface,
-  tokenStructureFactory: TokenStructureFactoryInterface
-  ) extends GameModeInterface {
+trait GameModeTemplate {
+
+  val playerNames: List[String]
+  val playerFactory: PlayerFactoryInterface
+  val tokenStructureFactory: TokenStructureFactoryInterface
 
   val cntRows: Int = 20
   val cntTokens: Int = 24

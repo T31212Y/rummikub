@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.model.gameModeComponent.gameMode4PlayerImpl
+/*package de.htwg.se.rummikub.model.gameModeComponent.gameMode4PlayerImpl
 import de.htwg.se.rummikub.model.playingfieldComponent.PlayingFieldInterface
 import de.htwg.se.rummikub.model.playingfieldComponent.TableInterface
 import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
@@ -70,4 +70,4 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
     override def updateBoardSinglePlayer(player: PlayerInterface, board: BoardInterface): Option[BoardInterface] = None
 
     override def lineWithPlayerName(char: String, length: Int, player: String): Option[String] = None
-}
+}*/

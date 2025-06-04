@@ -4,5 +4,5 @@ import de.htwg.se.rummikub.model.gameModeComponent.{PlayerModeFactoryInterface, 
 
 class TwoPlayerModeFactory extends PlayerModeFactoryInterface {
   override def supportedPlayerCount: Int = 2
-  override def create(playerNames: List[String]): GameModeInterface = new TwoPlayerMode(playerNames)
+  //override def create(playerNames: List[String]): GameModeInterface = new TwoPlayerMode(playerNames)
 }

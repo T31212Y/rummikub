@@ -36,4 +36,7 @@ case class PlayingField(
   override def setPlayers(players: List[PlayerInterface]): PlayingFieldInterface =
     copy(players = players)
 
+  override def withUpdated(boards: List[BoardInterface], innerField: TableInterface): PlayingFieldInterface = {
+    copy(boards = boards, innerField = innerField)
+  }
 }

@@ -34,6 +34,7 @@ trait TableInterface {
   def remove(tokens: List[TokenStructureInterface]): TableInterface
   def getRow(index: Int): Option[List[TokenStructureInterface]]
   def updateRow(index: Int, newTokens: List[TokenStructureInterface]): TableInterface
+  def getTokens: List[List[TokenStructureInterface]]
 }
 
 trait TokenStackInterface {
@@ -57,4 +58,6 @@ trait PlayingFieldInterface {
   def setInnerField(table: TableInterface): PlayingFieldInterface
   def setStack(stack: TokenStackInterface): PlayingFieldInterface
   def setPlayers(players: List[PlayerInterface]): PlayingFieldInterface
+
+  def withUpdated(boards: List[BoardInterface], innerField: TableInterface): PlayingFieldInterface
 }

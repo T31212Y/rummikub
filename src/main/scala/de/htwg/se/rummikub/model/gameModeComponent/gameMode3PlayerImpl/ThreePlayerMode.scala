@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.model.gameModeComponent.gameMode3PlayerImpl
+/*package de.htwg.se.rummikub.model.gameModeComponent.gameMode3PlayerImpl
 import playingfieldComponent.PlayingField
 import playingfieldComponent.playingFieldBaseImpl.Table
 import builderComponent.StandardPlayingFieldBuilder
@@ -67,4 +67,4 @@ case class ThreePlayerMode(playerNames: List[String]) extends GameModeTemplate(p
                 "No playing field available."
         }
     }
-}
+}*/

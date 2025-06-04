@@ -65,4 +65,6 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[TokenStruct
       }
     }
   }
+
+  def getTokens: List[List[TokenStructureInterface]] = tokensOnTable
 }
