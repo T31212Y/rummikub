@@ -6,7 +6,9 @@ import scala.io.StdIn.readLine
 
 import scala.swing.Reactor
 
-class Tui(controller: Controller) extends Reactor with GameView(controller) {
+import de.htwg.se.rummikub.controllerComponent.ControllerInterface
+
+class Tui(controller: ControllerInterface) extends Reactor with GameView(controller) {
 
     listenTo(controller)
 
