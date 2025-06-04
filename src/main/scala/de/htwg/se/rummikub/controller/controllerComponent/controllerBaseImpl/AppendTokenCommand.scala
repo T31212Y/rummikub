@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.util.commandComponent.CommandBaseImpl
+package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 
 import de.htwg.se.rummikub.util.commandComponent.CommandInterface
 import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
