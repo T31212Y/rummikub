@@ -53,4 +53,5 @@ trait PlayingFieldInterface {
   def removeBoard(board: BoardInterface): PlayingFieldInterface
   def setInnerField(table: TableInterface): PlayingFieldInterface
   def setStack(stack: TokenStackInterface): PlayingFieldInterface
+  def setPlayers(players: List[PlayerInterface]): PlayingFieldInterface
 }
