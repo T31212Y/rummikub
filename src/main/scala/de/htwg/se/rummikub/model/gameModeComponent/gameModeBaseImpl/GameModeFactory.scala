@@ -2,11 +2,13 @@ package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
 import scala.util.{Try, Success, Failure}
 
-object GameModeFactory {
-  def createGameMode(amtPlayers: Int, playerNames: List[String]): Try[GameModeTemplate] = amtPlayers match {
-    case 2 => Success(TwoPlayerMode(playerNames))
-    case 3 => Success(ThreePlayerMode(playerNames))
-    case 4 => Success(FourPlayerMode(playerNames))
-    case _ => Failure(new IllegalArgumentException("Invalid number of players"))
+import de.htwg.se.rummikub.model.gameModeComponent.{PlayerModeFactoryInterface, GameModeFactoryInterface, GameModeInterface}
+
+class GameModeFactory(factories: List[PlayerModeFactoryInterface]) extends GameModeFactoryInterface {
+  override def createGameMode(amtPlayers: Int, playerNames: List[String]): Try[GameModeInterface] = {
+    factories.find(_.supportedPlayerCount == amtPlayers) match {
+      case Some(factory) => Try(factory.create(playerNames))
+      case None => Failure(new IllegalArgumentException(s"No factory found for $amtPlayers players"))
+    }
   }
 }
