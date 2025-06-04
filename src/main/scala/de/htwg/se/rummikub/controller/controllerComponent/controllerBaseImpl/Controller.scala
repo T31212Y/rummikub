@@ -345,7 +345,7 @@ class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
         return (currentPlayer, "Your move is not valid for the first move requirement.")
         executeAddGroup(group, currentPlayer, stack)
         val updatedPlayer = getState.currentPlayer
-        val updatedPlayerWithFlag = updatedPlayer.copy(hasCompletedFirstMove = true)
+        val updatedPlayerWithFlag = updatedPlayer.withCompletedFirstMove(true)
         val newState = getState.updateCurrentPlayer(updatedPlayerWithFlag)
         setStateInternal(newState)
         setPlayingField(gameMode.updatePlayingField(playingField))
