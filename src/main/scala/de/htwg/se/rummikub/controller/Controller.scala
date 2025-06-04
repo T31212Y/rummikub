@@ -18,8 +18,9 @@ import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{TokenStack, Table, PlayingField}
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFactoryInterface}
 
-class Controller(var gameMode: GameModeTemplate) extends Publisher {
+class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFactoryInterface) extends Publisher {
 
     var playingField: Option[PlayingFieldInterface] = None
     var gameState: Option[GameState] = None
@@ -30,8 +31,8 @@ class Controller(var gameMode: GameModeTemplate) extends Publisher {
     var gameEnded: Boolean = false
 
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
-        gameMode = GameModeFactory.createGameMode(amountPlayers, names).get
-        playingField = gameMode.runGameSetup()
+        gameMode = gameModeFactory.createGameMode(amountPlayers, names).get
+        playingField = gameMode.runGameSetup
 
         gameState = playingField.map { field =>
             GameState(field.getInnerField, field.getPlayers.toVector, field.getBoards.toVector, 0, field.getStack)

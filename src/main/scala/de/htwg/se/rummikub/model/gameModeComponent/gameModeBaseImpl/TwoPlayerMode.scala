@@ -1,12 +1,18 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
 
-case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
+import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
+
+case class TwoPlayerMode(pns: List[String]) extends GameModeTemplate {
+
+    val playerNames: List[String] = pns
 
     override def createPlayingField(players: List[PlayerInterface]): Option[PlayingFieldInterface] = {
         if (players.isEmpty) {
@@ -18,6 +24,10 @@ case class TwoPlayerMode(playerNames: List[String]) extends GameModeTemplate(pla
 
             Some(director.construct(players))
         }
+    }
+
+    override def createPlayers: List[PlayerInterface] = {
+        playerNames.map(name => Player(name))
     }
 
     override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = {

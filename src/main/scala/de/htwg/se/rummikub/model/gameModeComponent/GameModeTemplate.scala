@@ -1,35 +1,30 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.gameModeComponent
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
-
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
-abstract class GameModeTemplate(playerNames: List[String]) {
 
+trait GameModeTemplate {
     val cntRows: Int = 20
     val cntTokens: Int = 24
     val cntEdgeSpaces: Int = 15
 
-    def runGameSetup(): Option[PlayingFieldInterface] = {
-        val players = createPlayers()
+    def runGameSetup: Option[PlayingFieldInterface] = {
+        val players = createPlayers
         val playingField = createPlayingField(players)
         val updatedPlayingField = updatePlayingField(playingField)
         updatedPlayingField
     }
 
-    def createPlayers(): List[PlayerInterface] = {
-        playerNames.map(name => Player(name))
-    }
+    def createPlayers: List[PlayerInterface]
 
     def createPlayingField(players: List[PlayerInterface]): Option[PlayingFieldInterface]
     def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface]
+    def renderPlayingField(playingField: Option[PlayingFieldInterface]): String
 
     def render(playingField: Option[PlayingFieldInterface]): Unit = {
         println(renderPlayingField(playingField))
     }
-
-    def renderPlayingField(playingField: Option[PlayingFieldInterface]): String
 
     def updateBoardSinglePlayer(player: PlayerInterface, board: BoardInterface): Option[BoardInterface] = {
         if (player.getTokens.size <= cntTokens) {

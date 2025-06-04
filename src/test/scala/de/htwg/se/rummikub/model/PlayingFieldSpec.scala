@@ -6,7 +6,7 @@ import org.scalatest.matchers.should.Matchers._
 class PlayingFieldSpec extends AnyWordSpec {
   "A PlayingField" should {
     "be created with the correct number of players" in {
-      val gameModeTry = GameModeFactory.createGameMode(2, List("Emilia", "Noah"))
+      val gameModeTry = gameModeComponent.GameModeFactory.createGameMode(2, List("Emilia", "Noah"))
       val gameMode = gameModeTry.get
       val players = gameMode.createPlayers()
       val playingField = gameMode.createPlayingField(players).get
@@ -15,7 +15,7 @@ class PlayingFieldSpec extends AnyWordSpec {
     }
 
     "have a board for each player" in {
-      val gameModeTry = GameModeFactory.createGameMode(2, List("Emilia", "Noah"))
+      val gameModeTry = gameModeComponent.GameModeFactory.createGameMode(2, List("Emilia", "Noah"))
       val gameMode = gameModeTry.get
       val players = gameMode.createPlayers()
       val playingField = gameMode.createPlayingField(players).get
@@ -24,7 +24,7 @@ class PlayingFieldSpec extends AnyWordSpec {
     }
 
     "have an inner field" in {
-      val gameModeTry = GameModeFactory.createGameMode(2, List("Emilia", "Noah"))
+      val gameModeTry = gameModeComponent.GameModeFactory.createGameMode(2, List("Emilia", "Noah"))
       val gameMode = gameModeTry.get
       val players = gameMode.createPlayers()
       val playingField = gameMode.createPlayingField(players)

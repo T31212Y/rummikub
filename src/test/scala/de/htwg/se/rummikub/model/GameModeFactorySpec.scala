@@ -5,6 +5,7 @@ import org.scalatest.matchers.should.Matchers._
 
 import scala.util.{Success, Failure}
 import org.scalactic.Fail
+import gameModeComponent.FourPlayerMode
 
 class GameModeFactorySpec extends AnyWordSpec {
 

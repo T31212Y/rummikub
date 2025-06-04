@@ -1,11 +1,18 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
 
-case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(playerNames) {
+import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
+
+case class ThreePlayerMode(pns: List[String]) extends GameModeTemplate {
+
+    val playerNames: List[String] = pns
 
     override def createPlayingField(players: List[PlayerInterface]): Option[PlayingFieldInterface] = {
         if (players.isEmpty) {
@@ -13,36 +20,43 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
             None
         } else {
             val builder = new StandardPlayingFieldBuilder
-            val director = new FourPlayerFieldDirector(builder)
+            val director = new ThreePlayerFieldDirector(builder)
 
             Some(director.construct(players))
         }
     }
 
+    override def createPlayers: List[PlayerInterface] = {
+        playerNames.map(name => Player(name))
+    }
+
     override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = {
         playingField.map { field =>
-            if (field.getPlayers.size < 4) {
+            if (field.getPlayers.size < 3) {
                 println("Not enough players to update.")
                 field
             } else {
                 val player1 = field.getPlayers(0)
                 val player2 = field.getPlayers(1)
                 val player3 = field.getPlayers(2)
-                val player4 = field.getPlayers(3)
 
                 val boardP13 = field.getBoards(0)
-                val boardP24 = field.getBoards(1)
+                val boardP2 = field.getBoards(1)
+
+                val updatedBoardP13 = updateBoardMultiPlayer(List(player1, player3), boardP13).fold(boardP13)(identity)
+                val updatedBoardP2 = updateBoardSinglePlayer(player2, boardP2.updated(newMaxLen = 116)).fold(boardP2)(identity)
 
                 val updatedBoards = List(
-                    updateBoardMultiPlayer(List(player1, player3), boardP13).fold(boardP13)(identity),
-                    updateBoardMultiPlayer(List(player2, player4), boardP24).fold(boardP24)(identity)
+                    updatedBoardP13,
+                    updatedBoardP2
                 )
 
-                val updatedInnerField = new Table(cntRows - 4, boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)) - 2, field.getInnerField.getTokensOnTable)
+                val updatedInnerField = new Table(cntRows - 4, boardP13.size(boardP13.wrapBoardRowDouble(boardP13.getBoardELRP12_1, boardP13.getBoardELRP34_1)) - 2, field.getInnerField.getTokensOnTable)
 
                 field.updated(newPlayers = field.getPlayers, newBoards = updatedBoards, newInnerField = updatedInnerField)
             }
         }
+        
     }
 
     override def renderPlayingField(playingField: Option[PlayingFieldInterface]): String = {
@@ -51,23 +65,18 @@ case class FourPlayerMode(playerNames: List[String]) extends GameModeTemplate(pl
                 val player1 = field.getPlayers(0)
                 val player2 = field.getPlayers(1)
                 val player3 = field.getPlayers(2)
-                val player4 = field.getPlayers(3)
 
                 val boardP13 = field.getBoards(0)
-                val boardP24 = field.getBoards(1)
+                val boardP2 = field.getBoards(1)
 
                 val innerField = field.getInnerField
 
                 val edgeUp = lineWith2PlayerNames("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.getBoardELRP12_1, boardP13.getBoardELRP34_1)), player1.getName, player3.getName).getOrElse("") + "\n"
-                val edgeDown = lineWith2PlayerNames("*", boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)), player2.getName, player4.getName).getOrElse("") + "\n"
+                val edgeDown = lineWithPlayerName("*", boardP13.size(boardP13.wrapBoardRowDouble(boardP13.getBoardELRP12_1, boardP13.getBoardELRP34_1)), player2.getName).getOrElse("") + "\n"
 
-                s"$edgeUp${boardP13.toString()}${innerField.toString()}${boardP24.toString()}$edgeDown\n".replace("x", " ").replace("y", " ")
+                s"$edgeUp${boardP13.toString()}${innerField.toString()}${boardP2.toString()}$edgeDown\n".replace("x", " ").replace("y", " ")
             case None =>
                 "No playing field available."
         }
     }
-
-    override def updateBoardSinglePlayer(player: PlayerInterface, board: BoardInterface): Option[BoardInterface] = None
-
-    override def lineWithPlayerName(char: String, length: Int, player: String): Option[String] = None
 }
