@@ -1,9 +1,6 @@
-package de.htwg.se.rummikub.util.commands
+package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.util.Command
-import de.htwg.se.rummikub.controller.Controller
-import de.htwg.se.rummikub.state.GameState
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface

@@ -6,15 +6,11 @@ import scala.swing.event._
 import java.awt.Font
 import java.awt.Dimension
 
-import de.htwg.se.rummikub.controller.Controller
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{NumToken, Joker}
+import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
-import de.htwg.se.rummikub.model._
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
-import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
-import de.htwg.se.rummikub.model.tokenComponent.Color
-
-case class TokenPanel(token: TokenInterface, controller: Controller) extends BorderPanel {
+case class TokenPanel(token: TokenInterface, controller: ControllerInterface) extends BorderPanel {
   preferredSize = new Dimension(40, 60)
   background = new java.awt.Color(245, 245, 220)
   opaque = true

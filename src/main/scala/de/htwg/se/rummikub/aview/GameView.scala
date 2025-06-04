@@ -1,9 +1,10 @@
 package de.htwg.se.rummikub.aview
 
-import de.htwg.se.rummikub.controller.Controller
+import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent}
+
 import scala.io.StdIn.readLine
 
-trait GameView(controller: Controller) {
+trait GameView(controller: ControllerInterface) {
   def showWelcome: Vector[String] = {
     Vector("Welcome to",
     " ____                                _  _            _      _",
@@ -40,7 +41,7 @@ trait GameView(controller: Controller) {
   }
   
   def showGoodbye: String = {
-    if (controller.gameEnded) {
+    if (controller.getGameEnded) {
       "Thank you for playing Rummikub! Goodbye!"
     } else {
       ""

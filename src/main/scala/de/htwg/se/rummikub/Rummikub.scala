@@ -1,6 +1,6 @@
 package de.htwg.se.rummikub
 
-import de.htwg.se.rummikub.controller.Controller
+import de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl.Controller
 import de.htwg.se.rummikub.aview._
 import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
 
