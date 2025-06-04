@@ -3,8 +3,9 @@ package de.htwg.se.rummikub.controller
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.state.GameState
 import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
-import de.htwg.se.rummikub.util.{Command, UndoManager}
-import de.htwg.se.rummikub.util.commands.{AddRowCommand, AddGroupCommand, AppendTokenCommand}
+import de.htwg.se.rummikub.util.UndoManager
+import de.htwg.se.rummikub.util.commandComponent
+import de.htwg.se.rummikub.util.commandComponent.CommandBaseImpl.{AddRowCommand, AddGroupCommand, AppendTokenCommand}
 
 import scala.swing.Publisher
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
