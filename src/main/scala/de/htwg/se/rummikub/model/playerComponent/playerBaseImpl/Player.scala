@@ -8,7 +8,7 @@ case class Player(
   tokens: List[TokenStructureInterface] = List(),
   commandHistory: List[String] = List(),
   firstMoveTokens: List[TokenStructureInterface] = List(),
-  hasCompletedFirstMove: Boolean = false,
+  hasCompletedFirstMoveFlag: Boolean = false,
   tokenStructureFactory: TokenStructureFactoryInterface
 ) extends PlayerInterface {
 
@@ -73,4 +73,14 @@ case class Player(
 
     backtrack(tokens, List()).getOrElse(List())
   }
+
+  override def withTokens(tokens: List[TokenStructureInterface]): PlayerInterface = {
+    this.copy(tokens = tokens)
+  }
+
+  override def hasCompletedFirstMove: Boolean = hasCompletedFirstMoveFlag
+
+
+  override def clearCommandHistory: PlayerInterface = this.copy(commandHistory = List())
+
 }
