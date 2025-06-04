@@ -32,4 +32,8 @@ case class PlayingField(
 
   override def setStack(stack: TokenStackInterface): PlayingFieldInterface =
     copy(stack = stack)
+
+  override def setPlayers(players: List[PlayerInterface]): PlayingFieldInterface =
+    copy(players = players)
+
 }
