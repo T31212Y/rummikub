@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.builderComponent.builderBaseImpl
 
 import scala.util.{Try, Failure, Success}
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
@@ -9,29 +9,30 @@ import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
 
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.PlayingField
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
 
-class StandardPlayingFieldBuilder extends PlayingFieldBuilder {
+class StandardPlayingFieldBuilder extends PlayingFieldBuilderInterface {
     private var players: Option[List[PlayerInterface]] = None
     private var boards: Option[List[BoardInterface]] = None
     private var innerField: Option[TableInterface] = None
     private var stack: Option[TokenStackInterface] = None
 
-    override def setPlayers(players: List[PlayerInterface]): PlayingFieldBuilder = {
+    override def setPlayers(players: List[PlayerInterface]): PlayingFieldBuilderInterface = {
       this.players = Some(players)
       this
     }
 
-    override def setBoards(boards: List[BoardInterface]): PlayingFieldBuilder = {
+    override def setBoards(boards: List[BoardInterface]): PlayingFieldBuilderInterface = {
       this.boards = Some(boards)
       this
     }
 
-    override def setInnerField(innerField: TableInterface): PlayingFieldBuilder = {
+    override def setInnerField(innerField: TableInterface): PlayingFieldBuilderInterface = {
       this.innerField = Some(innerField)
       this
     }
 
-    override def setStack(stack: TokenStackInterface): PlayingFieldBuilder = {
+    override def setStack(stack: TokenStackInterface): PlayingFieldBuilderInterface = {
       this.stack = Some(stack)
       this
     }

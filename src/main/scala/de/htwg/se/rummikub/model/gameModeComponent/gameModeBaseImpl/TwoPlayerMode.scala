@@ -9,6 +9,8 @@ import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
 
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
+import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.StandardPlayingFieldBuilder
+import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.TwoPlayerFieldDirector
 
 case class TwoPlayerMode(pns: List[String]) extends GameModeTemplate {
 

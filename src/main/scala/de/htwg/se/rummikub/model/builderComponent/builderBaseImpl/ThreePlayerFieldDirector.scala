@@ -1,16 +1,15 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.builderComponent.builderBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Board, Table, TokenStack}
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
-class ThreePlayerFieldDirector(builder: PlayingFieldBuilder) {
-  
-  val cntRows: Int = 20
-  val cntTokens: Int = 24
-  val cntEdgeSpaces: Int = 15
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
 
-  def construct(players: List[PlayerInterface]): PlayingFieldInterface = {
+
+class ThreePlayerFieldDirector(builder: PlayingFieldBuilderInterface) extends FieldDirectorInterface {
+  override def construct(players: List[PlayerInterface]): PlayingFieldInterface = {
     val boardP13 = new Board(cntEdgeSpaces, cntTokens, 3, 2, "up")
     val boardP2 = new Board(cntEdgeSpaces, cntTokens, 3, 1, "down")
 

@@ -1,17 +1,14 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.builderComponent.builderBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Board, Table, TokenStack}
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
 
-class FourPlayerFieldDirector(builder: PlayingFieldBuilder) {
-  
-  val cntRows: Int = 20
-  val cntTokens: Int = 24
-  val cntEdgeSpaces: Int = 15
-
-  def construct(players: List[PlayerInterface]): PlayingFieldInterface = {
+class FourPlayerFieldDirector(builder: PlayingFieldBuilderInterface) extends FieldDirectorInterface {
+  override def construct(players: List[PlayerInterface]): PlayingFieldInterface = {
     val boardP13 = new Board(cntEdgeSpaces, cntTokens, 4, 2, "up")
     val boardP24 = new Board(cntEdgeSpaces, cntTokens, 4, 2, "down")
 
