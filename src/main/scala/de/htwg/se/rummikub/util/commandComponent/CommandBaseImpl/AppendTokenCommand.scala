@@ -2,13 +2,13 @@ package de.htwg.se.rummikub.util.commandComponent.CommandBaseImpl
 
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.util.commandComponent.CommandInterface
-import de.htwg.se.rummikub.controller.Controller
+import de.htwg.se.rummikub.controllerComponent.ControllerInterface
 import de.htwg.se.rummikub.state.GameState
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 
 class AppendTokenCommand(
-    controller: Controller,
+    controller: ControllerInterface,
     token: TokenInterface,
     index: Int,
     isRow: Boolean,
