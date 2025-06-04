@@ -11,6 +11,7 @@ import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 import de.htwg.se.rummikub.model.playingfieldComponent.{TokenStackInterface, TableInterface}
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
 
 class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
 
@@ -134,10 +135,11 @@ class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
             (List.empty, currentPlayer)
         } else {
             val remainingTokensFlat = playerTokensFlat.filterNot { playerToken =>
-            row.getTokens.exists(tokenInRow => tokensMatch(tokenInRow, playerToken))
+                row.getTokens.exists(tokenInRow => tokensMatch(tokenInRow, playerToken))
             }
-    	    
-            val updatedTokensStructures: List[TokenStructureInterface] = remainingTokensFlat.map(token => tokenStructureFactory.createSingleTokenStructure(token))
+
+            val updatedTokensStructures: List[TokenStructureInterface] =
+                remainingTokensFlat.map(token => gameMode.tokenStructureFactory.createSingleTokenStructure(token))
 
             val updatedPlayerWithTokens = currentPlayer.withTokens(updatedTokensStructures)
             val updatedPlayer = updatedPlayerWithTokens.addToFirstMoveTokens(row.getTokens)
@@ -145,14 +147,14 @@ class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
             val updatedTable = playingField.get.getInnerField.add(row.getTokens)
 
             val updatedPlayers = playingField.get.getPlayers.map {
-            case p if p.name == currentPlayer.name => updatedPlayer
-            case p => p
+                case p if p.name == currentPlayer.name => updatedPlayer
+                case p => p
             }
 
             val newState = getState
-            .updateCurrentPlayer(updatedPlayer)
-            .updateTable(updatedTable)
-            .updatePlayers(updatedPlayers.toVector)
+                .updateCurrentPlayer(updatedPlayer)
+                .updateTable(updatedTable)
+                .updatePlayers(updatedPlayers.toVector)
 
             setStateInternal(newState)
 
@@ -160,28 +162,42 @@ class Controller(var gameMode: GameModeTemplate) extends ControllerInterface {
         }
     }
 
-
-
     def addGroupToTable(group: TokenStructureInterface, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface) = {
-        val unmatched = group.tokens.filterNot(tokenInGroup =>
-          currentPlayer.tokens.exists(playerToken => tokensMatch(tokenInGroup, playerToken))
-        )
+        val playerTokensFlat: List[TokenInterface] = currentPlayer.getTokens.flatMap(_.getTokens)
+
+        val unmatched = group.getTokens.filterNot { tokenInGroup =>
+            playerTokensFlat.exists(playerToken => tokensMatch(tokenInGroup, playerToken))
+        }
+
         if (unmatched.nonEmpty) {
             println(s"You can only play tokens that are on your board: ${unmatched.mkString(", ")}")
             (List.empty, currentPlayer)
         } else {
-            val remainingTokens = currentPlayer.tokens.filterNot(playerToken =>
-                group.tokens.exists(tokenInGroup => tokensMatch(tokenInGroup, playerToken))
-            )
-            val updatedPlayer = currentPlayer.copy(tokens = remainingTokens, commandHistory = currentPlayer.commandHistory :+ s"group:${group.tokens.mkString(",")}").addToFirstMoveTokens(group.tokens)
-            val updatedTable = playingField.get.innerField.add(group.tokens)
-            val updatedPlayers = playingField.get.players.map {
-                    case p if p.name == currentPlayer.name => updatedPlayer
-                    case p => p
+            val remainingTokensFlat = playerTokensFlat.filterNot { playerToken =>
+                group.getTokens.exists(tokenInGroup => tokensMatch(tokenInGroup, playerToken))
             }
-            val newState = getState.updateCurrentPlayer(updatedPlayer).updateTable(updatedTable).updatePlayers(updatedPlayers.toVector)
+
+            val updatedTokensStructures: List[TokenStructureInterface] =
+                remainingTokensFlat.map(token => gameMode.tokenStructureFactory.createSingleTokenStructure(token))
+
+            val updatedPlayerWithTokens = currentPlayer.withTokens(updatedTokensStructures)
+            val updatedPlayer = updatedPlayerWithTokens.addToFirstMoveTokens(group.getTokens)
+
+            val updatedTable = playingField.get.getInnerField.add(group.getTokens)
+
+            val updatedPlayers = playingField.get.getPlayers.map {
+                case p if p.name == currentPlayer.name => updatedPlayer
+                case p => p
+            }
+
+            val newState = getState
+                .updateCurrentPlayer(updatedPlayer)
+                .updateTable(updatedTable)
+                .updatePlayers(updatedPlayers.toVector)
+
             setStateInternal(newState)
-            (group.tokens, updatedPlayer)
+
+            (group.getTokens, updatedPlayer)
         }
     }
 
