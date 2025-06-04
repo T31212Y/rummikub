@@ -1,14 +1,15 @@
-package de.htwg.se.rummikub.model
-import playingfieldComponent.PlayingField
-import playingfieldComponent.playingFieldBaseImpl.Table
+package de.htwg.se.rummikub.model.builderComponent.builder2PlayerImpl
 
-class TwoPlayerFieldDirector(builder: PlayingFieldBuilder) {
+import de.htwg.se.rummikub.model.playingfieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+
+class TwoPlayerFieldDirector(builder: PlayingFieldBuilderInterface) {
 
     val cntRows: Int = 20
     val cntTokens: Int = 24
     val cntEdgeSpaces: Int = 15
 
-    def construct(players: List[Player]): PlayingField = {
+    def construct(players: List[Player]): PlayingFieldInterface = {
       val boardP1 = new Board(cntEdgeSpaces, cntTokens, 2, 1, "up")
       val boardP2 = new Board(cntEdgeSpaces, cntTokens, 2, 1, "down")
 

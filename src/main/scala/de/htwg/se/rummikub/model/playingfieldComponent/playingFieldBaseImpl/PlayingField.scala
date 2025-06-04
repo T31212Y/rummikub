@@ -10,26 +10,26 @@ case class PlayingField(
   stack: TokenStackInterface
 ) extends PlayingFieldInterface {
 
-  def getPlayers: List[PlayerInterface] = players
-  def getBoards: List[BoardInterface] = boards
-  def getInnerField: TableInterface = innerField
-  def getStack: TokenStackInterface = stack
+  override def getPlayers: List[PlayerInterface] = players
+  override def getBoards: List[BoardInterface] = boards
+  override def getInnerField: TableInterface = innerField
+  override def getStack: TokenStackInterface = stack
 
-  def addPlayer(player: PlayerInterface): PlayingFieldInterface =
+  override def addPlayer(player: PlayerInterface): PlayingFieldInterface =
     copy(players = players :+ player)
 
-  def removePlayer(player: PlayerInterface): PlayingFieldInterface =
+  override def removePlayer(player: PlayerInterface): PlayingFieldInterface =
     copy(players = players.filterNot(_ == player))
 
-  def addBoard(board: BoardInterface): PlayingFieldInterface =
+  override def addBoard(board: BoardInterface): PlayingFieldInterface =
     copy(boards = boards :+ board)
 
-  def removeBoard(board: BoardInterface): PlayingFieldInterface =
+  override def removeBoard(board: BoardInterface): PlayingFieldInterface =
     copy(boards = boards.filterNot(_ == board))
 
-  def setInnerField(table: TableInterface): PlayingFieldInterface =
+  override def setInnerField(table: TableInterface): PlayingFieldInterface =
     copy(innerField = table)
 
-  def setStack(stack: TokenStackInterface): PlayingFieldInterface =
+  override def setStack(stack: TokenStackInterface): PlayingFieldInterface =
     copy(stack = stack)
 }
