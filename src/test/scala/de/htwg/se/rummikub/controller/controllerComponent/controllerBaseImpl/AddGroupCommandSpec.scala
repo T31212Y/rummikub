@@ -2,9 +2,16 @@ package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import de.htwg.se.rummikub.controller.Controller
-import de.htwg.se.rummikub.state.GameState
+import de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl.Controller
+import de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl.GameState
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group
+import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
+import de.htwg.se.rummikub.aview.Tui
+
 
 class AddGroupCommandSpec extends AnyWordSpec {
 
@@ -13,7 +20,9 @@ class AddGroupCommandSpec extends AnyWordSpec {
         val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
         val group = Group(List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
         val stack = TokenStack()
-        val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
+        val gameModeFactory = new GameModeFactory
+        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+        val tui = new Tui(controller)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
         val testToken = NumToken(1, Color.RED)
@@ -31,7 +40,9 @@ class AddGroupCommandSpec extends AnyWordSpec {
         val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED)))
         val group = Group(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
-        val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
+        val gameModeFactory = new GameModeFactory
+        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+        val tui = new Tui(controller)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
         val initialState = controller.getState
@@ -47,7 +58,9 @@ class AddGroupCommandSpec extends AnyWordSpec {
         val player = Player("TestPlayer")
         val group = Group(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
-        val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
+        val gameModeFactory = new GameModeFactory
+        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+        val tui = new Tui(controller)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
         val cmd = new AddGroupCommand(controller, group, player, stack) {
@@ -65,7 +78,8 @@ class AddGroupCommandSpec extends AnyWordSpec {
         val player = Player("TestPlayer")
         val group = Group(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
-        val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
+        val gameModeFactory = new GameModeFactory
+        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
         var doStepCalled = false
