@@ -2,7 +2,8 @@ package de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{NumToken, Joker}
 
 class TokenFactorySpec extends AnyWordSpec with Matchers {
 
