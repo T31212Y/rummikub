@@ -3,6 +3,11 @@ package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Board
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
 class GameStateSpec extends AnyWordSpec {
   "A GameState" should {
@@ -59,10 +64,10 @@ class GameStateSpec extends AnyWordSpec {
     }
 
     "advance to the next turn" in {
-      val newState = state.nextTurn()
+      val newState = state.nextTurn
       newState.currentPlayerIndex shouldBe 1
       newState.currentPlayer shouldBe player2
-      newState.nextTurn().currentPlayerIndex shouldBe 0
+      newState.nextTurn.currentPlayerIndex shouldBe 0
     }
   }
 }
