@@ -18,6 +18,10 @@ import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.
 import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
 import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.TwoPlayerMode
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
+
 
 
 
@@ -36,10 +40,15 @@ class ControllerSpec extends AnyWordSpec {
     val stack = TokenStack(List(NumToken(3, Color.GREEN)))
     val pf = PlayingField(players, boards, table, stack)
     val gameMode = new TwoPlayerMode(List("Alice", "Bob")) {
-      override def runGameSetup(): Option[PlayingField] = Some(pf)
-      override def renderPlayingField(field: Option[PlayingField]): String = "Spielfeld"
-      override def createPlayingField(players: List[Player]): Option[PlayingField] = Some(pf)
-      override def updatePlayingField(playingField: Option[PlayingField]): Option[PlayingField] = playingField
+      override def runGameSetup: Option[PlayingFieldInterface] = Some(pf)
+      override def renderPlayingField(field: Option[PlayingFieldInterface]): String = "Spielfeld"
+      override def createPlayingField(players: List[PlayerInterface]): Option[PlayingFieldInterface] = Some(pf)
+      override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = playingField
+      override def createPlayers: List[PlayerInterface] = {
+        playerNames.map(name => Player(name))
+      }
+      override def updateBoardMultiPlayer(players: List[PlayerInterface], board: BoardInterface): Option[BoardInterface] = None
+      override def lineWith2PlayerNames(char: String, length: Int, player1: String, player2: String): Option[String] = None
     }
     val gameModeFactory = new GameModeFactory
     val controller = new Controller(gameMode, gameModeFactory)
