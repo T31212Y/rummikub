@@ -51,5 +51,12 @@ class PlayerSpec extends AnyWordSpec {
       val result = player.clusterTokens(impossibleTokens)
       result shouldBe empty
     }
+
+    "return the list of first move tokens if getFirstMoveTokens is called" in {
+      val tokens = List(NumToken(10, Color.RED), NumToken(10, Color.BLUE), NumToken(10, Color.GREEN))
+      val player = Player(name = "Anki", firstMoveTokens = tokens)
+
+      player.getFirstMoveTokens should be (tokens)
+    }
   }
 }
