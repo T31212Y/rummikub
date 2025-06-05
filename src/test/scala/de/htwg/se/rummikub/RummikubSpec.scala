@@ -1,8 +1,9 @@
 package de.htwg.se.rummikub
 
-import de.htwg.se.rummikub.model.{PlayingField, GameModeFactory}
+import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.PlayingField
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
-import de.htwg.se.rummikub.controller.Controller
+import de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl.Controller
 import de.htwg.se.rummikub.aview.Tui
 
 import org.scalatest.matchers.should.Matchers
@@ -22,12 +23,13 @@ class RummikubSpec extends AnyWordSpec with Matchers {
     }
 
     "initialize the game correctly with default players" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.setupNewGame(2, List("Emilia", "Noah"))
 
-      controller.playingField.get.players should have size 2
-      controller.playingField.get.players.head.name should be("Emilia")
-      controller.playingField.get.players(1).name should be("Noah")
+      controller.playingField.get.getPlayers should have size 2
+      controller.playingField.get.getPlayers.head.getName should be("Emilia")
+      controller.playingField.get.getPlayers(1).getName should be("Noah")
     }
 
     "process commands through the Tui" in {
