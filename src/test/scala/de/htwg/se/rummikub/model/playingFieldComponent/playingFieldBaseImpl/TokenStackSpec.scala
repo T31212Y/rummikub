@@ -2,14 +2,15 @@ package de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
 class TokenStackSpec extends AnyWordSpec {
     "TokenStack" should {
         "remove a token from the stack" in {
             val joker = Joker(Color.BLACK)
             val stack = TokenStack().removeToken(joker) 
-            stack.tokens should not contain (joker)
+            stack.getTokens should not contain (joker)
         }
 
         "check if the stack is empty" in {
@@ -23,7 +24,7 @@ class TokenStackSpec extends AnyWordSpec {
         }
 
         "be empty after removing all tokens" in {
-            val stack = TokenStack().removeAllTokens()
+            val stack = TokenStack().removeAllTokens
             stack.isEmpty should be(true)
         }
         "have a string representation" in {
@@ -33,7 +34,7 @@ class TokenStackSpec extends AnyWordSpec {
         }
         "draw a token from the stack" in {
             val stack = TokenStack()
-            val (token, updatedStack) = stack.drawToken()
+            val (token, updatedStack) = stack.drawToken
             token should not be null
             updatedStack.size should be(105)
         }
