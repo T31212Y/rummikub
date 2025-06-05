@@ -2,7 +2,11 @@ package de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Row
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group
 
 class TableSpec extends AnyWordSpec {
   "Table" should {
@@ -55,7 +59,7 @@ class TableSpec extends AnyWordSpec {
       val newRow = Row(List(NumToken(1, Color.BLUE), NumToken(2, Color.RED), NumToken(3, Color.GREEN)))
       val updatedTable = table.add(newRow.getTokens)
 
-      updatedTable.tokensOnTable.contains(newRow.getTokens).should(be(true))
+      updatedTable.getTokensOnTable.contains(newRow.getTokens).should(be(true))
       table.tokensOnTable should not contain (newRow.getTokens)
     }
 
@@ -74,13 +78,13 @@ class TableSpec extends AnyWordSpec {
 
       val updatedTable = table.remove(List(NumToken(2, Color.RED), NumToken(5, Color.BLUE)))
 
-      updatedTable.tokensOnTable.flatten.should(not contain (NumToken(2, Color.RED)))
-      updatedTable.tokensOnTable.flatten.should(not contain (NumToken(5, Color.BLUE)))
+      updatedTable.getTokensOnTable.flatten.should(not contain (NumToken(2, Color.RED)))
+      updatedTable.getTokensOnTable.flatten.should(not contain (NumToken(5, Color.BLUE)))
 
-      updatedTable.tokensOnTable.flatten.should(contain (NumToken(1, Color.BLUE)))
-      updatedTable.tokensOnTable.flatten.should(contain (NumToken(3, Color.GREEN)))
-      updatedTable.tokensOnTable.flatten.should(contain (NumToken(4, Color.BLACK)))
-      updatedTable.tokensOnTable.flatten.should(contain (NumToken(6, Color.RED)))
+      updatedTable.getTokensOnTable.flatten.should(contain (NumToken(1, Color.BLUE)))
+      updatedTable.getTokensOnTable.flatten.should(contain (NumToken(3, Color.GREEN)))
+      updatedTable.getTokensOnTable.flatten.should(contain (NumToken(4, Color.BLACK)))
+      updatedTable.getTokensOnTable.flatten.should(contain (NumToken(6, Color.RED)))
     }
 
     "correctly remove both Joker and NumTokens from the table" in {
@@ -89,10 +93,10 @@ class TableSpec extends AnyWordSpec {
 
       val updatedTable = table.remove(List(Joker(Color.RED), NumToken(3, Color.GREEN)))
 
-      updatedTable.tokensOnTable.flatten.should(not contain (Joker(Color.RED)))
-      updatedTable.tokensOnTable.flatten.should(not contain (NumToken(3, Color.GREEN)))
+      updatedTable.getTokensOnTable.flatten.should(not contain (Joker(Color.RED)))
+      updatedTable.getTokensOnTable.flatten.should(not contain (NumToken(3, Color.GREEN)))
 
-      updatedTable.tokensOnTable.flatten.should(contain (NumToken(5, Color.BLUE)))
+      updatedTable.getTokensOnTable.flatten.should(contain (NumToken(5, Color.BLUE)))
     }
 
     "correctly parse and remove Joker tokens from the table" in {
@@ -101,8 +105,8 @@ class TableSpec extends AnyWordSpec {
 
       val updated = table.remove(List(Joker(Color.BLACK)))
 
-      updated.tokensOnTable.flatten should not.contain(Joker(Color.BLACK))
-      updated.tokensOnTable.flatten should contain (NumToken(5, Color.BLUE))
+      updated.getTokensOnTable.flatten should not.contain(Joker(Color.BLACK))
+      updated.getTokensOnTable.flatten should contain (NumToken(5, Color.BLUE))
     }
     
     "correctly parse and remove number tokens from the table" in {
@@ -111,8 +115,8 @@ class TableSpec extends AnyWordSpec {
 
     val updated = table.remove(List(NumToken(1, Color.BLACK)))
 
-    updated.tokensOnTable.flatten.should(not.contain(NumToken(1, Color.BLACK)))
-    updated.tokensOnTable.flatten should contain (Joker(Color.BLACK))
+    updated.getTokensOnTable.flatten.should(not.contain(NumToken(1, Color.BLACK)))
+    updated.getTokensOnTable.flatten should contain (Joker(Color.BLACK))
     }
 
     "remove Joker and NumToken with specific colors from the table" in {
@@ -121,12 +125,12 @@ class TableSpec extends AnyWordSpec {
 
       val updatedTable = table.remove(List(Joker(Color.RED), NumToken(3, Color.GREEN)))
 
-      updatedTable.tokensOnTable.flatten.should(not.contain(Joker(Color.RED)))
-      updatedTable.tokensOnTable.flatten.should(not.contain(NumToken(3, Color.GREEN)))
+      updatedTable.getTokensOnTable.flatten.should(not.contain(Joker(Color.RED)))
+      updatedTable.getTokensOnTable.flatten.should(not.contain(NumToken(3, Color.GREEN)))
 
-      updatedTable.tokensOnTable.flatten should contain (NumToken(5, Color.BLUE))
-      updatedTable.tokensOnTable.flatten should contain (Joker(Color.BLACK))
-      updatedTable.tokensOnTable.flatten should contain (NumToken(3, Color.RED))
+      updatedTable.getTokensOnTable.flatten should contain (NumToken(5, Color.BLUE))
+      updatedTable.getTokensOnTable.flatten should contain (Joker(Color.BLACK))
+      updatedTable.getTokensOnTable.flatten should contain (NumToken(3, Color.RED))
     }
 
     "remove both Joker and number tokens correctly" in {
@@ -135,8 +139,8 @@ class TableSpec extends AnyWordSpec {
 
       val updated = table.remove(List(Joker(Color.RED), NumToken(3, Color.BLUE)))
 
-      updated.tokensOnTable.flatten.should(contain (NumToken(7, Color.BLACK)))
-      updated.tokensOnTable.length.should(be (1))
+      updated.getTokensOnTable.flatten.should(contain (NumToken(7, Color.BLACK)))
+      updated.getTokensOnTable.length.should(be (1))
     }
 
     "remove Joker token from the table" in {
@@ -146,8 +150,8 @@ class TableSpec extends AnyWordSpec {
 
       val updatedTable = table.remove(List(Joker(Color.RED)))
 
-      updatedTable.tokensOnTable.flatten should not contain joker
-      updatedTable.tokensOnTable.flatten should contain (NumToken(2, Color.BLUE))
+      updatedTable.getTokensOnTable.flatten should not contain joker
+      updatedTable.getTokensOnTable.flatten should contain (NumToken(2, Color.BLUE))
     }
     "remove NumToken from the table" in {
       val tokenToRemove = NumToken(7, Color.GREEN)
@@ -157,8 +161,8 @@ class TableSpec extends AnyWordSpec {
 
       val updatedTable = table.remove(List(NumToken(7, Color.GREEN)))
 
-      updatedTable.tokensOnTable.flatten should not contain tokenToRemove
-      updatedTable.tokensOnTable.flatten should contain (otherToken)
+      updatedTable.getTokensOnTable.flatten should not contain tokenToRemove
+      updatedTable.getTokensOnTable.flatten should contain (otherToken)
     }
 
     "getRow should return the correct row as Option" in {
