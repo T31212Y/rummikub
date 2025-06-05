@@ -3,6 +3,8 @@ package de.htwg.se.rummikub.util
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
 class TokenUtilsSpec extends AnyWordSpec {
   "TokenUtils" should {
