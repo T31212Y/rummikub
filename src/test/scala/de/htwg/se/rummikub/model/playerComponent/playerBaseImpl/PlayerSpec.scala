@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.model
+package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._

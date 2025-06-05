@@ -1,4 +1,4 @@
-package de.htwg.se.rummikub.state
+package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
