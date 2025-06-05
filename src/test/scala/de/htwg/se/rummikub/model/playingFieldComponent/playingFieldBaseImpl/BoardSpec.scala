@@ -130,5 +130,35 @@ class BoardSpec extends AnyWordSpec {
             val board = new Board(15, 24, 2, 3, "left")
             board.toString() should be ("")
         }
+
+        "return the correct cntEdgeSpaces for getCntEdgeSpaces" in {
+            val board = new Board(15, 24, 2, 1, "up")
+            board.getCntEdgeSpaces shouldBe 15
+        }
+
+        "return the correct amtTokens for getAmtTokens" in {
+            val board = new Board(15, 24, 2, 1, "up")
+            board.getAmtTokens shouldBe 24
+        }
+
+        "return the correct amtPlayers for getAmtPlayers" in {
+            val board = new Board(15, 24, 3, 1, "up")
+            board.getAmtPlayers shouldBe 3
+        }
+
+        "return the correct amtBoardsInRow for getAmtBoardsInRow" in {
+            val board = new Board(15, 24, 2, 2, "up")
+            board.getAmtBoardsInRow shouldBe 2
+        }
+
+        "return the correct dest for getDest" in {
+            val board = new Board(15, 24, 2, 1, "down")
+            board.getDest shouldBe "down"
+        }
+
+        "return the correct maxLen for getMaxLen" in {
+            val board = new Board(15, 24, 2, 1, "up", maxLen = 99)
+            board.getMaxLen shouldBe 99
+        }
     }
 }
