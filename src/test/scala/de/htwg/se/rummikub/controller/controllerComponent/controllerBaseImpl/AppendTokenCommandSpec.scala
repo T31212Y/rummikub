@@ -3,9 +3,13 @@ package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.rummikub.model._
-import de.htwg.se.rummikub.controller.Controller
-import de.htwg.se.rummikub.state.GameState
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
+import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.PlayingField
 
 class AppendTokenCommandSpec extends AnyWordSpec {
   "An AppendTokenCommand" should {
@@ -17,7 +21,8 @@ class AppendTokenCommandSpec extends AnyWordSpec {
       boards = List(),
       stack = TokenStack(List())
     )
-    val controller = new Controller(GameModeFactory.createGameMode(2, List("Anna", "Ben")).get)
+    val gameModeFactory = new GameModeFactory
+    val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
     controller.playingField = Some(pf)
     controller.setStateInternal(GameState(innerField, Vector(player), Vector(), 0, TokenStack(List())))
     val token = NumToken(1, Color.RED)
@@ -25,26 +30,27 @@ class AppendTokenCommandSpec extends AnyWordSpec {
 
     "append a token to the table on doStep" in {
       cmd.doStep()
-      controller.playingField.get.innerField.tokensOnTable(0) should contain (token)
-      controller.getState.players.head.tokens should not contain (token)
+      controller.playingField.get.getInnerField.getTokensOnTable(0) should contain (token)
+      controller.getState.getPlayers.head.getTokens should not contain (token)
     }
 
     "restore the old state on undoStep" in {
       cmd.doStep()
       cmd.undoStep()
-      controller.getState.players.head.tokens should contain (token)
+      controller.getState.getPlayers.head.getTokens should contain (token)
     }
 
     "redo the step after undo" in {
       cmd.doStep()
       cmd.undoStep()
       cmd.redoStep()
-      controller.playingField.get.innerField.tokensOnTable(0) should contain (token)
-      controller.getState.players.head.tokens should not contain (token)
+      controller.playingField.get.getInnerField.getTokensOnTable(0) should contain (token)
+      controller.getState.getPlayers.head.getTokens should not contain (token)
     }
 
     "print message if no state is available on doStep" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Anna", "Ben")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.playingField = None 
       val token = NumToken(1, Color.RED)
       val player = Player("Anna", tokens = List(token))
@@ -57,7 +63,8 @@ class AppendTokenCommandSpec extends AnyWordSpec {
     }
 
     "print message if no state is available on undoStep" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Anna", "Ben")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       val token = NumToken(1, Color.RED)
       val player = Player("Anna", tokens = List(token))
       val cmd = new AppendTokenCommand(controller, token, 0, isRow = true, player)
@@ -79,14 +86,15 @@ class AppendTokenCommandSpec extends AnyWordSpec {
         boards = List(),
         stack = TokenStack(List())
       )
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Anna", "Ben")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.playingField = Some(pf)
       controller.setStateInternal(GameState(innerField, Vector(player), Vector(), 0, TokenStack(List())))
       val token = NumToken(1, Color.RED)
       val cmd = new AppendTokenCommand(controller, token, 0, isRow = true, player)
 
       cmd.doStep()
-      controller.playingField.get.innerField.tokensOnTable(1) should contain only otherToken
+      controller.playingField.get.getInnerField.getTokensOnTable(1) should contain only otherToken
     }
   }
 }
