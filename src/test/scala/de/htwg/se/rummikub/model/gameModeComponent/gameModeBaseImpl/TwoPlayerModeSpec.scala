@@ -2,13 +2,18 @@ package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Board
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
 class TwoPlayerModeSpec extends AnyWordSpec {
   "A TwoPlayerMode" should {
     val playerNames = List("Azra", "Moritz")
     val mode = TwoPlayerMode(playerNames)
-    val players = mode.createPlayers()
+    val players = mode.createPlayers
 
     "be created with two player names" in {
       mode.playerNames should be(playerNames)
@@ -16,7 +21,7 @@ class TwoPlayerModeSpec extends AnyWordSpec {
 
     "create two Player objects" in {
       players.size should be(2)
-      players.map(_.name) should contain allElementsOf playerNames
+      players.map(_.getName) should contain allElementsOf playerNames
     }
 
     "return None if createPlayingField is called with empty player list" in {
@@ -26,25 +31,25 @@ class TwoPlayerModeSpec extends AnyWordSpec {
 
     "create a PlayingField with two players" in {
       val pf = mode.createPlayingField(players)
-      pf.get.players.size should be(2)
-      pf.get.players.map(_.name) should contain allElementsOf playerNames
+      pf.get.getPlayers.size should be(2)
+      pf.get.getPlayers.map(_.getName) should contain allElementsOf playerNames
     }
 
     "update the PlayingField and keep two boards" in {
       val pf = mode.createPlayingField(players)
       val updatedOpt = mode.updatePlayingField(pf)
       updatedOpt.isDefined shouldBe true
-      updatedOpt.get.boards.size should be(2)
+      updatedOpt.get.getBoards.size should be(2)
     }
 
     "update the PlayingField and print error if less than 2 players" in {
       val pf = mode.createPlayingField(players)
-      val pfWithOne = pf.map(f => f.copy(players = f.players.take(1)))
+      val pfWithOne = pf.map(f => f.updated(newPlayers = f.getPlayers.take(1), newBoards = f.getBoards, newInnerField = f.getInnerField))
       val out = new java.io.ByteArrayOutputStream()
       Console.withOut(out) {
         val updated = mode.updatePlayingField(pfWithOne)
         updated.isDefined shouldBe true
-        updated.get.players.size shouldBe 1
+        updated.get.getPlayers.size shouldBe 1
       }
       out.toString should include ("Not enough players to update.")
     }
@@ -105,9 +110,9 @@ class TwoPlayerModeSpec extends AnyWordSpec {
       updatedOpt.isDefined shouldBe true
 
       val updatedBoard = updatedOpt.get
-      updatedBoard.boardELRP12_1 shouldEqual board.formatBoardRow(manyTokensTuple._1.take(mode.cntTokens))
-      updatedBoard.boardELRP12_2 shouldEqual board.formatBoardRow(manyTokensTuple._1.drop(mode.cntTokens))
-      updatedBoard.boardEUD shouldEqual board.createBoardFrameSingle(manyTokensTuple._1.take(mode.cntTokens))
+      updatedBoard.getBoardELRP12_1 shouldEqual board.formatBoardRow(manyTokensTuple._1.take(mode.cntTokens))
+      updatedBoard.getBoardELRP12_2 shouldEqual board.formatBoardRow(manyTokensTuple._1.drop(mode.cntTokens))
+      updatedBoard.getBoardEUD shouldEqual board.createBoardFrameSingle(manyTokensTuple._1.take(mode.cntTokens))
     }
   }
 }
