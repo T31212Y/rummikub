@@ -3,8 +3,23 @@ package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.rummikub.model._
-import de.htwg.se.rummikub.state.GameState
+import de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl.GameState
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Board
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.PlayingField
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
+import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
+import de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl.Controller
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Row
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group
+import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
+import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.TwoPlayerMode
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
+
+
 
 class ControllerSpec extends AnyWordSpec {
 
@@ -20,13 +35,14 @@ class ControllerSpec extends AnyWordSpec {
     val table = Table(16, 90, List())
     val stack = TokenStack(List(NumToken(3, Color.GREEN)))
     val pf = PlayingField(players, boards, table, stack)
-    val gameMode = new GameModeTemplate(List("Alice", "Bob")) {
+    val gameMode = new TwoPlayerMode(List("Alice", "Bob")) {
       override def runGameSetup(): Option[PlayingField] = Some(pf)
       override def renderPlayingField(field: Option[PlayingField]): String = "Spielfeld"
       override def createPlayingField(players: List[Player]): Option[PlayingField] = Some(pf)
       override def updatePlayingField(playingField: Option[PlayingField]): Option[PlayingField] = playingField
     }
-    val controller = new Controller(gameMode)
+    val gameModeFactory = new GameModeFactory
+    val controller = new Controller(gameMode, gameModeFactory)
 
     "setup a new game" in {
       controller.setupNewGame(2, List("Alice", "Bob"))
@@ -37,28 +53,28 @@ class ControllerSpec extends AnyWordSpec {
 
     "start a game and distribute tokens" in {
       controller.setupNewGame(2, List("Alice", "Bob"))
-      controller.startGame()
-      controller.getState.players.foreach(_.tokens.size should be >= 1)
+      controller.startGame
+      controller.getState.players.foreach(_.getTokens.size should be >= 1)
     }
 
     "create token stack, row and group" in {
-      controller.createTokenStack() shouldBe a [TokenStack]
+      controller.createTokenStack shouldBe a [TokenStack]
       controller.createRow(List(NumToken(1, Color.RED))) shouldBe a [Row]
       controller.createGroup(List(NumToken(1, Color.RED))) shouldBe a [Group]
     }
 
     "add and remove tokens to/from player" in {
       val (updatedPlayer, updatedStack) = controller.addTokenToPlayer(player1, stack)
-      updatedPlayer.tokens.size shouldBe player1.tokens.size + 1
-      updatedStack.tokens.size shouldBe stack.tokens.size - 1
+      updatedPlayer.getTokens.size shouldBe player1.tokens.size + 1
+      updatedStack.getTokens.size shouldBe stack.tokens.size - 1
 
-      noException should be thrownBy controller.removeTokenFromPlayer(updatedPlayer, updatedPlayer.tokens.head)
+      noException should be thrownBy controller.removeTokenFromPlayer(updatedPlayer, updatedPlayer.getTokens.head)
     }
 
     "add multiple tokens to player" in {
       val (updatedPlayer, updatedStack) = controller.addMultipleTokensToPlayer(player1, stack, 1)
-      updatedPlayer.tokens.size shouldBe player1.tokens.size + 1
-      updatedStack.tokens.size shouldBe stack.tokens.size - 1
+      updatedPlayer.getTokens.size shouldBe player1.tokens.size + 1
+      updatedStack.getTokens.size shouldBe stack.tokens.size - 1
     }
 
     "change string list to token list" in {
@@ -91,24 +107,24 @@ class ControllerSpec extends AnyWordSpec {
       val row = controller.createRow(List(NumToken(1, Color.RED)))
       val (rowTokens, updatedPlayer1) = controller.addRowToTable(row, player1)
       rowTokens should not be empty
-      updatedPlayer1.tokens shouldBe empty
+      updatedPlayer1.getTokens shouldBe empty
 
       val group = controller.createGroup(List(NumToken(2, Color.BLUE)))
       val (groupTokens, updatedPlayer2) = controller.addGroupToTable(group, player2)
       groupTokens should not be empty
-      updatedPlayer2.tokens shouldBe empty
+      updatedPlayer2.getTokens shouldBe empty
     }
 
     "support undo and redo" in {
       controller.setPlayingField(Some(pf))
       val row = controller.createRow(List(NumToken(1, Color.RED)))
       controller.executeAddRow(row, player1, stack)
-      noException should be thrownBy controller.undo()
-      noException should be thrownBy controller.redo()
+      noException should be thrownBy controller.undo
+      noException should be thrownBy controller.redo
     }
 
     "end the game" in {
-      controller.endGame()
+      controller.endGame
       controller.gameEnded shouldBe true
     }
 
@@ -148,7 +164,7 @@ class ControllerSpec extends AnyWordSpec {
       controller.setPlayingField(Some(pf))
       val group = controller.createGroup(List(NumToken(2, Color.BLUE)))
       controller.executeAddGroup(group, player2, stack)
-      controller.getState.players.find(_.name == "Bob").get.tokens shouldBe empty
+      controller.getState.getPlayers.find(_.getName == "Bob").get.getTokens shouldBe empty
     }
 
     "throw NoSuchElementException if player is not found" in {
@@ -161,12 +177,12 @@ class ControllerSpec extends AnyWordSpec {
     }
 
     "do nothing if undo is called with no previous state" in {
-      noException should be thrownBy controller.undo()
+      noException should be thrownBy controller.undo
       controller.getState shouldBe controller.getState
     }
 
     "do nothing if redo is called with no next state" in {
-      noException should be thrownBy controller.redo()
+      noException should be thrownBy controller.redo
       controller.getState shouldBe controller.getState
     }
 
@@ -195,7 +211,8 @@ class ControllerSpec extends AnyWordSpec {
       val stack = TokenStack()
       val state = GameState(table, players, boards, 0, stack)
 
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.playingField = Some(PlayingField(players.toList, boards.toList, table, stack))
 
       val (resultState, message) = controller.passTurn(state)
@@ -207,12 +224,13 @@ class ControllerSpec extends AnyWordSpec {
       val winner = Player("Emilia", tokens = List())
       val loser = Player("Noah", tokens = List(NumToken(1, Color.RED)))
       val pf = PlayingField(List(winner, loser), List(), Table(0, 0, List()), TokenStack())
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.playingField = Some(pf)
 
       val output = new java.io.ByteArrayOutputStream()
       Console.withOut(new java.io.PrintStream(output)) {
-        controller.winGame() shouldBe true
+        controller.winGame shouldBe true
       }
       output.toString should include ("Player Emilia wins the game!")
     }
@@ -221,24 +239,27 @@ class ControllerSpec extends AnyWordSpec {
       val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
       val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
       val pf = PlayingField(List(player1, player2), List(), Table(0, 0, List()), TokenStack())
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.playingField = Some(pf)
 
-      controller.winGame() shouldBe false
+      controller.winGame shouldBe false
     }
 
     "winGame should return false if playingField is None" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.playingField = None
 
-      controller.winGame() shouldBe false
+      controller.winGame shouldBe false
     }
 
     "addGroupToTable should not allow playing tokens not on the player's board" in {
       val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
       val token = NumToken(9, Color.BLACK)
       val group = Group(List(token))
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.playingField = Some(PlayingField(List(player), List(), Table(0, 0, List()), TokenStack.apply()))
 
       val stream = new java.io.ByteArrayOutputStream()
@@ -259,18 +280,20 @@ class ControllerSpec extends AnyWordSpec {
       val stack = TokenStack.apply()
       val state = GameState(table, Vector(player, player2), boards, 0, stack)
 
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.playingField = Some(PlayingField(List(player), boards.toList, table, stack))
       controller.gameState = Some(state)
       controller.turnStartState = None
 
       val (resultState, message) = controller.drawFromStackAndPass
 
-      resultState.players.head.tokens.nonEmpty shouldBe true
+      resultState.getPlayers.head.getTokens.nonEmpty shouldBe true
     }
 
     "playRow should return error if row is not valid" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       val player = Player("Emilia")
       val stack = TokenStack.apply()
       val (resultPlayer, message) = controller.playRow(List("1:red"), player, stack)
@@ -279,17 +302,19 @@ class ControllerSpec extends AnyWordSpec {
     }
 
     "playRow should place a valid row and return success message" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       val player = Player("Emilia", tokens = List(NumToken(10, Color.RED), NumToken(11, Color.RED), NumToken(12, Color.RED)))
       val stack = TokenStack.apply()
       controller.setPlayingField(Some(PlayingField(List(player), List(), Table(0, 0, List()), stack)))
       val (resultPlayer, message) = controller.playRow(List("10:red", "11:red", "12:red"), player, stack)
       message shouldBe "Row successfully placed."
-      resultPlayer.hasCompletedFirstMove shouldBe true
+      resultPlayer.getHasCompletedFirstMove shouldBe true
     }
 
     "playGroup should return error if group is not valid" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       val player = Player("Emilia")
       val stack = TokenStack.apply()
       val (resultPlayer, message) = controller.playGroup(List("1:red"), player, stack)
@@ -298,17 +323,19 @@ class ControllerSpec extends AnyWordSpec {
     }
 
     "playGroup should place a valid group and return success message" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       val player = Player("Emilia", tokens = List(NumToken(10, Color.RED), NumToken(10, Color.BLACK), NumToken(10, Color.BLUE)))
       val stack = TokenStack.apply()
       controller.setPlayingField(Some(PlayingField(List(player), List(), Table(0, 0, List()), stack)))
       val (resultPlayer, message) = controller.playGroup(List("10:red", "10:black", "10:blue"), player, stack)
       message shouldBe "Group successfully placed."
-      resultPlayer.hasCompletedFirstMove shouldBe true
+      resultPlayer.getHasCompletedFirstMove shouldBe true
     }
 
     "beginTurn should do nothing if commandHistory is not empty" in {
-      val controller = new Controller(GameModeFactory.createGameMode(2, List("Emilia", "Noah")).get)
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.turnStartState = None
       val oldUndoManager = controller.turnUndoManager
 
