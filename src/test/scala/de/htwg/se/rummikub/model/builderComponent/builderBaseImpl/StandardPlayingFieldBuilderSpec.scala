@@ -2,7 +2,10 @@ package de.htwg.se.rummikub.model.builderComponent.builderBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Board
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
 
 class StandardPlayingFieldBuilderSpec extends AnyWordSpec {
   "A StandardPlayingFieldBuilder" should {
@@ -20,9 +23,9 @@ class StandardPlayingFieldBuilderSpec extends AnyWordSpec {
         .setStack(stack) 
         .build()
 
-      pf.players shouldBe players
-      pf.boards shouldBe boards
-      pf.innerField shouldBe table
+      pf.getPlayers shouldBe players
+      pf.getBoards shouldBe boards
+      pf.getInnerField shouldBe table
     }
 
     "throw an exception if players are not set" in {
