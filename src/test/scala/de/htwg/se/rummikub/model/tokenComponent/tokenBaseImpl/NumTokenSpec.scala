@@ -16,5 +16,15 @@ class NumTokenSpec extends AnyWordSpec {
       val token = NumToken(1, Color.RED)
       token.toString should be("\u001B[31m 1\u001B[0m")
     }
+
+    "return Some(number) for getNumber" in {
+      val token = NumToken(5, Color.BLUE)
+      token.getNumber shouldBe Some(5)
+    }
+
+    "return the correct color for getColor" in {
+      val token = NumToken(7, Color.GREEN)
+      token.getColor shouldBe Color.GREEN
+    }
   }
 }
