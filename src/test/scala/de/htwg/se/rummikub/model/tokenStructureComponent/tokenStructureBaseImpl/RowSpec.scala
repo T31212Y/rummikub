@@ -2,7 +2,8 @@ package de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{NumToken, Joker, StandardTokenFactory}
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
 class RowSpec extends AnyWordSpec {
   "Row" should {
