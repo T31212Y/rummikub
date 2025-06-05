@@ -2,13 +2,18 @@ package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Board
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
 class ThreePlayerModeSpec extends AnyWordSpec {
   "A ThreePlayerMode" should {
     val playerNames = List("Alice", "Bob", "Charlie")
     val mode = ThreePlayerMode(playerNames)
-    val players = mode.createPlayers()
+    val players = mode.createPlayers
 
     "be created with three player names" in {
       mode.playerNames should be(playerNames)
@@ -16,15 +21,15 @@ class ThreePlayerModeSpec extends AnyWordSpec {
 
     "create three Player objects" in {
       players.size should be(3)
-      players.map(_.name) should contain allElementsOf playerNames
+      players.map(_.getName) should contain allElementsOf playerNames
     }
 
     "create a PlayingField with three players" in {
       val pfOpt = mode.createPlayingField(players)
       pfOpt.isDefined shouldBe true
       val pf = pfOpt.get
-      pf.players.size should be(3)
-      pf.players.map(_.name) should contain allElementsOf playerNames
+      pf.getPlayers.size should be(3)
+      pf.getPlayers.map(_.getName) should contain allElementsOf playerNames
     }
 
     "return None if createPlayingField is called with empty player list" in {
@@ -36,17 +41,17 @@ class ThreePlayerModeSpec extends AnyWordSpec {
       val updatedOpt = mode.updatePlayingField(pf)
       updatedOpt.isDefined shouldBe true
       val updated = updatedOpt.get
-      updated.boards.size should be(2)
+      updated.getBoards.size should be(2)
     }
 
     "update the PlayingField and print error if less than 3 players" in {
       val pf = mode.createPlayingField(players)
-      val pfWithTwo = pf.map(f => f.copy(players = f.players.take(2)))
+      val pfWithTwo = pf.map(f => f.updated(newPlayers = f.getPlayers.take(2), newBoards = f.getBoards, newInnerField = f.getInnerField))
       val out = new java.io.ByteArrayOutputStream()
       Console.withOut(out) {
         val updated = mode.updatePlayingField(pfWithTwo)
         updated.isDefined shouldBe true
-        updated.get.players.size shouldBe 2
+        updated.get.getPlayers.size shouldBe 2
       }
       out.toString should include ("Not enough players to update.")
     }
@@ -71,8 +76,8 @@ class ThreePlayerModeSpec extends AnyWordSpec {
       updatedOpt.isDefined shouldBe true
       val updatedBoard = updatedOpt.get
 
-      updatedBoard.boardELRP12_1 shouldBe board.formatBoardRow(tokens0.take(mode.cntTokens))
-      updatedBoard.boardELRP12_2 shouldBe board.formatBoardRow(tokens0.drop(mode.cntTokens))
+      updatedBoard.getBoardELRP12_1 shouldBe board.formatBoardRow(tokens0.take(mode.cntTokens))
+      updatedBoard.getBoardELRP12_2 shouldBe board.formatBoardRow(tokens0.drop(mode.cntTokens))
     }
 
     "update multiple boards for players (player 1 has > cntTokens)" in {
@@ -88,8 +93,8 @@ class ThreePlayerModeSpec extends AnyWordSpec {
       updatedOpt.isDefined shouldBe true
       val updatedBoard = updatedOpt.get
 
-      updatedBoard.boardELRP34_1 shouldBe board.formatBoardRow(tokens1.take(mode.cntTokens))
-      updatedBoard.boardELRP34_2 shouldBe board.formatBoardRow(tokens1.drop(mode.cntTokens))
+      updatedBoard.getBoardELRP34_1 shouldBe board.formatBoardRow(tokens1.take(mode.cntTokens))
+      updatedBoard.getBoardELRP34_2 shouldBe board.formatBoardRow(tokens1.drop(mode.cntTokens))
     }
 
     "update multiple boards for players (both have > cntTokens)" in {
@@ -105,10 +110,10 @@ class ThreePlayerModeSpec extends AnyWordSpec {
       updatedOpt.isDefined shouldBe true
       val updatedBoard = updatedOpt.get
 
-      updatedBoard.boardELRP12_1 shouldBe board.formatBoardRow(tokens0.take(mode.cntTokens))
-      updatedBoard.boardELRP12_2 shouldBe board.formatBoardRow(tokens0.drop(mode.cntTokens))
-      updatedBoard.boardELRP34_1 shouldBe board.formatBoardRow(tokens1.take(mode.cntTokens))
-      updatedBoard.boardELRP34_2 shouldBe board.formatBoardRow(tokens1.drop(mode.cntTokens))
+      updatedBoard.getBoardELRP12_1 shouldBe board.formatBoardRow(tokens0.take(mode.cntTokens))
+      updatedBoard.getBoardELRP12_2 shouldBe board.formatBoardRow(tokens0.drop(mode.cntTokens))
+      updatedBoard.getBoardELRP34_1 shouldBe board.formatBoardRow(tokens1.take(mode.cntTokens))
+      updatedBoard.getBoardELRP34_2 shouldBe board.formatBoardRow(tokens1.drop(mode.cntTokens))
     }
 
     "render the PlayingField as a string" in {
@@ -146,9 +151,9 @@ class ThreePlayerModeSpec extends AnyWordSpec {
       updatedOpt.isDefined shouldBe true
 
       val updatedBoard = updatedOpt.get
-      updatedBoard.boardELRP12_1 shouldEqual board.formatBoardRow(manyTokens._1.take(mode.cntTokens))
-      updatedBoard.boardELRP12_2 shouldEqual board.formatBoardRow(manyTokens._1.drop(mode.cntTokens))
-      updatedBoard.boardEUD shouldEqual board.createBoardFrameSingle(manyTokens._1.take(mode.cntTokens))
+      updatedBoard.getBoardELRP12_1 shouldEqual board.formatBoardRow(manyTokens._1.take(mode.cntTokens))
+      updatedBoard.getBoardELRP12_2 shouldEqual board.formatBoardRow(manyTokens._1.drop(mode.cntTokens))
+      updatedBoard.getBoardEUD shouldEqual board.createBoardFrameSingle(manyTokens._1.take(mode.cntTokens))
     }
   }
 }
