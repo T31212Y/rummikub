@@ -15,5 +15,15 @@ class JokerSpec extends AnyWordSpec {
       val joker = Joker(Color.RED)
       joker.toString should be(" \u001B[31mJ\u001B[0m")
     }
+
+    "return None for getNumber" in {
+      val joker = Joker(Color.RED)
+      joker.getNumber shouldBe None
+    }
+
+    "return the correct color for getColor" in {
+      val joker = Joker(Color.BLACK)
+      joker.getColor shouldBe Color.BLACK
+    }
   }
 }
