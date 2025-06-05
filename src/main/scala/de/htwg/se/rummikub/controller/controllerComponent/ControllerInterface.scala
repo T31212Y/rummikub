@@ -20,7 +20,7 @@ trait ControllerInterface extends Publisher {
     def addTokenToPlayer(player: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, TokenStackInterface)
     def removeTokenFromPlayer(player: PlayerInterface, token: TokenInterface): Unit
     def addMultipleTokensToPlayer(player: PlayerInterface, stack: TokenStackInterface, amt: Int): (PlayerInterface, TokenStackInterface)
-    def passTurn(state: GameStateInterface, ignoreFirstMoveCheck: Boolean = false): (GameStateInterface, String)
+    def passTurn(state: GameStateInterface, ignoreFirstMoveCheck: Boolean): (GameStateInterface, String)
     def setNextPlayer(state: GameStateInterface): GameStateInterface
     def winGame: Boolean
     def addRowToTable(row: Row, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface)
