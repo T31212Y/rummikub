@@ -3,6 +3,9 @@ package de.htwg.se.rummikub.util
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Board
 
 class GameModeUtilsSpec extends AnyWordSpec {
   "GameModeUtils" should {
@@ -11,7 +14,7 @@ class GameModeUtilsSpec extends AnyWordSpec {
       val board = Board(24, 14, 2, 2, "default", 10)
       val updated = GameModeUtils.updateBoardSinglePlayer(player, board)
       updated shouldBe defined
-      updated.get.boardELRP12_1 should not be empty
+      updated.get.getBoardELRP12_1 should not be empty
     }
 
     "update board for single player with > cntTokens" in {
@@ -19,8 +22,8 @@ class GameModeUtilsSpec extends AnyWordSpec {
       val board = Board(24, 14, 2, 2, "default", 10)
       val updated = GameModeUtils.updateBoardSinglePlayer(player, board)
       updated shouldBe defined
-      updated.get.boardELRP12_1 should not be empty
-      updated.get.boardELRP12_2 should not be empty
+      updated.get.getBoardELRP12_1 should not be empty
+      updated.get.getBoardELRP12_2 should not be empty
     }
 
     "update board for two players with <= cntTokens" in {
@@ -29,8 +32,8 @@ class GameModeUtilsSpec extends AnyWordSpec {
       val board = Board(24, 14, 2, 2, "default", 10)
       val updated = GameModeUtils.updateBoardMultiPlayer(List(p1, p2), board)
       updated shouldBe defined
-      updated.get.boardELRP12_1 should not be empty
-      updated.get.boardELRP34_1 should not be empty
+      updated.get.getBoardELRP12_1 should not be empty
+      updated.get.getBoardELRP34_1 should not be empty
     }
 
     "update board for two players with > cntTokens" in {
@@ -39,8 +42,8 @@ class GameModeUtilsSpec extends AnyWordSpec {
       val board = Board(24, 14, 2, 2, "default", 10)
       val updated = GameModeUtils.updateBoardMultiPlayer(List(p1, p2), board)
       updated shouldBe defined
-      updated.get.boardELRP12_2 should not be empty
-      updated.get.boardELRP34_2 should not be empty
+      updated.get.getBoardELRP12_2 should not be empty
+      updated.get.getBoardELRP34_2 should not be empty
     }
 
     "create a line with player name" in {
