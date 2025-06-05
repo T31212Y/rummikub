@@ -2,8 +2,13 @@ package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import de.htwg.se.rummikub.controller.Controller
-import de.htwg.se.rummikub.state.GameState
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Row
+import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
+import de.htwg.se.rummikub.aview.Tui
+
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
 class AddRowCommandSpec extends AnyWordSpec {
@@ -13,7 +18,8 @@ class AddRowCommandSpec extends AnyWordSpec {
         val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
         val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
         val stack = TokenStack()
-        val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
+        val gameModeFactory = new GameModeFactory
+        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
         val testToken = NumToken(1, Color.RED)
@@ -31,7 +37,8 @@ class AddRowCommandSpec extends AnyWordSpec {
         val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED)))
         val row = Row(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
-        val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
+        val gameModeFactory = new GameModeFactory
+        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
         val initialState = controller.getState
@@ -47,7 +54,8 @@ class AddRowCommandSpec extends AnyWordSpec {
         val player = Player("TestPlayer")
         val row = Row(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
-        val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
+        val gameModeFactory = new GameModeFactory
+        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
         val cmd = new AddRowCommand(controller, row, player, stack) {
@@ -65,7 +73,8 @@ class AddRowCommandSpec extends AnyWordSpec {
         val player = Player("TestPlayer")
         val row = Row(List(NumToken(1, Color.RED)))
         val stack = TokenStack()
-        val controller = new Controller(GameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get)
+        val gameModeFactory = new GameModeFactory
+        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
         controller.setupNewGame(2, List("TestPlayer", "Other"))
 
         var doStepCalled = false
