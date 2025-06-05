@@ -2,7 +2,7 @@ package de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
 class NumTokenSpec extends AnyWordSpec {
   "A NumToken" should {
