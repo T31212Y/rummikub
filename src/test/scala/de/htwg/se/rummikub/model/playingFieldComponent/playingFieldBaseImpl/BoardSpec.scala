@@ -2,7 +2,10 @@ package de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
 
 class BoardSpec extends AnyWordSpec {
     "Board" should {
