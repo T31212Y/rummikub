@@ -119,7 +119,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     }
 
     case ButtonClicked(`passButton`) => {
-      val (newState, message) = controller.passTurn(controller.getState)
+      val (newState, message) = controller.passTurn(controller.getState, false)
       controller.setStateInternal(newState)
       stateLabel.text = message
       updatePlayerBoardTitle(newState)

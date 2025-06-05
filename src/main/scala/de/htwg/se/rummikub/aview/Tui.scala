@@ -69,7 +69,7 @@ class Tui(controller: ControllerInterface) extends Reactor with GameView(control
             }
 
             case "pass" => {
-                val (newState, message) = controller.passTurn(controller.getState)
+                val (newState, message) = controller.passTurn(controller.getState, false)
                 println(message)
             }
 
