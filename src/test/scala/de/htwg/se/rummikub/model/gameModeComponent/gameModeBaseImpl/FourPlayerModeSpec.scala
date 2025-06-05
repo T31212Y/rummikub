@@ -2,13 +2,18 @@ package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Board
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
 class FourPlayerModeSpec extends AnyWordSpec {
   "A FourPlayerMode" should {
     val playerNames = List("Anna", "Ben", "Clara", "David")
     val mode = FourPlayerMode(playerNames)
-    val players = mode.createPlayers()
+    val players = mode.createPlayers
 
     "be created with four player names" in {
       mode.playerNames should be(playerNames)
@@ -16,15 +21,15 @@ class FourPlayerModeSpec extends AnyWordSpec {
 
     "create four Player objects" in {
       players.size should be(4)
-      players.map(_.name) should contain allElementsOf playerNames
+      players.map(_.getName) should contain allElementsOf playerNames
     }
 
     "create a PlayingField with four players" in {
       val pfOpt = mode.createPlayingField(players)
       pfOpt.isDefined shouldBe true
       val pf = pfOpt.get
-      pf.players.size should be(4)
-      pf.players.map(_.name) should contain allElementsOf playerNames
+      pf.getPlayers.size should be(4)
+      pf.getPlayers.map(_.getName) should contain allElementsOf playerNames
     }
 
     "update the PlayingField and keep two boards" in {
@@ -32,7 +37,7 @@ class FourPlayerModeSpec extends AnyWordSpec {
       val updatedOpt = mode.updatePlayingField(pf)
       updatedOpt.isDefined shouldBe true
       val updated = updatedOpt.get
-      updated.boards.size should be(2)
+      updated.getBoards.size should be(2)
     }
 
     "update multiple boards for players (both have > cntTokens)" in {
@@ -48,10 +53,10 @@ class FourPlayerModeSpec extends AnyWordSpec {
       updatedOpt.isDefined shouldBe true
       val updatedBoard = updatedOpt.get
 
-      updatedBoard.boardELRP12_1 shouldBe board.formatBoardRow(tokens0.take(mode.cntTokens))
-      updatedBoard.boardELRP12_2 shouldBe board.formatBoardRow(tokens0.drop(mode.cntTokens))
-      updatedBoard.boardELRP34_1 shouldBe board.formatBoardRow(tokens1.take(mode.cntTokens))
-      updatedBoard.boardELRP34_2 shouldBe board.formatBoardRow(tokens1.drop(mode.cntTokens))
+      updatedBoard.getBoardELRP12_1 shouldBe board.formatBoardRow(tokens0.take(mode.cntTokens))
+      updatedBoard.getBoardELRP12_2 shouldBe board.formatBoardRow(tokens0.drop(mode.cntTokens))
+      updatedBoard.getBoardELRP34_1 shouldBe board.formatBoardRow(tokens1.take(mode.cntTokens))
+      updatedBoard.getBoardELRP34_2 shouldBe board.formatBoardRow(tokens1.drop(mode.cntTokens))
     }
 
     "update a single board for a player (should return None)" in {
@@ -91,7 +96,7 @@ class FourPlayerModeSpec extends AnyWordSpec {
       val pf = mode.createPlayingField(players.take(2))
       val updatedOpt = mode.updatePlayingField(pf)
       updatedOpt.isDefined shouldBe true
-      updatedOpt.get.players.size shouldBe 2
+      updatedOpt.get.getPlayers.size shouldBe 2
     }
 
     "renderPlayingField should return a message if None is given" in {
