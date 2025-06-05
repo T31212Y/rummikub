@@ -2,7 +2,10 @@ package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
+import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
 class PlayerSpec extends AnyWordSpec {
   "Player" should {
@@ -18,10 +21,10 @@ class PlayerSpec extends AnyWordSpec {
 
     "validate first move correctly" in {
       val player = Player("Anki", firstMoveTokens = List(NumToken(10, Color.RED), NumToken(10, Color.BLUE), NumToken(10, Color.GREEN)))
-      player.validateFirstMove() should be(true)
+      player.validateFirstMove should be(true)
 
       val player2 = Player("Anki", firstMoveTokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED), Joker(Color.BLACK), NumToken(4, Color.RED)))
-      player2.validateFirstMove() should be(false)
+      player2.validateFirstMove should be(false)
     }
 
     "return false and print message if first move tokens cannot form valid groups or rows" in {
@@ -30,7 +33,7 @@ class PlayerSpec extends AnyWordSpec {
       ))
       val out = new java.io.ByteArrayOutputStream()
       Console.withOut(out) {
-        player.validateFirstMove() shouldBe false
+        player.validateFirstMove shouldBe false
       }
       out.toString should include ("first move is invalid")
     }
