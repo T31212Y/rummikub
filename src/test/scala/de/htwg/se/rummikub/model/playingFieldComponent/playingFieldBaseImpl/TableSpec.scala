@@ -196,5 +196,15 @@ class TableSpec extends AnyWordSpec {
       lines.head should include ("1")
       lines.head should include ("2")
     }
+
+    "return the correct number of rows for getCntRows" in {
+      val table = Table(5, 20)
+      table.getCntRows shouldBe 5
+    }
+
+    "return the correct length for getLength" in {
+      val table = Table(3, 15)
+      table.getLength shouldBe 15
+    }
   }
 }
