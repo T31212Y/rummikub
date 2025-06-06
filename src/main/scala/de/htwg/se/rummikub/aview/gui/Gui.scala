@@ -1,8 +1,7 @@
 package de.htwg.se.rummikub.aview.gui
 
-import de.htwg.se.rummikub.controller._
 import de.htwg.se.rummikub.aview.GameView
-import de.htwg.se.rummikub.state.GameState
+import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent, GameStateInterface}
 
 import scala.swing._
 import scala.swing.event._
@@ -10,7 +9,7 @@ import javax.swing.BorderFactory
 import javax.swing.border.TitledBorder
 import javax.swing.ImageIcon
 
-class Gui(controller: Controller) extends Frame with Reactor with GameView(controller) {
+class Gui(controller: ControllerInterface) extends Frame with Reactor with GameView(controller) {
 
   listenTo(controller)
   reactions += {
@@ -120,7 +119,7 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
     }
 
     case ButtonClicked(`passButton`) => {
-      val (newState, message) = controller.passTurn(controller.getState)
+      val (newState, message) = controller.passTurn(controller.getState, false)
       controller.setStateInternal(newState)
       stateLabel.text = message
       updatePlayerBoardTitle(newState)
@@ -203,14 +202,14 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
       }
     }
 
-    case ButtonClicked(`undoButton`) => controller.undo()
+    case ButtonClicked(`undoButton`) => controller.undo
 
-    case ButtonClicked(`redoButton`) => controller.redo()
+    case ButtonClicked(`redoButton`) => controller.redo
   }
 
-  def updatePlayerBoardTitle(state: GameState): Unit = {
+  def updatePlayerBoardTitle(state: GameStateInterface): Unit = {
     val titledBorder = playerBoardPanel.border.asInstanceOf[TitledBorder]
-    titledBorder.setTitle(s"${state.currentPlayer.name} ")
+    titledBorder.setTitle(s"${state.currentPlayer.getName} ")
 
     playerBoardPanel.repaint()
     playerBoardPanel.revalidate()
@@ -221,7 +220,7 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
 
     val currentPlayer = controller.getState.currentPlayer
 
-    for ((token, index) <- currentPlayer.tokens.zipWithIndex) {
+    for ((token, index) <- currentPlayer.getTokens.zipWithIndex) {
       val panel = TokenPanel(token, controller)
       playerBoardPanel.contents += panel
     }
@@ -233,7 +232,7 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
   def updateTable: Unit = {
     tablePanel.contents.clear()
 
-    val tableTokens = controller.getState.table.tokensOnTable
+    val tableTokens = controller.getState.getTable.getTokensOnTable
 
     val groupsPerRow = 5
     val rows = tableTokens.grouped(groupsPerRow).toSeq
@@ -290,21 +289,21 @@ class Gui(controller: Controller) extends Frame with Reactor with GameView(contr
   }
 
   override def playGame: Unit = {
-    controller.startGame()
+    controller.startGame
     updatePlayerBoardTitle(controller.getState)
     update
     nextTurn
   }
 
   def nextTurn: Unit = {
-    if (controller.winGame() || controller.gameEnded) {
+    if (controller.winGame || controller.getGameEnded) {
       return
     }
 
     val currentPlayer = controller.getState.currentPlayer
     val stack = controller.getState.currentStack
-    controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
-    stateLabel.text = currentPlayer.name + ", it's your turn!"
+    controller.setPlayingField(controller.getGameMode.updatePlayingField(controller.getPlayingField))
+    stateLabel.text = currentPlayer.getName + ", it's your turn!"
 
     controller.beginTurn(currentPlayer)
 

@@ -1,12 +1,11 @@
 package de.htwg.se.rummikub.aview
 
-import de.htwg.se.rummikub.controller._
+import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent}
 
 import scala.io.StdIn.readLine
-
 import scala.swing.Reactor
 
-class Tui(controller: Controller) extends Reactor with GameView(controller) {
+class Tui(controller: ControllerInterface) extends Reactor with GameView(controller) {
 
     listenTo(controller)
 
@@ -26,16 +25,16 @@ class Tui(controller: Controller) extends Reactor with GameView(controller) {
     override def playGame: Unit = {
         println("Starting the game...")
         println("Drawing tokens for each player...")
-        controller.startGame()
+        controller.startGame
         
         var gameInput = ""
         
-        while (!controller.winGame() && !controller.gameEnded) {
+        while (!controller.winGame && !controller.getGameEnded) {
             val currentPlayer = controller.getState.currentPlayer
             val stack = controller.getState.currentStack
 
-            controller.setPlayingField(controller.gameMode.updatePlayingField(controller.playingField))
-            println(currentPlayer.name + ", it's your turn!\n")
+            controller.setPlayingField(controller.getGameMode.updatePlayingField(controller.getPlayingField))
+            println(currentPlayer.getName + ", it's your turn!\n")
             println("Available commands:")
             println("group - Play a group of tokens")
             println("row - Play a row of tokens")
@@ -59,7 +58,7 @@ class Tui(controller: Controller) extends Reactor with GameView(controller) {
         val stack = controller.getState.currentStack
         val gameInput = input.toLowerCase.trim
 
-        val updatedPlayer = currentPlayer.copy(commandHistory = currentPlayer.commandHistory :+ gameInput)
+        val updatedPlayer = currentPlayer.updated(newTokens = currentPlayer.getTokens, newCommandHistory = currentPlayer.getCommandHistory :+ gameInput, newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove)
         controller.setStateInternal(controller.getState.updateCurrentPlayer(updatedPlayer))
 
         input match {
@@ -70,7 +69,7 @@ class Tui(controller: Controller) extends Reactor with GameView(controller) {
             }
 
             case "pass" => {
-                val (newState, message) = controller.passTurn(controller.getState)
+                val (newState, message) = controller.passTurn(controller.getState, false)
                 println(message)
             }
 
@@ -111,18 +110,18 @@ class Tui(controller: Controller) extends Reactor with GameView(controller) {
             }
 
             case "undo" => {
-                controller.undo()
+                controller.undo
                 println("Undo successful.")
             }
 
             case "redo" => {
-                controller.redo()
+                controller.redo
                 println("Redo successful.")
             }
 
             case "end" => {
                 println("Exiting the game...")
-                controller.gameEnded = true
+                controller.setGameEnded(true)
             }
 
             case _ => println("Invalid command.")
@@ -131,6 +130,6 @@ class Tui(controller: Controller) extends Reactor with GameView(controller) {
 
     reactions += {
         case _: UpdateEvent =>
-            println(controller.playingfieldToString)
+            println(controller.playingFieldToString)
     }
 }

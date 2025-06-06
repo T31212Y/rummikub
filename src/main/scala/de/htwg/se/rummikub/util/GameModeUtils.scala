@@ -2,42 +2,45 @@ package de.htwg.se.rummikub.util
 
 import de.htwg.se.rummikub.model._
 
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
+
 object GameModeUtils {
 
     val cntRows = 20
     val cntTokens = 24
 
-    def updateBoardSinglePlayer(player: Player, board: Board): Option[Board] = {
-        if (player.tokens.size <= cntTokens) {
-          board.boardELRP12_1 = board.formatBoardRow(player.tokens)
-          board.boardELRP12_2 = board.formatEmptyBoardRow(board.size(board.boardELRP12_1) - 4)
-          board.boardEUD = board.createBoardFrameSingle(player.tokens)
+    def updateBoardSinglePlayer(player: PlayerInterface, board: BoardInterface): Option[BoardInterface] = {
+        if (player.getTokens.size <= cntTokens) {
+          board.setBoardELRP12_1(board.formatBoardRow(player.getTokens))
+          board.setBoardELRP12_2(board.formatEmptyBoardRow(board.size(board.getBoardELRP12_1) - 4))
+          board.setBoardEUD(board.createBoardFrameSingle(player.getTokens))
         } else {
-          board.boardELRP12_1 = board.formatBoardRow(player.tokens.take(cntTokens))
-          board.boardELRP12_2 = board.formatBoardRow(player.tokens.drop(cntTokens))
-          board.boardEUD = board.createBoardFrameSingle(player.tokens.take(cntTokens))
+          board.setBoardELRP12_1(board.formatBoardRow(player.getTokens.take(cntTokens)))
+          board.setBoardELRP12_2(board.formatBoardRow(player.getTokens.drop(cntTokens)))
+          board.setBoardEUD(board.createBoardFrameSingle(player.getTokens.take(cntTokens)))
         }
         Some(board)
     }
 
-    def updateBoardMultiPlayer(players: List[Player], board: Board): Option[Board] = {
-        if (players(0).tokens.size <= cntTokens) {
-            board.boardELRP12_1 = board.formatBoardRow(players(0).tokens)
-            board.boardELRP12_2 = board.formatEmptyBoardRow(board.size(board.boardELRP12_1) - 4)
+    def updateBoardMultiPlayer(players: List[PlayerInterface], board: BoardInterface): Option[BoardInterface] = {
+        if (players(0).getTokens.size <= cntTokens) {
+            board.setBoardELRP12_1(board.formatBoardRow(players(0).getTokens))
+            board.setBoardELRP12_2(board.formatEmptyBoardRow(board.size(board.getBoardELRP12_1) - 4))
         } else {
-            board.boardELRP12_1 = board.formatBoardRow(players(0).tokens.take(cntTokens))
-            board.boardELRP12_2 = board.formatBoardRow(players(0).tokens.drop(cntTokens))
+            board.setBoardELRP12_1(board.formatBoardRow(players(0).getTokens.take(cntTokens)))
+            board.setBoardELRP12_2(board.formatBoardRow(players(0).getTokens.drop(cntTokens)))
         }
      
-        if (players(1).tokens.size <= cntTokens) {
-            board.boardELRP34_1 = board.formatBoardRow(players(1).tokens)
-            board.boardELRP34_2 = board.formatEmptyBoardRow(board.size(board.boardELRP34_1) - 4)
+        if (players(1).getTokens.size <= cntTokens) {
+            board.setBoardELRP34_1(board.formatBoardRow(players(1).getTokens))
+            board.setBoardELRP34_2(board.formatEmptyBoardRow(board.size(board.getBoardELRP34_1) - 4))
         } else {
-            board.boardELRP34_1 = board.formatBoardRow(players(1).tokens.take(cntTokens))
-            board.boardELRP34_2 = board.formatBoardRow(players(1).tokens.drop(cntTokens))
+            board.setBoardELRP34_1(board.formatBoardRow(players(1).getTokens.take(cntTokens)))
+            board.setBoardELRP34_2(board.formatBoardRow(players(1).getTokens.drop(cntTokens)))
         }
 
-        board.boardEUD = board.createBoardFrameDouble(players(0).tokens.take(cntTokens), players(1).tokens.take(cntTokens))
+        board.setBoardEUD(board.createBoardFrameDouble(players(0).getTokens.take(cntTokens), players(1).getTokens.take(cntTokens)))
         Some(board)
     }
 
