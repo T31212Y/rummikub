@@ -44,7 +44,7 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
             (playersAcc :+ updatedPlayer, newStack)
         }
 
-        val newState = gameState.get.updated(newPlayers = updatedPlayers, newStack = updatedStack)
+        val newState = gameState.get.updated(newPlayers = updatedPlayers, newStack = updatedStack, newFinalRoundsLeft = None)
         setStateInternal(newState)
         publish(UpdateEvent())
     }
@@ -231,20 +231,23 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
         case Some(field) =>
             val copiedPlayers = field.getPlayers.map(_.deepCopy)
             val copiedBoards = field.getBoards.map(identity)
+            val finalRounds = gameState.map(_.getFinalRoundsLeft).getOrElse(None)
 
             GameState(
                 table = field.getInnerField,
                 players = copiedPlayers.toVector,
                 boards = copiedBoards.toVector,
                 currentPlayerIndex = currentPlayerIndex,
-                stack = field.getStack
+                stack = field.getStack,
+                finalRoundsLeft = finalRounds
             )
         case None => GameState(
                         table = Table(16, 90, List.empty),
                         players = Vector.empty,
                         boards = Vector.empty,
                         currentPlayerIndex = 0,
-                        stack = createTokenStack
+                        stack = createTokenStack,
+                        finalRoundsLeft = None
                     )
     }
 
@@ -401,9 +404,19 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
         (updatedPlayer, s"Token appended to group at index $index.")
     }
     
-    override def endGame: Unit = {
-        gameEnded = true
-        publish(UpdateEvent())
+    override def endGame: String = {
+        val players = getState.getPlayers
+
+        val winner = players.minBy(_.getTokens.size)
+        val minCount = winner.getTokens.size
+        val winners = players.filter(_.getTokens.size == minCount)
+
+        val winnerMessage = if (winners.size == 1) {
+            s"The winner is: ${winner.getName} with $minCount tokens left! Congratulations!"
+        } else {
+            s"It's a tie between: ${winners.map(_.getName).mkString(", ")} with $minCount tokens each! Well done!"
+        }
+        winnerMessage
     }
 
     override def getGameEnded: Boolean = gameEnded
