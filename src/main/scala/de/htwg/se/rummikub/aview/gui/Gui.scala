@@ -305,6 +305,8 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     updatePlayerTokens
     updateTable
 
+    drawButton.enabled = !state.currentStack.isEmpty
+
     tokenStackSizeLabel.text = s"Remaining tokens in stack: ${controller.getState.currentStack.size}"
   }
 
@@ -318,6 +320,29 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
   def nextTurn: Unit = {
     if (controller.winGame || controller.getGameEnded) {
       return
+    }
+
+    if (controller.getState.currentStack.isEmpty && controller.getState.getFinalRoundsLeft.isEmpty) {
+      val playersRemaining = controller.getState.getPlayers.length
+      println("Before set: " + controller.getState.getFinalRoundsLeft)
+      controller.setStateInternal(controller.getState.updated(newPlayers = controller.getState.getPlayers, newStack = controller.getState.currentStack, newFinalRoundsLeft = Some(playersRemaining)))
+      println("After set: " + controller.getState.getFinalRoundsLeft)
+      stateLabel.text = s"No tokens left in stack, final round begins! You have $playersRemaining turns left to play."
+    }
+
+    controller.getState.getFinalRoundsLeft match {
+      case Some(0) =>
+        controller.setGameEnded(true)
+        val winnerMessage = controller.endGame
+
+        Dialog.showMessage(contents.head, winnerMessage, title = "Game is over!")
+        stateLabel.text = "Game is over!"
+        return
+
+      case Some(n) =>
+        controller.setStateInternal(controller.getState.updated(newPlayers = controller.getState.getPlayers, newStack = controller.getState.currentStack, newFinalRoundsLeft = Some(n - 1)))
+
+      case None =>
     }
 
     val currentPlayer = controller.getState.currentPlayer
