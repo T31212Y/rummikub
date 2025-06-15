@@ -26,6 +26,12 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     font = new Font("Arial", java.awt.Font.BOLD, 14)
   }
 
+  val finalRoundsLabel = new Label(s"Final rounds left: ${controller.getState.getFinalRoundsLeft.getOrElse("")}") {
+    foreground = java.awt.Color.WHITE
+    font = new Font("Arial", java.awt.Font.BOLD, 14)
+    visible = false
+  }
+
   val drawButton = new Button("draw")
   val passButton = new Button("pass")
   val rowButton = new Button("row")
@@ -85,11 +91,18 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     vGap = 0
   }
 
+  val finalRoundsLabelPanel = new FlowPanel(FlowPanel.Alignment.Left)(finalRoundsLabel) {
+    background = java.awt.Color(0, 41, 159)
+    hGap = 0
+    vGap = 0
+  }
+
   val controlPanel = new BoxPanel(Orientation.Vertical) {
     border = borderTitleControl
     background = java.awt.Color(0, 41, 159)
 
     contents += tokenStackLabelPanel
+    contents += finalRoundsLabelPanel
     contents += Swing.VGlue
     contents += actionsPanel
   }
@@ -326,10 +339,13 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
       val playersRemaining = controller.getState.getPlayers.length
       controller.setStateInternal(controller.getState.updated(newPlayers = controller.getState.getPlayers, newStack = controller.getState.currentStack, newFinalRoundsLeft = Some(playersRemaining)))
       stateLabel.text = s"No tokens left in stack, final round begins! You have $playersRemaining turns left to play."
+
+      finalRoundsLabel.visible = true
     }
 
     controller.getState.getFinalRoundsLeft match {
       case Some(0) =>
+        finalRoundsLabel.text = "Final rounds left: 0"
         controller.setGameEnded(true)
         val winnerMessage = controller.endGame
 
@@ -338,6 +354,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
         return
 
       case Some(n) =>
+        finalRoundsLabel.text = s"Final rounds left: ${controller.getState.getFinalRoundsLeft.getOrElse("")}"
         controller.setStateInternal(controller.getState.updated(newPlayers = controller.getState.getPlayers, newStack = controller.getState.currentStack, newFinalRoundsLeft = Some(n - 1)))
 
       case None =>
