@@ -324,9 +324,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
     if (controller.getState.currentStack.isEmpty && controller.getState.getFinalRoundsLeft.isEmpty) {
       val playersRemaining = controller.getState.getPlayers.length
-      println("Before set: " + controller.getState.getFinalRoundsLeft)
       controller.setStateInternal(controller.getState.updated(newPlayers = controller.getState.getPlayers, newStack = controller.getState.currentStack, newFinalRoundsLeft = Some(playersRemaining)))
-      println("After set: " + controller.getState.getFinalRoundsLeft)
       stateLabel.text = s"No tokens left in stack, final round begins! You have $playersRemaining turns left to play."
     }
 
