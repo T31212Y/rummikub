@@ -13,7 +13,8 @@ lazy val root = project
       "org.scalatest" %% "scalatest" % "3.2.19" % "test",
       "org.scala-lang.modules" %% "scala-swing" % "3.0.0",
       "org.scalatestplus" %% "mockito-5-12" % "3.2.19.0" % "test",
-      "net.codingwell" %% "scala-guice" % "7.0.0"
+      "net.codingwell" %% "scala-guice" % "7.0.0",
+      "com.google.inject" % "guice" % "5.1.0"
     ),
 
     testFrameworks += new TestFramework("org.scalatest.tools.Framework")
