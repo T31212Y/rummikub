@@ -5,12 +5,12 @@ import de.htwg.se.rummikub.util.{Command, UndoManager}
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color, TokenFactoryInterface}
-import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackInterface, TokenStackFactoryInterface, PlayingFieldInterface}
+import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackInterface, TokenStackFactoryInterface, PlayingFieldInterface, TableFactoryInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFactoryInterface}
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent, GameStateInterface}
 import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
 
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.PlayingField
 
 import scala.swing.Publisher
 
@@ -19,7 +19,8 @@ import com.google.inject.Inject
 class Controller @Inject() (gameModeFactory: GameModeFactoryInterface, 
                             tokenFactory: TokenFactoryInterface, 
                             tokenStructureFactory: TokenStructureFactoryInterface,
-                            tokenStackFactory: TokenStackFactoryInterface) extends ControllerInterface with Publisher {
+                            tokenStackFactory: TokenStackFactoryInterface,
+                            tableFactory: TableFactoryInterface) extends ControllerInterface with Publisher {
 
     var gameMode: Option[GameModeTemplate] = None
     var playingField: Option[PlayingFieldInterface] = None
@@ -240,7 +241,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
                 stack = field.getStack
             )
         case None => GameState(
-                        table = Table(16, 90, List.empty),
+                        table = tableFactory.createTable(16, 90),
                         players = Vector.empty,
                         boards = Vector.empty,
                         currentPlayerIndex = 0,
