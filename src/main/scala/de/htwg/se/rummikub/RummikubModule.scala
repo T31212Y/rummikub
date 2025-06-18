@@ -3,14 +3,14 @@ package de.htwg.se.rummikub
 import com.google.inject.AbstractModule
 import net.codingwell.scalaguice.ScalaModule
 
-import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, GameStateInterface}
-import de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl.{Controller, GameState}
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
+import de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl.Controller
+
+import de.htwg.se.rummikub.model.gameModeComponent.GameModeFactoryInterface
+import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
 
 import de.htwg.se.rummikub.model.builderComponent.{PlayingFieldBuilderInterface, FieldDirectorInterface}
 import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.{StandardPlayingFieldBuilder, TwoPlayerFieldDirector, ThreePlayerFieldDirector, FourPlayerFieldDirector}
-
-import de.htwg.se.rummikub.model.gameModeComponent.{GameModeFactoryInterface, GameModeTemplate}
-import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.{GameModeFactory, TwoPlayerMode, ThreePlayerMode, FourPlayerMode}
 
 import de.htwg.se.rummikub.model.tokenComponent.TokenFactoryInterface
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
@@ -33,18 +33,13 @@ import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.StandardPlayerFa
 class RummikubModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[ControllerInterface].to[Controller]
-    bind[PlayingFieldBuilderInterface].to[StandardPlayingFieldBuilder]
-    /*bind[GameStateInterface].to[GameState]
+    bind[GameModeFactoryInterface].to[GameModeFactory]
 
+    bind[PlayingFieldBuilderInterface].to[StandardPlayingFieldBuilder]
     bind[FieldDirectorInterface].annotatedWithName("TwoPlayer").to[TwoPlayerFieldDirector]
     bind[FieldDirectorInterface].annotatedWithName("ThreePlayer").to[ThreePlayerFieldDirector]
-    bind[FieldDirectorInterface].annotatedWithName("FourPlayer").to[FourPlayerFieldDirector]*/
+    bind[FieldDirectorInterface].annotatedWithName("FourPlayer").to[FourPlayerFieldDirector]
 
-    bind[GameModeFactoryInterface].to[GameModeFactory]
-    /*bind[GameModeTemplate].annotatedWithName("TwoPlayerMode").to[TwoPlayerMode]
-    bind[GameModeTemplate].annotatedWithName("ThreePlayerMode").to[ThreePlayerMode]
-    bind[GameModeTemplate].annotatedWithName("FourPlayerMode").to[FourPlayerMode]*/
-    
     bind[TokenFactoryInterface].to[StandardTokenFactory]
     bind[TokenStructureFactoryInterface].to[StandardTokenStructureFactory]
     bind[TokenStackFactoryInterface].to[StandardTokenStackFactory]
