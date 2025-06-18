@@ -90,13 +90,21 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface, tokenFact
     override def passTurn(state: GameStateInterface, ignoreFirstMoveCheck: Boolean = false): (GameStateInterface, String) = {
         val currentPlayer = state.currentPlayer
 
-        if (!ignoreFirstMoveCheck && !currentPlayer.getHasCompletedFirstMove) {
+        if (!ignoreFirstMoveCheck && !currentPlayer.getHasCompletedFirstMove && !currentPlayer.validateFirstMove) {
             val message = "The first move must have a total of at least 30 points. You cannot end your turn."
             (state, message)
         } else {
-            val nextState = setNextPlayer(state)
+            val updatedPlayer = if (!currentPlayer.getHasCompletedFirstMove) {
+                currentPlayer.updated(
+                    currentPlayer.getTokens,
+                    newCommandHistory = currentPlayer.getCommandHistory,
+                    newHasCompletedFirstMove = true
+                )
+            } else currentPlayer
+
+            val nextState = setNextPlayer(state.updateCurrentPlayer(updatedPlayer))
             turnStartState = None
-            val message = s"${state.currentPlayer.getName} ended their turn. It's now ${nextState.currentPlayer.getName}'s turn."
+            val message = s"${currentPlayer.getName} hat seinen Zug beendet. Jetzt ist ${nextState.currentPlayer.getName} dran."
 
             setStateInternal(nextState)
             setPlayingField(gameMode.get.updatePlayingField(playingField))
