@@ -26,8 +26,8 @@ import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.
 
 class RummikubModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
-    /*bind[ControllerInterface].to[Controller]
-    bind[GameStateInterface].to[GameState]
+    bind[ControllerInterface].to[Controller]
+    /*bind[GameStateInterface].to[GameState]
 
     bind[PlayingFieldBuilderInterface].to[StandardPlayingFieldBuilder]
     bind[FieldDirectorInterface].annotatedWithName("TwoPlayer").to[TwoPlayerFieldDirector]
