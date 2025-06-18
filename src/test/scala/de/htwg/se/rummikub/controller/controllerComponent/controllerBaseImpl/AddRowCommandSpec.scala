@@ -10,27 +10,29 @@ import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFact
 import de.htwg.se.rummikub.aview.Tui
 
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
 class AddRowCommandSpec extends AnyWordSpec {
 
+  val gameModeFactory = new GameModeFactory
+  val controller: Controller = new Controller(gameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get, gameModeFactory)
+  given ControllerInterface = controller
+
   "An AddRowCommand" should {
     "remove tokens from player and update removedTokens on doStep" in {
-        val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-        val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-        val stack = TokenStack()
-        val gameModeFactory = new GameModeFactory
-        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-        controller.setupNewGame(2, List("TestPlayer", "Other"))
+      val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
+      val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
+      val stack = TokenStack()
+      controller.setupNewGame(2, List("TestPlayer", "Other"))
 
-        val testToken = NumToken(1, Color.RED)
-        val testToken2 = NumToken(2, Color.BLUE)
-        val updatedPlayer = player.copy(tokens = List())
+      val testToken = NumToken(1, Color.RED)
+      val testToken2 = NumToken(2, Color.BLUE)
 
-        val cmd = new AddRowCommand(controller, row, player, stack)
+      val cmd = new AddRowCommand(controller, row, player, stack)
 
-        cmd.doStep()
+      cmd.doStep()
 
-        cmd.removedTokens should contain allOf (testToken, testToken2)
+      cmd.removedTokens should contain allOf (testToken, testToken2)
     }
 
     "restore old state on undoStep" in {
