@@ -1,6 +1,7 @@
 package de.htwg.se.rummikub.aview
 
 import de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl.Controller
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
@@ -16,8 +17,8 @@ class TuiSpec extends AnyWordSpec with Matchers {
   "A Tui" should {
 
     val gameModeFactory = new GameModeFactory
-    val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-    val tui = new Tui(controller)
+    given ControllerInterface = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+    val tui = new Tui
 
     "show welcome message" in {
       val welcome = tui.showWelcome
@@ -49,7 +50,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
 
     "show goodbye message" in {
       tui.inputCommands("quit")
-      controller.gameEnded = true
+      implicitly[ControllerInterface].setGameEnded(true)
       tui.showGoodbye should include ("Thank you for playing Rummikub! Goodbye!")
     }
 
@@ -130,11 +131,13 @@ class TuiSpec extends AnyWordSpec with Matchers {
       val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)), hasCompletedFirstMove = true)
       val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
       val gameModeFactory = new GameModeFactory
-      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-      val tui = new Tui(controller)
+      given ControllerInterface = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+      val tui = new Tui
       
-      controller.setupNewGame(2, List("Emilia", "Noah"))
-      controller.playingField = Some(controller.playingField.get.updated(newPlayers = List(player1, player2), newBoards = controller.playingField.get.getBoards, newInnerField = controller.playingField.get.getInnerField))
+      val controller = implicitly[ControllerInterface]
+      implicitly[ControllerInterface].setupNewGame(2, List("Emilia", "Noah"))
+
+      val updated = Some(controller.getPlayingField.get.updated(newPlayers = List(player1, player2), newBoards = controller.getPlayingField.get.getBoards, newInnerField = controller.getPlayingField.get.getInnerField))
       
       val stack = TokenStack()
 
@@ -156,13 +159,13 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "handle 'end' command" in {
-      controller.gameEnded = false
+      implicitly[ControllerInterface].setGameEnded(false)
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
         tui.processGameInput("end")
       }
       out.toString should include ("Exiting the game")
-      controller.gameEnded shouldBe true
+      implicitly[ControllerInterface].getGameEnded shouldBe true
     }
 
     "handle 'group' command" in {
@@ -212,8 +215,10 @@ class TuiSpec extends AnyWordSpec with Matchers {
     "display the available commands" in {
       
       val gameModeFactory = new GameModeFactory
-      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-      val tui = new Tui(controller)
+      given ControllerInterface = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+      val tui = new Tui
+
+      val controller = implicitly[ControllerInterface]
 
       val result = tui.showAvailableCommands
 
