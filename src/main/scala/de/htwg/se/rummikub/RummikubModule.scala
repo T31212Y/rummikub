@@ -24,6 +24,9 @@ import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{Joker, NumToken, 
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.{Row, Group}
 
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.StandardTokenStructureFactory
+
 class RummikubModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[ControllerInterface].to[Controller]
@@ -48,9 +51,8 @@ class RummikubModule extends AbstractModule with ScalaModule {
 
     bind[TokenInterface].annotatedWithName("NumToken").to[NumToken]
     bind[TokenInterface].annotatedWithName("Joker").to[Joker]
-    bind[TokenFactoryInterface].to[StandardTokenFactory]
-
-    bind[TokenStructureInterface].annotatedWithName("Row").to[Row]
-    bind[TokenStructureInterface].annotatedWithName("Group").to[Group]*/
+    bind[TokenFactoryInterface].to[StandardTokenFactory]*/
+    
+    bind[TokenStructureFactoryInterface].to[StandardTokenStructureFactory]
   }
 }
