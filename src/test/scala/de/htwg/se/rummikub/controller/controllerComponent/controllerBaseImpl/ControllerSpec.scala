@@ -21,11 +21,15 @@ import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
 
 
 
 class ControllerSpec extends AnyWordSpec {
+  val gameModeFactory = new GameModeFactory
+  val controller: Controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+  given ControllerInterface = controller
 
   "A Controller" should {
 
