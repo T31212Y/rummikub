@@ -13,15 +13,15 @@ import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
 class AddGroupCommandSpec extends AnyWordSpec {
   val gameModeFactory = new GameModeFactory
-  val controller: Controller = new Controller(gameModeFactory.createGameMode(2, List("TestPlayer", "Other")).get, gameModeFactory)
+  val controller: Controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
   given ControllerInterface = controller
 
   "An AddGroupCommand" should {
     "remove tokens from player and update removedTokens on doStep" in {
-      val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
+      val player = Player("Emilia", tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
       val group = Group(List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
       val stack = TokenStack()
-      controller.setupNewGame(2, List("TestPlayer", "Other"))
+      controller.setupNewGame(2, List("Emilia", "Noah"))
 
       val testToken = NumToken(1, Color.RED)
       val testToken2 = NumToken(1, Color.BLUE)
@@ -34,10 +34,10 @@ class AddGroupCommandSpec extends AnyWordSpec {
     }
 
     "restore old state on undoStep" in {
-      val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED)))
+      val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
       val group = Group(List(NumToken(1, Color.RED)))
       val stack = TokenStack()
-      controller.setupNewGame(2, List("TestPlayer", "Other"))
+      controller.setupNewGame(2, List("Emilia", "Noah"))
 
       val initialState = controller.getState
       val cmd = new AddGroupCommand(controller, group, player, stack)
@@ -49,10 +49,10 @@ class AddGroupCommandSpec extends AnyWordSpec {
     }
 
     "print message if no old state on undoStep" in {
-      val player = Player("TestPlayer")
+      val player = Player("Emilia")
       val group = Group(List(NumToken(1, Color.RED)))
       val stack = TokenStack()
-      controller.setupNewGame(2, List("TestPlayer", "Other"))
+      controller.setupNewGame(2, List("Emilia", "Noah"))
 
       val cmd = new AddGroupCommand(controller, group, player, stack) {
         oldState = None
@@ -66,10 +66,10 @@ class AddGroupCommandSpec extends AnyWordSpec {
     }
 
     "redoStep should call doStep" in {
-      val player = Player("TestPlayer")
+      val player = Player("Emilia")
       val group = Group(List(NumToken(1, Color.RED)))
       val stack = TokenStack()
-      controller.setupNewGame(2, List("TestPlayer", "Other"))
+      controller.setupNewGame(2, List("Emilia", "Noah"))
 
       var doStepCalled = false
 
