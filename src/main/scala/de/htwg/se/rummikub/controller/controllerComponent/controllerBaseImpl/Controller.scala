@@ -9,8 +9,7 @@ import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackInterface, Tok
 import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFactoryInterface}
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent, GameStateInterface}
 import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
-
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.PlayingField
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
 
 import scala.swing.Publisher
 
@@ -20,7 +19,8 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
                             tokenFactory: TokenFactoryInterface, 
                             tokenStructureFactory: TokenStructureFactoryInterface,
                             tokenStackFactory: TokenStackFactoryInterface,
-                            tableFactory: TableFactoryInterface) extends ControllerInterface with Publisher {
+                            tableFactory: TableFactoryInterface,
+                            playingFieldBuilder: PlayingFieldBuilderInterface) extends ControllerInterface with Publisher {
 
     var gameMode: Option[GameModeTemplate] = None
     var playingField: Option[PlayingFieldInterface] = None
@@ -241,7 +241,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
                 stack = field.getStack
             )
         case None => GameState(
-                        table = tableFactory.createTable(16, 90),
+                        table = tableFactory.createTable(16, 90, List.empty),
                         players = Vector.empty,
                         boards = Vector.empty,
                         currentPlayerIndex = 0,
@@ -251,9 +251,15 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
     override def setStateInternal(state: GameStateInterface): Unit = {
         this.gameState = Some(state)
-        this.playingField = Some(
-            PlayingField(state.getPlayers.toList, state.getBoards.toList, state.getTable, state.currentStack)
-        )
+
+        val buildedPlayingField = playingFieldBuilder
+            .setPlayers(state.getPlayers.toList)
+            .setBoards(state.getBoards.toList)
+            .setInnerField(state.getTable)
+            .setStack(state.currentStack)
+            .build()
+
+        this.playingField = Some(buildedPlayingField)
         this.currentPlayerIndex = state.getCurrentPlayerIndex
     }
 
