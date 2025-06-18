@@ -3,8 +3,6 @@ package de.htwg.se.rummikub
 import de.htwg.se.rummikub.aview.{GameView, Tui}
 import de.htwg.se.rummikub.aview.gui.Gui
 
-import de.htwg.se.rummikub.model.gameModeComponent.GameModeFactoryInterface
-import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
 import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
 import com.google.inject.Guice
@@ -13,9 +11,6 @@ import scala.io.StdIn.readLine
 
 object Rummikub {
   val injector = Guice.createInjector(new RummikubModule)
-
-  val gameModeFactory = injector.getInstance(classOf[GameModeFactoryInterface])
-  val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
   val controller = injector.getInstance(classOf[ControllerInterface])
 
   val tui: GameView = new Tui(controller)
