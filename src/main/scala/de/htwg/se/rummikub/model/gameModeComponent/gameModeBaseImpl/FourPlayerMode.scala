@@ -1,7 +1,7 @@
 package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
+
 
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
@@ -15,7 +15,11 @@ import de.htwg.se.rummikub.model.playingFieldComponent.TableFactoryInterface
 
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
 
-case class FourPlayerMode(pns: List[String], tokenStackFactory: TokenStackFactoryInterface, tableFactory: TableFactoryInterface, boardFactory: BoardFactoryInterface) extends GameModeTemplate {
+import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
+
+import com.google.inject.Inject
+
+case class FourPlayerMode @Inject() (pns: List[String], tokenStackFactory: TokenStackFactoryInterface, tableFactory: TableFactoryInterface, boardFactory: BoardFactoryInterface, playerFactory: PlayerFactoryInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -32,7 +36,7 @@ case class FourPlayerMode(pns: List[String], tokenStackFactory: TokenStackFactor
     }
 
     override def createPlayers: List[PlayerInterface] = {
-        playerNames.map(name => Player(name))
+        playerNames.map(name => playerFactory.createPlayer(name))
     }
 
     override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = {

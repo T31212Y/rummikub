@@ -1,7 +1,6 @@
 package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
@@ -14,8 +13,11 @@ import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.TwoPlayerField
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.TableFactoryInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
+import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
 
-case class TwoPlayerMode(pns: List[String], tokenStackFactory: TokenStackFactoryInterface, tableFactory: TableFactoryInterface, boardFactory: BoardFactoryInterface) extends GameModeTemplate {
+import com.google.inject.Inject
+
+case class TwoPlayerMode @Inject() (pns: List[String], tokenStackFactory: TokenStackFactoryInterface, tableFactory: TableFactoryInterface, boardFactory: BoardFactoryInterface, playerFactory: PlayerFactoryInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -32,7 +34,7 @@ case class TwoPlayerMode(pns: List[String], tokenStackFactory: TokenStackFactory
     }
 
     override def createPlayers: List[PlayerInterface] = {
-        playerNames.map(name => Player(name))
+        playerNames.map(name => playerFactory.createPlayer(name))
     }
 
     override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = {
