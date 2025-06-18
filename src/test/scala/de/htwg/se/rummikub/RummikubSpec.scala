@@ -10,8 +10,14 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
 class RummikubSpec extends AnyWordSpec with Matchers {
+
+  val gameModeFactory = new GameModeFactory
+  val controller: Controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+  given ControllerInterface = controller
+
   "Rummikub" should {
     "have a main method that runs without exceptions" in {
       noException should be thrownBy {
