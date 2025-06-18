@@ -11,7 +11,9 @@ import de.htwg.se.rummikub.model.playingFieldComponent.TableFactoryInterface
 
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
 
-class TwoPlayerFieldDirector(builder: PlayingFieldBuilderInterface, tokenStackFactory: TokenStackFactoryInterface, tableFactory: TableFactoryInterface, boardFactory: BoardFactoryInterface) extends FieldDirectorInterface {
+import com.google.inject.Inject
+
+class TwoPlayerFieldDirector @Inject() (builder: PlayingFieldBuilderInterface, tokenStackFactory: TokenStackFactoryInterface, tableFactory: TableFactoryInterface, boardFactory: BoardFactoryInterface) extends FieldDirectorInterface {
   override def construct(players: List[PlayerInterface]): PlayingFieldInterface = {
     val boardP1 = boardFactory.createBoard(cntEdgeSpaces, cntTokens, 2, 1, "up", 90)
     val boardP2 = boardFactory.createBoard(cntEdgeSpaces, cntTokens, 2, 1, "down", 90)
