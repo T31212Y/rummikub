@@ -33,9 +33,9 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Stan
 class RummikubModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[ControllerInterface].to[Controller]
+    bind[PlayingFieldBuilderInterface].to[StandardPlayingFieldBuilder]
     /*bind[GameStateInterface].to[GameState]
 
-    bind[PlayingFieldBuilderInterface].to[StandardPlayingFieldBuilder]
     bind[FieldDirectorInterface].annotatedWithName("TwoPlayer").to[TwoPlayerFieldDirector]
     bind[FieldDirectorInterface].annotatedWithName("ThreePlayer").to[ThreePlayerFieldDirector]
     bind[FieldDirectorInterface].annotatedWithName("FourPlayer").to[FourPlayerFieldDirector]*/
