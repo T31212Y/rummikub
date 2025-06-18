@@ -6,8 +6,9 @@ import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Row
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 
-class AddRowCommand(controller: Controller, row: Row, player: PlayerInterface, stack: TokenStackInterface) extends Command {
+class AddRowCommand(controller: Controller, row: TokenStructureInterface, player: PlayerInterface, stack: TokenStackInterface) extends Command {
 
   var oldState: Option[GameState] = Some(controller.getState)
   var removedTokens: List[TokenInterface] = List()
