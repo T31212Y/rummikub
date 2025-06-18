@@ -15,7 +15,7 @@ class ThreePlayerFieldDirector(builder: PlayingFieldBuilderInterface, tokenStack
     val boardP13 = new Board(cntEdgeSpaces, cntTokens, 3, 2, "up")
     val boardP2 = new Board(cntEdgeSpaces, cntTokens, 3, 1, "down")
 
-    val innerField = tableFactory.createTable(cntRows - 4, boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)) - 2)
+    val innerField = tableFactory.createTable(cntRows - 4, boardP13.size(boardP13.wrapBoardRowDouble(boardP13.boardELRP12_1, boardP13.boardELRP34_1)) - 2, List())
     val stack = tokenStackFactory.createShuffledStack
 
     builder.setPlayers(players)

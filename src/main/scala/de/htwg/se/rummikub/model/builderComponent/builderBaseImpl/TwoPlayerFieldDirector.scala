@@ -15,7 +15,7 @@ class TwoPlayerFieldDirector(builder: PlayingFieldBuilderInterface, tokenStackFa
     val boardP1 = new Board(cntEdgeSpaces, cntTokens, 2, 1, "up")
     val boardP2 = new Board(cntEdgeSpaces, cntTokens, 2, 1, "down")
 
-    val innerField = tableFactory.createTable(cntRows - 4, boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)) - 2)
+    val innerField = tableFactory.createTable(cntRows - 4, boardP1.size(boardP1.wrapBoardRowSingle(boardP1.boardELRP12_1)) - 2, List())
     val stack = tokenStackFactory.createShuffledStack
 
     builder.setPlayers(players)
