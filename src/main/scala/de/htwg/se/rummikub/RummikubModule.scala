@@ -12,9 +12,6 @@ import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.{StandardPlayi
 import de.htwg.se.rummikub.model.gameModeComponent.{GameModeFactoryInterface, GameModeTemplate}
 import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.{GameModeFactory, TwoPlayerMode, ThreePlayerMode, FourPlayerMode}
 
-import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
-
 import de.htwg.se.rummikub.model.tokenComponent.TokenFactoryInterface
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
 
@@ -30,6 +27,9 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Stan
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.StandardBoardFactory
 
+import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
+import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.StandardPlayerFactory
+
 class RummikubModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[ControllerInterface].to[Controller]
@@ -43,13 +43,13 @@ class RummikubModule extends AbstractModule with ScalaModule {
     bind[GameModeFactoryInterface].to[GameModeFactory]
     /*bind[GameModeTemplate].annotatedWithName("TwoPlayerMode").to[TwoPlayerMode]
     bind[GameModeTemplate].annotatedWithName("ThreePlayerMode").to[ThreePlayerMode]
-    bind[GameModeTemplate].annotatedWithName("FourPlayerMode").to[FourPlayerMode]
-
-    bind[PlayerInterface].to[Player]*/
+    bind[GameModeTemplate].annotatedWithName("FourPlayerMode").to[FourPlayerMode]*/
+    
     bind[TokenFactoryInterface].to[StandardTokenFactory]
     bind[TokenStructureFactoryInterface].to[StandardTokenStructureFactory]
     bind[TokenStackFactoryInterface].to[StandardTokenStackFactory]
     bind[TableFactoryInterface].to[StandardTableFactory]
     bind[BoardFactoryInterface].to[StandardBoardFactory]
+    bind[PlayerFactoryInterface].to[StandardPlayerFactory]
   }
 }
