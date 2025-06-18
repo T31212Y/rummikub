@@ -27,6 +27,9 @@ import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.StandardTokenStructureFactory
 
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.StandardTokenStackFactory
+
 class RummikubModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[ControllerInterface].to[Controller]
@@ -46,9 +49,9 @@ class RummikubModule extends AbstractModule with ScalaModule {
 
     bind[PlayingFieldInterface].to[PlayingField]
     bind[BoardInterface].to[Board]
-    bind[TableInterface].to[Table]
-    bind[TokenStackInterface].to[TokenStack]*/
+    bind[TableInterface].to[Table]*/
     bind[TokenFactoryInterface].to[StandardTokenFactory]
     bind[TokenStructureFactoryInterface].to[StandardTokenStructureFactory]
+    bind[TokenStackFactoryInterface].to[StandardTokenStackFactory]
   }
 }
