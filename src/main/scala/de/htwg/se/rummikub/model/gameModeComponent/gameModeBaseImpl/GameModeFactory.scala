@@ -1,18 +1,14 @@
 package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
 import scala.util.{Try, Success, Failure}
+
 import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFactoryInterface}
-
-import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.TableFactoryInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackFactoryInterface, TableFactoryInterface, BoardFactoryInterface}
 import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
-
-import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+import de.htwg.se.rummikub.model.builderComponent.{PlayingFieldBuilderInterface, FieldDirectorInterface}
 
 import com.google.inject.Inject
 import com.google.inject.name.Named
-import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
 
 class GameModeFactory @Inject() (tokenStackFactory: TokenStackFactoryInterface, 
 tableFactory: TableFactoryInterface, 

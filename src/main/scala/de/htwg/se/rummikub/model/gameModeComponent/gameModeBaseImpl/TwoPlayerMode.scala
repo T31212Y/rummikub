@@ -1,32 +1,20 @@
 package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
-import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
-
-import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.model.playerComponent.{PlayerInterface, PlayerFactoryInterface}
+import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, PlayingFieldInterface, TokenStackFactoryInterface, TableFactoryInterface, BoardFactoryInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
-import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.StandardPlayingFieldBuilder
-import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.TwoPlayerFieldDirector
-
-import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.TableFactoryInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
-import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
+import de.htwg.se.rummikub.model.builderComponent.{PlayingFieldBuilderInterface, FieldDirectorInterface}
 
 import com.google.inject.Inject
 import com.google.inject.name.Named
-import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
-import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
 
 case class TwoPlayerMode @Inject() (pns: List[String], 
-tokenStackFactory: TokenStackFactoryInterface, 
-tableFactory: TableFactoryInterface, 
-boardFactory: BoardFactoryInterface, 
-playerFactory: PlayerFactoryInterface,
-playingFieldBuilder: PlayingFieldBuilderInterface,
-@Named("TwoPlayer") director: FieldDirectorInterface) extends GameModeTemplate {
+                                        tokenStackFactory: TokenStackFactoryInterface, 
+                                        tableFactory: TableFactoryInterface, 
+                                        boardFactory: BoardFactoryInterface, 
+                                        playerFactory: PlayerFactoryInterface,
+                                        playingFieldBuilder: PlayingFieldBuilderInterface,
+                                        @Named("TwoPlayer") director: FieldDirectorInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
