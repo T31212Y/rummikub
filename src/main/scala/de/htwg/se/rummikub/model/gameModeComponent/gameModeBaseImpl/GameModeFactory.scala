@@ -8,13 +8,25 @@ import de.htwg.se.rummikub.model.playingFieldComponent.TableFactoryInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
 import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
 
-import com.google.inject.Inject
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
 
-class GameModeFactory @Inject() (tokenStackFactory: TokenStackFactoryInterface, tableFactory: TableFactoryInterface, boardFactory: BoardFactoryInterface, playerFactory: PlayerFactoryInterface) extends GameModeFactoryInterface {
+import com.google.inject.Inject
+import com.google.inject.name.Named
+import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
+
+class GameModeFactory @Inject() (tokenStackFactory: TokenStackFactoryInterface, 
+tableFactory: TableFactoryInterface, 
+boardFactory: BoardFactoryInterface, 
+playerFactory: PlayerFactoryInterface,
+playingFieldBuilder: PlayingFieldBuilderInterface,
+@Named("TwoPlayer") twoPlayerDirector: FieldDirectorInterface,
+@Named("ThreePlayer") threePlayerDirector: FieldDirectorInterface,
+@Named("FourPlayer") fourPlayerDirector: FieldDirectorInterface
+) extends GameModeFactoryInterface {
   override def createGameMode(amtPlayers: Int, playerNames: List[String]): Try[GameModeTemplate] = amtPlayers match {
-    case 2 => Success(TwoPlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory, playerFactory))
-    case 3 => Success(ThreePlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory, playerFactory))
-    case 4 => Success(FourPlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory, playerFactory))
+    case 2 => Success(TwoPlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, twoPlayerDirector))
+    case 3 => Success(ThreePlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, threePlayerDirector))
+    case 4 => Success(FourPlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, fourPlayerDirector))
     case _ => Failure(new IllegalArgumentException("Invalid number of players"))
   }
 }

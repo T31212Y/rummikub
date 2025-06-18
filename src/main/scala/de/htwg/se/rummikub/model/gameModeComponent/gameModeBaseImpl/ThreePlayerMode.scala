@@ -15,8 +15,17 @@ import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
 import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
 
 import com.google.inject.Inject
+import com.google.inject.name.Named
+import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
 
-case class ThreePlayerMode @Inject() (pns: List[String], tokenStackFactory: TokenStackFactoryInterface, tableFactory: TableFactoryInterface, boardFactory: BoardFactoryInterface, playerFactory: PlayerFactoryInterface) extends GameModeTemplate {
+case class ThreePlayerMode @Inject() (pns: List[String], 
+                                        tokenStackFactory: TokenStackFactoryInterface, 
+                                        tableFactory: TableFactoryInterface, 
+                                        boardFactory: BoardFactoryInterface, 
+                                        playerFactory: PlayerFactoryInterface,
+                                        playingFieldBuilder: PlayingFieldBuilderInterface,
+                                        @Named("ThreePlayer") director: FieldDirectorInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -25,9 +34,6 @@ case class ThreePlayerMode @Inject() (pns: List[String], tokenStackFactory: Toke
             println("Cannot create playing field: No players provided.")
             None
         } else {
-            val builder = new StandardPlayingFieldBuilder
-            val director = new ThreePlayerFieldDirector(builder, tokenStackFactory, tableFactory, boardFactory)
-
             Some(director.construct(players))
         }
     }
