@@ -47,12 +47,8 @@ class RummikubModule extends AbstractModule with ScalaModule {
     bind[PlayingFieldInterface].to[PlayingField]
     bind[BoardInterface].to[Board]
     bind[TableInterface].to[Table]
-    bind[TokenStackInterface].to[TokenStack]
-
-    bind[TokenInterface].annotatedWithName("NumToken").to[NumToken]
-    bind[TokenInterface].annotatedWithName("Joker").to[Joker]
-    bind[TokenFactoryInterface].to[StandardTokenFactory]*/
-    
+    bind[TokenStackInterface].to[TokenStack]*/
+    bind[TokenFactoryInterface].to[StandardTokenFactory]
     bind[TokenStructureFactoryInterface].to[StandardTokenStructureFactory]
   }
 }
