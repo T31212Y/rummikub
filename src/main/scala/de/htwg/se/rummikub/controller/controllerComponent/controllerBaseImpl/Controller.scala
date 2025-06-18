@@ -104,7 +104,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
             val nextState = setNextPlayer(state.updateCurrentPlayer(updatedPlayer))
             turnStartState = None
-            val message = s"${currentPlayer.getName} hat seinen Zug beendet. Jetzt ist ${nextState.currentPlayer.getName} dran."
+            val message = s"${state.currentPlayer.getName} ended their turn. It's now ${nextState.currentPlayer.getName}'s turn."
 
             setStateInternal(nextState)
             setPlayingField(gameMode.get.updatePlayingField(playingField))
