@@ -1,10 +1,7 @@
 package de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.TableInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, TableInterface, TokenStackInterface, PlayingFieldInterface}
 
 case class PlayingField(players: List[PlayerInterface], boards: List[BoardInterface], innerField: TableInterface, stack: TokenStackInterface) extends PlayingFieldInterface {
     override def getPlayers: List[PlayerInterface] = players

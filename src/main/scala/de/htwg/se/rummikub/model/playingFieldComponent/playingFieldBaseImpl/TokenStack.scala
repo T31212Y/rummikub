@@ -3,7 +3,6 @@ package de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl
 import scala.util.Random
 
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
 
 case class TokenStack(tokens: List[TokenInterface]) extends TokenStackInterface {
