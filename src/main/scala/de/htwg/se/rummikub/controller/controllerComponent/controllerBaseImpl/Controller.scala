@@ -8,16 +8,14 @@ import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
 import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackInterface, PlayingFieldInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFactoryInterface}
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent, GameStateInterface}
+import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
 
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{TokenStack, Table, PlayingField}
 
-import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
-
 import scala.swing.Publisher
 
 import com.google.inject.Inject
-import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 
 class Controller @Inject() (gameModeFactory: GameModeFactoryInterface, tokenStructureFactory: TokenStructureFactoryInterface) extends ControllerInterface with Publisher {
 

@@ -4,9 +4,8 @@ import de.htwg.se.rummikub.util.Command
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
-import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group
-import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
 
 class AddGroupCommand(controller: Controller, group: TokenStructureInterface, player: PlayerInterface, stack: TokenStackInterface) extends Command {
 
