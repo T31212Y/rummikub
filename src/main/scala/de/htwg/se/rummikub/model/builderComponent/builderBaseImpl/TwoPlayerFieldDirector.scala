@@ -1,15 +1,8 @@
 package de.htwg.se.rummikub.model.builderComponent.builderBaseImpl
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-
-import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
-import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
-import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
-
-import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.TableFactoryInterface
-
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.{PlayingFieldInterface, TokenStackFactoryInterface, TableFactoryInterface, BoardFactoryInterface}
+import de.htwg.se.rummikub.model.builderComponent.{PlayingFieldBuilderInterface, FieldDirectorInterface}
 
 import com.google.inject.Inject
 
