@@ -97,6 +97,6 @@ case class Player(name: String,
   }
 
   override def updated(newTokens: List[TokenInterface], newCommandHistory: List[String], newHasCompletedFirstMove: Boolean): PlayerInterface = {
-    copy(tokens = newTokens, commandHistory = newCommandHistory, hasCompletedFirstMove = newHasCompletedFirstMove)
+    copy(tokens = newTokens, commandHistory = newCommandHistory, hasCompletedFirstMove = newHasCompletedFirstMove, firstMoveTokens = this.firstMoveTokens)
   }
 }
