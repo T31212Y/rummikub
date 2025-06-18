@@ -4,20 +4,19 @@ import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 import de.htwg.se.rummikub.util.{Command, UndoManager}
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
+import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color, TokenFactoryInterface}
 import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackInterface, PlayingFieldInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFactoryInterface}
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent, GameStateInterface}
 import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
 
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{TokenStack, Table, PlayingField}
 
 import scala.swing.Publisher
 
 import com.google.inject.Inject
 
-class Controller @Inject() (gameModeFactory: GameModeFactoryInterface, tokenStructureFactory: TokenStructureFactoryInterface) extends ControllerInterface with Publisher {
+class Controller @Inject() (gameModeFactory: GameModeFactoryInterface, tokenFactory: TokenFactoryInterface, tokenStructureFactory: TokenStructureFactoryInterface) extends ControllerInterface with Publisher {
 
     var gameMode: Option[GameModeTemplate] = None
     var playingField: Option[PlayingFieldInterface] = None
@@ -191,7 +190,6 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface, tokenStru
             val tokenParts = tokenString.split(":")
             if (tokenParts.length < 2)
                 throw new IllegalArgumentException("Invalid token input.")
-            val tokenFactory = new StandardTokenFactory
 
             if (tokenParts(0) == "J") {
                 tokenParts(1) match {
