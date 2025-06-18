@@ -15,9 +15,6 @@ import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.{GameModeFac
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
-import de.htwg.se.rummikub.model.playingFieldComponent.{PlayingFieldInterface, BoardInterface, TableInterface}
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{PlayingField, Board, Table}
-
 import de.htwg.se.rummikub.model.tokenComponent.TokenFactoryInterface
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
 
@@ -29,6 +26,9 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Stan
 
 import de.htwg.se.rummikub.model.playingFieldComponent.TableFactoryInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.StandardTableFactory
+
+import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.StandardBoardFactory
 
 class RummikubModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
@@ -45,13 +45,11 @@ class RummikubModule extends AbstractModule with ScalaModule {
     bind[GameModeTemplate].annotatedWithName("ThreePlayerMode").to[ThreePlayerMode]
     bind[GameModeTemplate].annotatedWithName("FourPlayerMode").to[FourPlayerMode]
 
-    bind[PlayerInterface].to[Player]
-
-    bind[PlayingFieldInterface].to[PlayingField]
-    bind[BoardInterface].to[Board]*/
+    bind[PlayerInterface].to[Player]*/
     bind[TokenFactoryInterface].to[StandardTokenFactory]
     bind[TokenStructureFactoryInterface].to[StandardTokenStructureFactory]
     bind[TokenStackFactoryInterface].to[StandardTokenStackFactory]
     bind[TableFactoryInterface].to[StandardTableFactory]
+    bind[BoardFactoryInterface].to[StandardBoardFactory]
   }
 }
