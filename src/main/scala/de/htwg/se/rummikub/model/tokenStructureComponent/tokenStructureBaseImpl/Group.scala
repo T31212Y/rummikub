@@ -1,7 +1,6 @@
 package de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl
 
 import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{NumToken, Joker}
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 
 case class Group(group: List[TokenInterface]) extends TokenStructureInterface {
@@ -20,12 +19,12 @@ case class Group(group: List[TokenInterface]) extends TokenStructureInterface {
         if (tokens.size < 3 || tokens.size > 4) return false
 
         val (jokers, nonJokers) = tokens.partition {
-        case _: Joker => true
-        case _        => false
+        case token if token.isJoker => true
+        case _                      => false
         }
 
         val numTokens = nonJokers.collect {
-        case NumToken(n, c) => (n, c)
+        case token if token.isNumToken => (token.getNumber.get, token.getColor)
         }
 
         val distinctNumbers = numTokens.map(_._1).distinct
@@ -40,15 +39,15 @@ case class Group(group: List[TokenInterface]) extends TokenStructureInterface {
     }
 
     def jokerValues: Option[Int] = {
-        val numTokens = tokens.collect { case NumToken(n, _) => n }.distinct
+        val numTokens = tokens.filter(_.isNumToken).flatMap(_.getNumber).distinct
         if (numTokens.size == 1) Some(numTokens.head) else None
     }
 
     override def points: Int = {
         val jVal = jokerValues.getOrElse(0)
         tokens.map {
-        case NumToken(n, _) => n
-        case _: Joker       => jVal
+        case token if token.isNumToken => token.getNumber.get
+        case token if token.isJoker    => jVal
         }.sum
     }
 }
