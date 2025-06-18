@@ -5,14 +5,15 @@ import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFa
 
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.TableFactoryInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
 
 import com.google.inject.Inject
 
-class GameModeFactory @Inject() (tokenStackFactory: TokenStackFactoryInterface, tableFactory: TableFactoryInterface) extends GameModeFactoryInterface {
+class GameModeFactory @Inject() (tokenStackFactory: TokenStackFactoryInterface, tableFactory: TableFactoryInterface, boardFactory: BoardFactoryInterface) extends GameModeFactoryInterface {
   override def createGameMode(amtPlayers: Int, playerNames: List[String]): Try[GameModeTemplate] = amtPlayers match {
-    case 2 => Success(TwoPlayerMode(playerNames, tokenStackFactory, tableFactory))
-    case 3 => Success(ThreePlayerMode(playerNames, tokenStackFactory, tableFactory))
-    case 4 => Success(FourPlayerMode(playerNames, tokenStackFactory, tableFactory))
+    case 2 => Success(TwoPlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory))
+    case 3 => Success(ThreePlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory))
+    case 4 => Success(FourPlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory))
     case _ => Failure(new IllegalArgumentException("Invalid number of players"))
   }
 }
