@@ -344,7 +344,6 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
         executeAddRow(row, currentPlayer, stack)
 
-
         val updatedPlayer = currentPlayer
         .addToFirstMoveTokens(row.getTokens)
         .updated(
@@ -352,7 +351,6 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
             newCommandHistory = currentPlayer.getCommandHistory :+ s"playRow: ${row.getTokens.mkString(",")}",
             newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove || true
         )
-
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
 
@@ -380,12 +378,12 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         executeAddGroup(group, currentPlayer, stack)
 
         val updatedPlayer = currentPlayer
-            .addToFirstMoveTokens(group.getTokens)
-            .updated(
-            newTokens = getUpdatedPlayerAfterMove(currentPlayer, group.getTokens).getTokens,
+        .addToFirstMoveTokens(group.getTokens)
+        .updated(
+            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, group.getTokens).getTokens,
             newCommandHistory = currentPlayer.getCommandHistory :+ s"playGroup: ${group.getTokens.mkString(",")}",
             newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove || true
-            )
+        )
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
 
