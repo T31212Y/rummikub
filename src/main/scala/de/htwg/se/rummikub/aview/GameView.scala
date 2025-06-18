@@ -1,10 +1,11 @@
 package de.htwg.se.rummikub.aview
 
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent}
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
 import scala.io.StdIn.readLine
 
-trait GameView(controller: ControllerInterface) {
+trait GameView(using controller: ControllerInterface) {
   def showWelcome: Vector[String] = {
     Vector("Welcome to",
     " ____                                _  _            _      _",
