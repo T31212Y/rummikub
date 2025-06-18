@@ -38,11 +38,3 @@ case class TokenStack(tokens: List[TokenInterface]) extends TokenStackInterface 
 
   override def toString: String = tokens.map(_.toString).mkString(", ")
 }
-
-object TokenStack {
-  def apply(): TokenStack = {
-    val tokenFactory = new StandardTokenFactory
-    val allTokens = Random.shuffle(tokenFactory.generateAllTokens())
-    new TokenStack(allTokens)
-  }
-}
