@@ -3,7 +3,6 @@ package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
 
@@ -52,7 +51,7 @@ case class TwoPlayerMode(pns: List[String], tokenStackFactory: TokenStackFactory
                     updateBoardSinglePlayer(player2, boardP2).fold(boardP2)(identity)
                 )
 
-                val updatedInnerField = new Table(
+                val updatedInnerField = tableFactory.createTable(
                     cntRows - 4,
                     boardP1.size(boardP1.wrapBoardRowSingle(boardP1.getBoardELRP12_1)) - 2,
                     field.getInnerField.getTokensOnTable
