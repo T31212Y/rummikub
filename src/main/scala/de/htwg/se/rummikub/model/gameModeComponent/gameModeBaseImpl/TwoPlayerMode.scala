@@ -12,7 +12,9 @@ import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
 import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.StandardPlayingFieldBuilder
 import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.TwoPlayerFieldDirector
 
-case class TwoPlayerMode(pns: List[String]) extends GameModeTemplate {
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+
+case class TwoPlayerMode(pns: List[String], tokenStackFactory: TokenStackFactoryInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -22,7 +24,7 @@ case class TwoPlayerMode(pns: List[String]) extends GameModeTemplate {
             None
         } else {
             val builder = new StandardPlayingFieldBuilder
-            val director = new TwoPlayerFieldDirector(builder)
+            val director = new TwoPlayerFieldDirector(builder, tokenStackFactory)
 
             Some(director.construct(players))
         }

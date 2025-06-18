@@ -11,7 +11,9 @@ import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
 import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.StandardPlayingFieldBuilder
 import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.ThreePlayerFieldDirector
 
-case class ThreePlayerMode(pns: List[String]) extends GameModeTemplate {
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+
+case class ThreePlayerMode(pns: List[String], tokenStackFactory: TokenStackFactoryInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -21,7 +23,7 @@ case class ThreePlayerMode(pns: List[String]) extends GameModeTemplate {
             None
         } else {
             val builder = new StandardPlayingFieldBuilder
-            val director = new ThreePlayerFieldDirector(builder)
+            val director = new ThreePlayerFieldDirector(builder, tokenStackFactory)
 
             Some(director.construct(players))
         }
