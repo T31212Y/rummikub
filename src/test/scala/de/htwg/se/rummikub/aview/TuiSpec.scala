@@ -137,8 +137,8 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "handle 'pass' command" in {
-      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)), hasCompletedFirstMove = true, tokenStructureFactory = tokenStructureFactory)
-      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)), tokenStructureFactory = tokenStructureFactory)
+      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("group:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.RED), NumToken(13, Color.RED)), hasCompletedFirstMove = true, tokenStructureFactory = tokenStructureFactory)
+      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)), commandHistory = List("row:11:blue,12:blue,13:blue"), firstMoveTokens = List(NumToken(11, Color.BLUE), NumToken(12, Color.BLUE), NumToken(13, Color.BLUE)), tokenStructureFactory = tokenStructureFactory)
 
       val tui = new Tui(controller)
 
@@ -150,7 +150,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
       Console.withOut(new PrintStream(out)) {
         tui.processGameInput("pass")
       }
-      println("output test" + out.toString)
+      println("output test: " + out.toString + ", currentPlayer: " + controller.getState.currentPlayer + ", commandHistory: " + controller.getState.currentPlayer.getCommandHistory)
       out.toString should include ("ended their turn")
     }
 
