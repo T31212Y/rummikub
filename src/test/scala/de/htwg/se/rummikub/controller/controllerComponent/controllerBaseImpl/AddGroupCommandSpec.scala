@@ -11,16 +11,14 @@ import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.
 import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
 import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
-class AddGroupCommandSpec extends AnyWordSpec {
-  val gameModeFactory = new GameModeFactory
-  val controller: Controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-  given ControllerInterface = controller
+import de.htwg.se.rummikub.RummikubDependencyModule.given
 
+class AddGroupCommandSpec extends AnyWordSpec {
   "An AddGroupCommand" should {
     "remove tokens from player and update removedTokens on doStep" in {
       val player = Player("Emilia", tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
       val group = Group(List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
-      val stack = TokenStack()
+      val stack = tokenStackFactory.createShuffledStack
       controller.setupNewGame(2, List("Emilia", "Noah"))
 
       val testToken = NumToken(1, Color.RED)
@@ -36,7 +34,7 @@ class AddGroupCommandSpec extends AnyWordSpec {
     "restore old state on undoStep" in {
       val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
       val group = Group(List(NumToken(1, Color.RED)))
-      val stack = TokenStack()
+      val stack = tokenStackFactory.createShuffledStack
       controller.setupNewGame(2, List("Emilia", "Noah"))
 
       val initialState = controller.getState
@@ -51,7 +49,7 @@ class AddGroupCommandSpec extends AnyWordSpec {
     "print message if no old state on undoStep" in {
       val player = Player("Emilia")
       val group = Group(List(NumToken(1, Color.RED)))
-      val stack = TokenStack()
+      val stack = tokenStackFactory.createShuffledStack
       controller.setupNewGame(2, List("Emilia", "Noah"))
 
       val cmd = new AddGroupCommand(controller, group, player, stack) {
@@ -68,7 +66,7 @@ class AddGroupCommandSpec extends AnyWordSpec {
     "redoStep should call doStep" in {
       val player = Player("Emilia")
       val group = Group(List(NumToken(1, Color.RED)))
-      val stack = TokenStack()
+      val stack = tokenStackFactory.createShuffledStack
       controller.setupNewGame(2, List("Emilia", "Noah"))
 
       var doStepCalled = false

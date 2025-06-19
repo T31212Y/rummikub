@@ -8,11 +8,16 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Boar
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
 import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
+
+import de.htwg.se.rummikub.RummikubDependencyModule.given
+import de.htwg.se.rummikub.RummikubDependencyModule.ThreePlayerTag
 
 class ThreePlayerModeSpec extends AnyWordSpec {
   "A ThreePlayerMode" should {
     val playerNames = List("Alice", "Bob", "Charlie")
-    val mode = ThreePlayerMode(playerNames)
+    val director = summon[FieldDirectorInterface & ThreePlayerTag]
+    val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
     val players = mode.createPlayers
 
     "be created with three player names" in {

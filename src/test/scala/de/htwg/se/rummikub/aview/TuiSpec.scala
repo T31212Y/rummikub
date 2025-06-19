@@ -12,12 +12,11 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Toke
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
+import de.htwg.se.rummikub.RummikubDependencyModule.given
+
 class TuiSpec extends AnyWordSpec with Matchers {
 
   "A Tui" should {
-
-    val gameModeFactory = new GameModeFactory
-    given ControllerInterface = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
     val tui = new Tui
 
     "show welcome message" in {
@@ -130,16 +129,13 @@ class TuiSpec extends AnyWordSpec with Matchers {
     "handle 'pass' command" in {
       val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)), hasCompletedFirstMove = true)
       val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
-      val gameModeFactory = new GameModeFactory
-      given ControllerInterface = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-      val tui = new Tui
       
       val controller = implicitly[ControllerInterface]
       implicitly[ControllerInterface].setupNewGame(2, List("Emilia", "Noah"))
 
       val updated = Some(controller.getPlayingField.get.updated(newPlayers = List(player1, player2), newBoards = controller.getPlayingField.get.getBoards, newInnerField = controller.getPlayingField.get.getInnerField))
       
-      val stack = TokenStack()
+      val stack = tokenStackFactory.createShuffledStack
 
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
@@ -211,13 +207,6 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "display the available commands" in {
-      
-      val gameModeFactory = new GameModeFactory
-      given ControllerInterface = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-      val tui = new Tui
-
-      val controller = implicitly[ControllerInterface]
-
       val result = tui.showAvailableCommands
 
       val expected = Vector(

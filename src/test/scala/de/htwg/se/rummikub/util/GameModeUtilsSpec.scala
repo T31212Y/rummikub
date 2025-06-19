@@ -7,6 +7,8 @@ import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
 import de.htwg.se.rummikub.model.tokenComponent.Color
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Board
 
+import de.htwg.se.rummikub.RummikubDependencyModule.given
+
 class GameModeUtilsSpec extends AnyWordSpec {
   "GameModeUtils" should {
     "update board for single player with <= cntTokens" in {

@@ -8,11 +8,16 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Boar
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
 import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
+
+import de.htwg.se.rummikub.RummikubDependencyModule.given
+import de.htwg.se.rummikub.RummikubDependencyModule.FourPlayerTag
 
 class FourPlayerModeSpec extends AnyWordSpec {
   "A FourPlayerMode" should {
     val playerNames = List("Anna", "Ben", "Clara", "David")
-    val mode = FourPlayerMode(playerNames)
+    val director = summon[FieldDirectorInterface & FourPlayerTag]
+    val mode = FourPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
     val players = mode.createPlayers
 
     "be created with four player names" in {

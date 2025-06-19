@@ -7,6 +7,8 @@ import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
 import de.htwg.se.rummikub.model.tokenComponent.Color
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
+import de.htwg.se.rummikub.RummikubDependencyModule.given
+
 class PlayerSpec extends AnyWordSpec {
   "Player" should {
     "have a name" in {

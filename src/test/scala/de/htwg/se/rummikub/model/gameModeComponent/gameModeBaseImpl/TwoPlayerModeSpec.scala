@@ -8,11 +8,16 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Boar
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
 import de.htwg.se.rummikub.model.tokenComponent.Color
+import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
+
+import de.htwg.se.rummikub.RummikubDependencyModule.given
+import de.htwg.se.rummikub.RummikubDependencyModule.TwoPlayerTag
 
 class TwoPlayerModeSpec extends AnyWordSpec {
   "A TwoPlayerMode" should {
     val playerNames = List("Azra", "Moritz")
-    val mode = TwoPlayerMode(playerNames)
+    val director = summon[FieldDirectorInterface & TwoPlayerTag]
+    val mode = TwoPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
     val players = mode.createPlayers
 
     "be created with two player names" in {
@@ -101,7 +106,7 @@ class TwoPlayerModeSpec extends AnyWordSpec {
     }
 
     "A player's board should split tokens correctly when more than cntTokens are present" in {
-      val stack = TokenStack.apply()
+      val stack = tokenStackFactory.createShuffledStack
       val manyTokensTuple = stack.drawMultipleTokens(30)
       val player = Player("Azra", manyTokensTuple._1)
       val board = new Board(24, 14, 2, 2, "default", 10)

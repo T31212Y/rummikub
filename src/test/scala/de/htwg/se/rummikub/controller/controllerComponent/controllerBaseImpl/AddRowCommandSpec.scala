@@ -12,17 +12,14 @@ import de.htwg.se.rummikub.aview.Tui
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
+import de.htwg.se.rummikub.RummikubDependencyModule.given
+
 class AddRowCommandSpec extends AnyWordSpec {
-
-  val gameModeFactory = new GameModeFactory
-  val controller: Controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-  given ControllerInterface = controller
-
   "An AddRowCommand" should {
     "remove tokens from player and update removedTokens on doStep" in {
       val player = Player("Emilia", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-      val stack = TokenStack()
+      val stack = tokenStackFactory.createShuffledStack
       controller.setupNewGame(2, List("Emilia", "Noah"))
 
       val testToken = NumToken(1, Color.RED)
@@ -38,7 +35,7 @@ class AddRowCommandSpec extends AnyWordSpec {
     "restore old state on undoStep" in {
         val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
         val row = Row(List(NumToken(1, Color.RED)))
-        val stack = TokenStack()
+        val stack = tokenStackFactory.createShuffledStack
         controller.setupNewGame(2, List("Emilia", "Noah"))
 
         val initialState = controller.getState
@@ -53,7 +50,7 @@ class AddRowCommandSpec extends AnyWordSpec {
     "print message if no old state on undoStep" in {
         val player = Player("Emilia")
         val row = Row(List(NumToken(1, Color.RED)))
-        val stack = TokenStack()
+        val stack = tokenStackFactory.createShuffledStack
         controller.setupNewGame(2, List("Emilia", "Noah"))
 
         val cmd = new AddRowCommand(controller, row, player, stack) {
@@ -70,7 +67,7 @@ class AddRowCommandSpec extends AnyWordSpec {
     "redoStep should call doStep" in {
         val player = Player("Emilia")
         val row = Row(List(NumToken(1, Color.RED)))
-        val stack = TokenStack()
+        val stack = tokenStackFactory.createShuffledStack
         controller.setupNewGame(2, List("Emilia", "Noah"))
 
         var doStepCalled = false

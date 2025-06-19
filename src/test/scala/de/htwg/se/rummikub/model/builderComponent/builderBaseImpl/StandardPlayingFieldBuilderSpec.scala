@@ -7,6 +7,8 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Tabl
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Board
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
 
+import de.htwg.se.rummikub.RummikubDependencyModule.given
+
 class StandardPlayingFieldBuilderSpec extends AnyWordSpec {
   "A StandardPlayingFieldBuilder" should {
     "set players, boards and innerField and build a PlayingField" in {

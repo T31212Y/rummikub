@@ -9,6 +9,8 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Toke
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
 import de.htwg.se.rummikub.model.tokenComponent.Color
 
+import de.htwg.se.rummikub.RummikubDependencyModule.given
+
 class GameStateSpec extends AnyWordSpec {
   "A GameState" should {
     val table = Table(2, 14)
