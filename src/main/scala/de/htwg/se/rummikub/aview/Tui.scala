@@ -69,8 +69,8 @@ class Tui(using val controller: ControllerInterface) extends Reactor with GameVi
             }
 
             case "pass" => {
-                val (newState, message) = controller.passTurn(controller.getState, false)
-                println(message)
+                val (newState, message2) = controller.passTurn(controller.getState, false)
+                println(message2)
             }
 
             case "group" => {
