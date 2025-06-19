@@ -5,7 +5,7 @@ import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
 import scala.io.StdIn.readLine
 
-trait GameView(using controller: ControllerInterface) {
+trait GameView(controller: ControllerInterface) {
   def showWelcome: Vector[String] = {
     Vector("Welcome to",
     " ____                                _  _            _      _",
