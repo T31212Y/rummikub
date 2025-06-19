@@ -1,21 +1,17 @@
 package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
-import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
-
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
-
+import de.htwg.se.rummikub.model.playerComponent.{PlayerInterface, PlayerFactoryInterface}
+import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, PlayingFieldInterface, TokenStackFactoryInterface, TableFactoryInterface, BoardFactoryInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
-import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.StandardPlayingFieldBuilder
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+
 import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.FourPlayerFieldDirector
 
-import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
-import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
-
 case class FourPlayerMode(pns: List[String]) (using tokenStackFactory: TokenStackFactoryInterface,
-                                                    playerFactory: PlayerFactoryInterface) extends GameModeTemplate {
+                                                    tableFactory: TableFactoryInterface,
+                                                    boardFactory: BoardFactoryInterface,
+                                                    playerFactory: PlayerFactoryInterface,
+                                                    playingFieldBuilder: PlayingFieldBuilderInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -24,8 +20,7 @@ case class FourPlayerMode(pns: List[String]) (using tokenStackFactory: TokenStac
             println("Cannot create playing field: No players provided.")
             None
         } else {
-            val builder = new StandardPlayingFieldBuilder
-            val director = new FourPlayerFieldDirector(builder)
+            val director = new FourPlayerFieldDirector
 
             Some(director.construct(players))
         }
@@ -54,7 +49,7 @@ case class FourPlayerMode(pns: List[String]) (using tokenStackFactory: TokenStac
                     updateBoardMultiPlayer(List(player2, player4), boardP24).fold(boardP24)(identity)
                 )
 
-                val updatedInnerField = new Table(cntRows - 4, boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)) - 2, field.getInnerField.getTokensOnTable)
+                val updatedInnerField = tableFactory.createTable(cntRows - 4, boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)) - 2, field.getInnerField.getTokensOnTable)
 
                 field.updated(newPlayers = field.getPlayers, newBoards = updatedBoards, newInnerField = updatedInnerField)
             }

@@ -1,21 +1,17 @@
 package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
-import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
-
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
-
-import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.model.playerComponent.{PlayerInterface, PlayerFactoryInterface}
+import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, PlayingFieldInterface, TokenStackFactoryInterface, TableFactoryInterface, BoardFactoryInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
-import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.StandardPlayingFieldBuilder
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+
 import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.TwoPlayerFieldDirector
 
-import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
-import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
-
-case class TwoPlayerMode(pns: List[String]) (using tokenStackFactory: TokenStackFactoryInterface, playerFactory: PlayerFactoryInterface) extends GameModeTemplate {
+case class TwoPlayerMode(pns: List[String]) (using tokenStackFactory: TokenStackFactoryInterface,
+                                                   tableFactory: TableFactoryInterface,
+                                                   boardFactory: BoardFactoryInterface,
+                                                   playerFactory: PlayerFactoryInterface,
+                                                   playingFieldBuilder: PlayingFieldBuilderInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -24,8 +20,7 @@ case class TwoPlayerMode(pns: List[String]) (using tokenStackFactory: TokenStack
             println("Cannot create playing field: No players provided.")
             None
         } else {
-            val builder = new StandardPlayingFieldBuilder
-            val director = new TwoPlayerFieldDirector(builder)
+            val director = new TwoPlayerFieldDirector
 
             Some(director.construct(players))
         }
@@ -52,7 +47,7 @@ case class TwoPlayerMode(pns: List[String]) (using tokenStackFactory: TokenStack
                     updateBoardSinglePlayer(player2, boardP2).fold(boardP2)(identity)
                 )
 
-                val updatedInnerField = new Table(
+                val updatedInnerField = tableFactory.createTable(
                     cntRows - 4,
                     boardP1.size(boardP1.wrapBoardRowSingle(boardP1.getBoardELRP12_1)) - 2,
                     field.getInnerField.getTokensOnTable
