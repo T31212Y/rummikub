@@ -10,8 +10,13 @@ import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFact
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.PlayingField
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
 class AppendTokenCommandSpec extends AnyWordSpec {
+  val gameModeFactory = new GameModeFactory
+  val controller: Controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+  given ControllerInterface = controller
+
   "An AppendTokenCommand" should {
     val player = Player("Anna", tokens = List(NumToken(1, Color.RED)))
     val innerField = new Table(1, 1, List(List()))
@@ -21,8 +26,7 @@ class AppendTokenCommandSpec extends AnyWordSpec {
       boards = List(),
       stack = TokenStack(List())
     )
-    val gameModeFactory = new GameModeFactory
-    val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+
     controller.playingField = Some(pf)
     controller.setStateInternal(GameState(innerField, Vector(player), Vector(), 0, TokenStack(List())))
     val token = NumToken(1, Color.RED)
@@ -49,8 +53,6 @@ class AppendTokenCommandSpec extends AnyWordSpec {
     }
 
     "print message if no state is available on doStep" in {
-      val gameModeFactory = new GameModeFactory
-      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.playingField = None 
       val token = NumToken(1, Color.RED)
       val player = Player("Anna", tokens = List(token))
@@ -63,8 +65,6 @@ class AppendTokenCommandSpec extends AnyWordSpec {
     }
 
     "print message if no state is available on undoStep" in {
-      val gameModeFactory = new GameModeFactory
-      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       val token = NumToken(1, Color.RED)
       val player = Player("Anna", tokens = List(token))
       val cmd = new AppendTokenCommand(controller, token, 0, isRow = true, player)
@@ -86,8 +86,6 @@ class AppendTokenCommandSpec extends AnyWordSpec {
         boards = List(),
         stack = TokenStack(List())
       )
-      val gameModeFactory = new GameModeFactory
-      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
       controller.playingField = Some(pf)
       controller.setStateInternal(GameState(innerField, Vector(player), Vector(), 0, TokenStack(List())))
       val token = NumToken(1, Color.RED)
