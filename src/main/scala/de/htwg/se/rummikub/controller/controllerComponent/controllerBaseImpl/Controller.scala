@@ -104,7 +104,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
             val nextState = setNextPlayer(state.updateCurrentPlayer(updatedPlayer))
             turnStartState = None
-            val message = s"${currentPlayer.getName} hat seinen Zug beendet. Jetzt ist ${nextState.currentPlayer.getName} dran."
+            val message = s"${currentPlayer.getName} ended their turn. It's now ${nextState.currentPlayer.getName}'s turn."
 
             setStateInternal(nextState)
             setPlayingField(gameMode.get.updatePlayingField(playingField))
@@ -401,7 +401,12 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
         executeAppendToRow(token, index, currentPlayer)
 
-        val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, List(token))
+        val updatedPlayer = currentPlayer
+        .updated(
+            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer,  List(token)).getTokens,
+            newCommandHistory = currentPlayer.getCommandHistory :+ s"appendToRow: ${List(token).mkString(",")}",
+            newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove
+        )
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
 
@@ -419,7 +424,12 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
         executeAppendToGroup(token, index, currentPlayer)
 
-        val updatedPlayer = getUpdatedPlayerAfterMove(getState.currentPlayer, List(token))
+        val updatedPlayer = currentPlayer
+        .updated(
+            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer,  List(token)).getTokens,
+            newCommandHistory = currentPlayer.getCommandHistory :+ s"appendToGroup: ${List(token).mkString(",")}",
+            newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove
+        )
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
 
