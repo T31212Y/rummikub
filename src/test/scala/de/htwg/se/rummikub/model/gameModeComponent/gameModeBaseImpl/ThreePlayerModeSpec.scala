@@ -9,10 +9,34 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Toke
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
 import de.htwg.se.rummikub.model.tokenComponent.Color
 
+import com.google.inject.Guice
+import com.google.inject.name.Names
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
+import de.htwg.se.rummikub.RummikubModule
+
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.{TableFactoryInterface, BoardFactoryInterface}
+import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
+import de.htwg.se.rummikub.controller.controllerComponent.GameStateInterface
+
 class ThreePlayerModeSpec extends AnyWordSpec {
   "A ThreePlayerMode" should {
+    val injector = Guice.createInjector(new RummikubModule)
+
+    val tokenStackFactory = injector.getInstance(classOf[TokenStackFactoryInterface])
+    val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+    val tableFactory = injector.getInstance(classOf[TableFactoryInterface])
+    val boardFactory = injector.getInstance(classOf[BoardFactoryInterface])
+    val playerFactory = injector.getInstance(classOf[PlayerFactoryInterface])
+
+    val playingFieldBuilder = injector.getInstance(classOf[PlayingFieldBuilderInterface])
+    val director = injector.instance[FieldDirectorInterface](Names.named("ThreePlayer"))
+
     val playerNames = List("Alice", "Bob", "Charlie")
-    val mode = ThreePlayerMode(playerNames)
+    val mode = ThreePlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
     val players = mode.createPlayers
 
     "be created with three player names" in {
@@ -57,7 +81,7 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "update a single board for a player" in {
-      val player = Player("Alice")
+      val player = Player("Alice", tokenStructureFactory = tokenStructureFactory)
       val board = new Board(24, 14, 2, 2, "default", 10)
       val updated = mode.updateBoardSinglePlayer(player, board)
       updated.isDefined shouldBe true
@@ -67,8 +91,8 @@ class ThreePlayerModeSpec extends AnyWordSpec {
       val tokens0 = (1 to 30).map(i => NumToken(i, Color.RED)).toList
       val tokens1 = (1 to 10).map(i => NumToken(i, Color.BLUE)).toList
 
-      val player0 = Player("Alice", tokens0)
-      val player1 = Player("Bob", tokens1)
+      val player0 = Player("Alice", tokens0, tokenStructureFactory = tokenStructureFactory)
+      val player1 = Player("Bob", tokens1, tokenStructureFactory = tokenStructureFactory)
 
       val board = new Board(24, 14, 2, 2, "default", 10)
       val updatedOpt = mode.updateBoardMultiPlayer(List(player0, player1), board)
@@ -84,8 +108,8 @@ class ThreePlayerModeSpec extends AnyWordSpec {
       val tokens0 = (1 to 10).map(i => NumToken(i, Color.RED)).toList
       val tokens1 = (1 to 30).map(i => NumToken(i, Color.BLUE)).toList
 
-      val player0 = Player("Alice", tokens0)
-      val player1 = Player("Bob", tokens1)
+      val player0 = Player("Alice", tokens0, tokenStructureFactory = tokenStructureFactory)
+      val player1 = Player("Bob", tokens1, tokenStructureFactory = tokenStructureFactory)
 
       val board = new Board(24, 14, 2, 2, "default", 10)
       val updatedOpt = mode.updateBoardMultiPlayer(List(player0, player1), board)
@@ -101,8 +125,8 @@ class ThreePlayerModeSpec extends AnyWordSpec {
       val tokens0 = (1 to 30).map(i => NumToken(i, Color.RED)).toList
       val tokens1 = (1 to 30).map(i => NumToken(i, Color.BLUE)).toList
 
-      val player0 = Player("Alice", tokens0)
-      val player1 = Player("Bob", tokens1)
+      val player0 = Player("Alice", tokens0, tokenStructureFactory = tokenStructureFactory)
+      val player1 = Player("Bob", tokens1, tokenStructureFactory = tokenStructureFactory)
 
       val board = new Board(24, 14, 2, 2, "default", 10)
       val updatedOpt = mode.updateBoardMultiPlayer(List(player0, player1), board)
@@ -144,7 +168,7 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     "A player's board should split tokens correctly when more than cntTokens are present" in {
       val stack = new TokenStack(List())
       val manyTokens = stack.drawMultipleTokens(30)
-      val player = Player("Azra", manyTokens._1)
+      val player = Player("Azra", manyTokens._1, tokenStructureFactory = tokenStructureFactory)
       val board = new Board(24, 14, 3, 1, "down")
 
       val updatedOpt = mode.updateBoardSinglePlayer(player, board)

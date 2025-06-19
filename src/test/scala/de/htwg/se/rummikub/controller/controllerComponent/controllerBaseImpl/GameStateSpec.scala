@@ -9,11 +9,25 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Toke
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
 import de.htwg.se.rummikub.model.tokenComponent.Color
 
+import com.google.inject.Guice
+import de.htwg.se.rummikub.RummikubModule
+
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+
 class GameStateSpec extends AnyWordSpec {
   "A GameState" should {
+    val injector = Guice.createInjector(new RummikubModule)
+    val controller = injector.getInstance(classOf[ControllerInterface])
+    controller.setupNewGame(2, List("Emilia", "Noah"))
+
+    val tokenStackFactory = injector.getInstance(classOf[TokenStackFactoryInterface])
+    val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+
     val table = Table(2, 14)
-    val player1 = Player("A")
-    val player2 = Player("B")
+    val player1 = Player("A", tokenStructureFactory = tokenStructureFactory)
+    val player2 = Player("B", tokenStructureFactory = tokenStructureFactory)
     val players = Vector(player1, player2)
     val board1 = Board(24, 14, 2, 2, "default", 10)
     val board2 = Board(24, 14, 2, 2, "default", 10)

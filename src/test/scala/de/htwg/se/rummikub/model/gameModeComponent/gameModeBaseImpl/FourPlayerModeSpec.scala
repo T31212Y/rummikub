@@ -9,10 +9,34 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Toke
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
 import de.htwg.se.rummikub.model.tokenComponent.Color
 
+import com.google.inject.Guice
+import com.google.inject.name.Names
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
+import de.htwg.se.rummikub.RummikubModule
+
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.{TableFactoryInterface, BoardFactoryInterface}
+import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
+import de.htwg.se.rummikub.controller.controllerComponent.GameStateInterface
+
 class FourPlayerModeSpec extends AnyWordSpec {
   "A FourPlayerMode" should {
+    val injector = Guice.createInjector(new RummikubModule)
+
+    val tokenStackFactory = injector.getInstance(classOf[TokenStackFactoryInterface])
+    val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+    val tableFactory = injector.getInstance(classOf[TableFactoryInterface])
+    val boardFactory = injector.getInstance(classOf[BoardFactoryInterface])
+    val playerFactory = injector.getInstance(classOf[PlayerFactoryInterface])
+
+    val playingFieldBuilder = injector.getInstance(classOf[PlayingFieldBuilderInterface])
+    val director = injector.instance[FieldDirectorInterface](Names.named("FourPlayer"))
+
     val playerNames = List("Anna", "Ben", "Clara", "David")
-    val mode = FourPlayerMode(playerNames)
+    val mode = FourPlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
     val players = mode.createPlayers
 
     "be created with four player names" in {
@@ -44,8 +68,8 @@ class FourPlayerModeSpec extends AnyWordSpec {
       val tokens0 = (1 to 30).map(i => NumToken(i, Color.RED)).toList
       val tokens1 = (1 to 30).map(i => NumToken(i, Color.BLUE)).toList
 
-      val player0 = Player("Anna", tokens0)
-      val player1 = Player("Ben", tokens1)
+      val player0 = Player("Anna", tokens0, tokenStructureFactory = tokenStructureFactory)
+      val player1 = Player("Ben", tokens1, tokenStructureFactory = tokenStructureFactory)
 
       val board = new Board(24, 14, 2, 2, "default", 10)
       val updatedOpt = mode.updateBoardMultiPlayer(List(player0, player1), board)
@@ -60,7 +84,7 @@ class FourPlayerModeSpec extends AnyWordSpec {
     }
 
     "update a single board for a player (should return None)" in {
-      val player = Player("Anna")
+      val player = Player("Anna", tokenStructureFactory = tokenStructureFactory)
       val board = new Board(15, 24, 2, 1, "up")
       val updated = mode.updateBoardSinglePlayer(player, board)
       updated shouldBe None

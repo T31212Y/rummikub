@@ -9,10 +9,34 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Toke
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
 import de.htwg.se.rummikub.model.tokenComponent.Color
 
+import com.google.inject.Guice
+import com.google.inject.name.Names
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
+import de.htwg.se.rummikub.RummikubModule
+
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.{TableFactoryInterface, BoardFactoryInterface}
+import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
+import de.htwg.se.rummikub.controller.controllerComponent.GameStateInterface
+
 class TwoPlayerModeSpec extends AnyWordSpec {
   "A TwoPlayerMode" should {
+    val injector = Guice.createInjector(new RummikubModule)
+
+    val tokenStackFactory = injector.getInstance(classOf[TokenStackFactoryInterface])
+    val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+    val tableFactory = injector.getInstance(classOf[TableFactoryInterface])
+    val boardFactory = injector.getInstance(classOf[BoardFactoryInterface])
+    val playerFactory = injector.getInstance(classOf[PlayerFactoryInterface])
+
+    val playingFieldBuilder = injector.getInstance(classOf[PlayingFieldBuilderInterface])
+    val director = injector.instance[FieldDirectorInterface](Names.named("TwoPlayer"))
+
     val playerNames = List("Azra", "Moritz")
-    val mode = TwoPlayerMode(playerNames)
+    val mode = TwoPlayerMode(playerNames, tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
     val players = mode.createPlayers
 
     "be created with two player names" in {
@@ -55,7 +79,7 @@ class TwoPlayerModeSpec extends AnyWordSpec {
     }
 
     "update a single board for a player" in {
-      val player = Player("Azra")
+      val player = Player("Azra", tokenStructureFactory = tokenStructureFactory)
       val board = new Board(24, 14, 2, 2, "default", 10)
       val updated = mode.updateBoardSinglePlayer(player, board)
       updated.isDefined shouldBe true
@@ -101,9 +125,9 @@ class TwoPlayerModeSpec extends AnyWordSpec {
     }
 
     "A player's board should split tokens correctly when more than cntTokens are present" in {
-      val stack = TokenStack.apply()
+      val stack = tokenStackFactory.createShuffledStack
       val manyTokensTuple = stack.drawMultipleTokens(30)
-      val player = Player("Azra", manyTokensTuple._1)
+      val player = Player("Azra", manyTokensTuple._1, tokenStructureFactory = tokenStructureFactory)
       val board = new Board(24, 14, 2, 2, "default", 10)
 
       val updatedOpt = mode.updateBoardSinglePlayer(player, board)

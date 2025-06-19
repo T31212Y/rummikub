@@ -7,10 +7,18 @@ import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
 import de.htwg.se.rummikub.model.tokenComponent.Color
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Board
 
+import com.google.inject.Guice
+import de.htwg.se.rummikub.RummikubModule
+
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+
 class GameModeUtilsSpec extends AnyWordSpec {
   "GameModeUtils" should {
+    val injector = Guice.createInjector(new RummikubModule)
+    val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+
     "update board for single player with <= cntTokens" in {
-      val player = Player("A", List.fill(10)(NumToken(1, Color.RED)))
+      val player = Player("A", List.fill(10)(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
       val board = Board(24, 14, 2, 2, "default", 10)
       val updated = GameModeUtils.updateBoardSinglePlayer(player, board)
       updated shouldBe defined
@@ -18,7 +26,7 @@ class GameModeUtilsSpec extends AnyWordSpec {
     }
 
     "update board for single player with > cntTokens" in {
-      val player = Player("A", List.fill(30)(NumToken(1, Color.RED)))
+      val player = Player("A", List.fill(30)(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
       val board = Board(24, 14, 2, 2, "default", 10)
       val updated = GameModeUtils.updateBoardSinglePlayer(player, board)
       updated shouldBe defined
@@ -27,8 +35,8 @@ class GameModeUtilsSpec extends AnyWordSpec {
     }
 
     "update board for two players with <= cntTokens" in {
-      val p1 = Player("A", List.fill(10)(NumToken(1, Color.RED)))
-      val p2 = Player("B", List.fill(10)(NumToken(2, Color.BLUE)))
+      val p1 = Player("A", List.fill(10)(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
+      val p2 = Player("B", List.fill(10)(NumToken(2, Color.BLUE)), tokenStructureFactory = tokenStructureFactory)
       val board = Board(24, 14, 2, 2, "default", 10)
       val updated = GameModeUtils.updateBoardMultiPlayer(List(p1, p2), board)
       updated shouldBe defined
@@ -37,8 +45,8 @@ class GameModeUtilsSpec extends AnyWordSpec {
     }
 
     "update board for two players with > cntTokens" in {
-      val p1 = Player("A", List.fill(30)(NumToken(1, Color.RED)))
-      val p2 = Player("B", List.fill(30)(NumToken(2, Color.BLUE)))
+      val p1 = Player("A", List.fill(30)(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
+      val p2 = Player("B", List.fill(30)(NumToken(2, Color.BLUE)), tokenStructureFactory = tokenStructureFactory)
       val board = Board(24, 14, 2, 2, "default", 10)
       val updated = GameModeUtils.updateBoardMultiPlayer(List(p1, p2), board)
       updated shouldBe defined

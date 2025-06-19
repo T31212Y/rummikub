@@ -8,13 +8,19 @@ import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.ThreePlayerM
 import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.FourPlayerMode
 import scala.util.{Success, Failure}
 
+import com.google.inject.Guice
+import de.htwg.se.rummikub.RummikubModule
+
+import de.htwg.se.rummikub.model.gameModeComponent.GameModeFactoryInterface
+
 class GameModeFactorySpec extends AnyWordSpec {
 
   "GameModeFactory" should {
+    val injector = Guice.createInjector(new RummikubModule)
+    val gameModeFactory = injector.getInstance(classOf[GameModeFactoryInterface])
 
     "create a TwoPlayerMode for 2 players" in {
       val playerNames = List("Alice", "Bob")
-      val gameModeFactory = new GameModeFactory
       val mode = gameModeFactory.createGameMode(2, playerNames)
 
       mode shouldBe a [Success[TwoPlayerMode]]
@@ -24,7 +30,6 @@ class GameModeFactorySpec extends AnyWordSpec {
 
     "create a ThreePlayerMode for 3 players" in {
       val playerNames = List("Alice", "Bob", "Charlie")
-      val gameModeFactory = new GameModeFactory
       val mode = gameModeFactory.createGameMode(3, playerNames)
 
       mode shouldBe a [Success[ThreePlayerMode]]
@@ -34,7 +39,6 @@ class GameModeFactorySpec extends AnyWordSpec {
 
     "create a FourPlayerMode for 4 players" in {
       val playerNames = List("Alice", "Bob", "Charlie", "Diana")
-      val gameModeFactory = new GameModeFactory
       val mode = gameModeFactory.createGameMode(4, playerNames)
 
       mode shouldBe a [Success[FourPlayerMode]]
@@ -44,7 +48,6 @@ class GameModeFactorySpec extends AnyWordSpec {
 
     "throw a MatchError for unsupported number of players" in {
       val playerNames = List("Alice")
-      val gameModeFactory = new GameModeFactory
       val mode = gameModeFactory.createGameMode(1, playerNames)
 
       mode shouldBe a [Failure[Nothing]]
