@@ -11,15 +11,17 @@ import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, 
 import de.htwg.se.rummikub.model.tokenComponent.TokenFactoryInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.TableFactoryInterface
 
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.PlayingField
 
 import scala.swing.Publisher
 
 class Controller (using gameModeFactory: GameModeFactoryInterface,
                         tokenFactory: TokenFactoryInterface,
                         tokenStructureFactory: TokenStructureFactoryInterface,
-                        tokenStackFactory: TokenStackFactoryInterface) extends ControllerInterface with Publisher {
+                        tokenStackFactory: TokenStackFactoryInterface,
+                        tableFactory: TableFactoryInterface) extends ControllerInterface with Publisher {
 
     var gameMode: Option[GameModeTemplate] = None
     var playingField: Option[PlayingFieldInterface] = None
@@ -240,7 +242,7 @@ class Controller (using gameModeFactory: GameModeFactoryInterface,
                 stack = field.getStack
             )
         case None => GameState(
-                        table = Table(16, 90, List.empty),
+                        table = tableFactory.createTable(16, 90, List.empty),
                         players = Vector.empty,
                         boards = Vector.empty,
                         currentPlayerIndex = 0,
@@ -374,7 +376,7 @@ class Controller (using gameModeFactory: GameModeFactoryInterface,
         val updatedPlayer = currentPlayer
             .addToFirstMoveTokens(group.getTokens)
             .updated(
-            newTokens = getUpdatedPlayerAfterMove(currentPlayer, group.getTokens).getTokens,
+            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, group.getTokens).getTokens,
             newCommandHistory = currentPlayer.getCommandHistory :+ s"playGroup: ${group.getTokens.mkString(",")}",
             newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove || true
             )
