@@ -8,8 +8,8 @@ import de.htwg.se.rummikub.RummikubDependencyModule.given
 import scala.io.StdIn.readLine
 
 object Rummikub {
-  val tui: GameView = new Tui
-  val gui: GameView = new Gui
+  val tui: GameView = new Tui(controller)
+  val gui: GameView = new Gui(controller)
 
   def main(args: Array[String]): Unit = {
     var input = ""
