@@ -9,7 +9,7 @@ import javax.swing.BorderFactory
 import javax.swing.border.TitledBorder
 import javax.swing.ImageIcon
 
-class Gui(using val controller: ControllerInterface) extends Frame with Reactor with GameView {
+class Gui(using controller: ControllerInterface) extends Frame with Reactor with GameView {
 
   listenTo(controller)
   reactions += {
