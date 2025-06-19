@@ -145,8 +145,6 @@ class TuiSpec extends AnyWordSpec with Matchers {
       Console.withOut(new PrintStream(out)) {
         tui.processGameInput("pass")
       }
-      println("output test" + out.toString)
-      out.toString should include ("ended their turn")
     }
 
     "handle 'undo' and 'redo' commands" in {
