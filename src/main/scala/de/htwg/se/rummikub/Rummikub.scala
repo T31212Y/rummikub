@@ -1,19 +1,13 @@
 package de.htwg.se.rummikub
 
-import de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl.Controller
-import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
-import de.htwg.se.rummikub.aview._
-import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
-
-import scala.io.StdIn.readLine
+import de.htwg.se.rummikub.aview.{GameView, Tui}
 import de.htwg.se.rummikub.aview.gui.Gui
 
+import de.htwg.se.rummikub.RummikubDependencyModule.given
+
+import scala.io.StdIn.readLine
+
 object Rummikub {
-  val gameModeFactory = new GameModeFactory
-  val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-
-  given ControllerInterface = controller
-
   val tui: GameView = new Tui
   val gui: GameView = new Gui
 
