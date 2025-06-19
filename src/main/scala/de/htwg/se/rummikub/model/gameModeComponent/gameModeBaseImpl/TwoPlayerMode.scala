@@ -13,8 +13,9 @@ import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.StandardPlayin
 import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.TwoPlayerFieldDirector
 
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
 
-case class TwoPlayerMode(pns: List[String]) (using tokenStackFactory: TokenStackFactoryInterface) extends GameModeTemplate {
+case class TwoPlayerMode(pns: List[String]) (using tokenStackFactory: TokenStackFactoryInterface, playerFactory: PlayerFactoryInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -31,7 +32,7 @@ case class TwoPlayerMode(pns: List[String]) (using tokenStackFactory: TokenStack
     }
 
     override def createPlayers: List[PlayerInterface] = {
-        playerNames.map(name => Player(name))
+        playerNames.map(name => playerFactory.createPlayer(name))
     }
 
     override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = {
