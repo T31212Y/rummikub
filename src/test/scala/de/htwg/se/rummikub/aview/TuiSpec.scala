@@ -17,6 +17,7 @@ import de.htwg.se.rummikub.RummikubDependencyModule.given
 class TuiSpec extends AnyWordSpec with Matchers {
 
   "A Tui" should {
+    val controller = new Controller
     val tui = new Tui(controller)
 
     "show welcome message" in {
@@ -128,8 +129,8 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "handle 'pass' command" in {
-      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)), hasCompletedFirstMove = true)
-      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
+      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("group:10:red,10:black,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.RED), NumToken(13, Color.RED)), hasCompletedFirstMove = true)
+      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)), commandHistory = List("row:10:blue,11:blue,12:blue"), firstMoveTokens = List(NumToken(11, Color.BLUE), NumToken(12, Color.BLUE), NumToken(13, Color.BLUE)))
 
       controller.setPlayingField(Some(controller.getPlayingField.get.updated(newPlayers = List(player1, player2), newBoards = controller.getPlayingField.get.getBoards, newInnerField = controller.getPlayingField.get.getInnerField)))
 

@@ -25,6 +25,8 @@ class AppendTokenCommandSpec extends AnyWordSpec {
       stack = TokenStack(List())
     )
 
+    val controller = new Controller
+
     controller.setPlayingField(Some(pf))
     controller.setStateInternal(GameState(innerField, Vector(player), Vector(), 0, TokenStack(List())))
     val token = NumToken(1, Color.RED)

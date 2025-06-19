@@ -41,6 +41,8 @@ class ControllerSpec extends AnyWordSpec {
     val stack = TokenStack(List(NumToken(3, Color.GREEN)))
     val pf = PlayingField(players, boards, table, stack)
 
+    val controller = new Controller
+
     "setup a new game" in {
       controller.setupNewGame(2, List("Alice", "Bob"))
       controller.getPlayingField.isDefined shouldBe true

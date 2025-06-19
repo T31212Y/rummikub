@@ -15,6 +15,8 @@ import de.htwg.se.rummikub.RummikubDependencyModule.given
 
 class AddGroupCommandSpec extends AnyWordSpec {
   "An AddGroupCommand" should {
+    val controller = new Controller
+
     "remove tokens from player and update removedTokens on doStep" in {
       val player = Player("Emilia", tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
       val group = Group(List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))

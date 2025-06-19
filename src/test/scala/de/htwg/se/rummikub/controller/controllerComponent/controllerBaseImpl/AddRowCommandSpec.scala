@@ -16,6 +16,8 @@ import de.htwg.se.rummikub.RummikubDependencyModule.given
 
 class AddRowCommandSpec extends AnyWordSpec {
   "An AddRowCommand" should {
+    val controller = new Controller
+
     "remove tokens from player and update removedTokens on doStep" in {
       val player = Player("Emilia", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
       val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
