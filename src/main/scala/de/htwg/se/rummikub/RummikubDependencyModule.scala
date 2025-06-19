@@ -24,13 +24,17 @@ import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.StandardPlayin
 import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.StandardPlayerFactory
 
+import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.StandardBoardFactory
+
 object RummikubDependencyModule {
     given tokenFactory: TokenFactoryInterface = new StandardTokenFactory
     given tokenStackFactory: TokenStackFactoryInterface = new StandardTokenStackFactory
     given tokenStructureFactory: TokenStructureFactoryInterface = new StandardTokenStructureFactory
-    given playerFactory: PlayerFactoryInterface = new StandardPlayerFactory
-    given gameModeFactory: GameModeFactoryInterface = new GameModeFactory
     given tableFactory: TableFactoryInterface = new StandardTableFactory
+    given boardFactory: BoardFactoryInterface = new StandardBoardFactory
+    given playerFactory: PlayerFactoryInterface = new StandardPlayerFactory
     given playingFieldBuilder: PlayingFieldBuilderInterface = new StandardPlayingFieldBuilder
+    given gameModeFactory: GameModeFactoryInterface = new GameModeFactory
     given controller: ControllerInterface = new Controller
 }
