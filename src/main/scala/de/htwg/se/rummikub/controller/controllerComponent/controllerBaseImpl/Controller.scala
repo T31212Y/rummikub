@@ -15,8 +15,9 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Tok
 
 import scala.swing.Publisher
 
-class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFactoryInterface) extends ControllerInterface with Publisher {
+class Controller (using gameModeFactory: GameModeFactoryInterface) extends ControllerInterface with Publisher {
 
+    var gameMode: Option[GameModeTemplate] = None
     var playingField: Option[PlayingFieldInterface] = None
     var gameState: Option[GameStateInterface] = None
     var currentPlayerIndex: Int = 0
@@ -26,8 +27,8 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
     var gameEnded: Boolean = false
 
     override def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
-        gameMode = gameModeFactory.createGameMode(amountPlayers, names).get
-        playingField = gameMode.runGameSetup
+        gameMode = gameModeFactory.createGameMode(amountPlayers, names).toOption
+        playingField = gameMode.flatMap(_.runGameSetup)
 
         gameState = playingField.map { field =>
             GameState(field.getInnerField, field.getPlayers.toVector, field.getBoards.toVector, 0, field.getStack)
@@ -67,7 +68,7 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
     }
 
     override def playingFieldToString: String = {
-        gameMode.renderPlayingField(playingField)
+        gameMode.get.renderPlayingField(playingField)
     }
 
     override def addTokenToPlayer(player: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, TokenStackInterface) = {
@@ -113,7 +114,7 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
             val message2 = s"${state.currentPlayer.getName} ended their turn. It's now ${nextState.currentPlayer.getName}'s turn."
 
             setStateInternal(nextState)
-            setPlayingField(gameMode.updatePlayingField(playingField))
+            setPlayingField(gameMode.get.updatePlayingField(playingField))
             publish(UpdateEvent())
 
             (nextState, message2)
@@ -325,7 +326,7 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
         val (finalState, message) = passTurn(updatedState, true)
 
         setStateInternal(finalState)
-        setPlayingField(gameMode.updatePlayingField(playingField))
+        setPlayingField(gameMode.get.updatePlayingField(playingField))
         (finalState, message)
     }
     override def playRow(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
@@ -357,7 +358,7 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
         val newState = getState.updateCurrentPlayer(updatedPlayer)
 
         setStateInternal(newState)
-        setPlayingField(gameMode.updatePlayingField(playingField))
+        setPlayingField(gameMode.get.updatePlayingField(playingField))
 
         (updatedPlayer, "Row successfully placed.")
     }
@@ -390,7 +391,7 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
         val newState = getState.updateCurrentPlayer(updatedPlayer)
 
         setStateInternal(newState)
-        setPlayingField(gameMode.updatePlayingField(playingField))
+        setPlayingField(gameMode.get.updatePlayingField(playingField))
 
         (updatedPlayer, "Group successfully placed.")
     }
@@ -409,7 +410,7 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
         val newState = getState.updateCurrentPlayer(updatedPlayer)
 
         setStateInternal(newState)
-        setPlayingField(gameMode.updatePlayingField(playingField))
+        setPlayingField(gameMode.get.updatePlayingField(playingField))
 
         (updatedPlayer, s"Token appended to row at index $index.")
     }
@@ -427,7 +428,7 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
         val newState = getState.updateCurrentPlayer(updatedPlayer)
 
         setStateInternal(newState)
-        setPlayingField(gameMode.updatePlayingField(playingField))
+        setPlayingField(gameMode.get.updatePlayingField(playingField))
 
         (updatedPlayer, s"Token appended to group at index $index.")
     }
@@ -439,7 +440,7 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
 
     override def getGameEnded: Boolean = gameEnded
 
-    override def getGameMode: GameModeTemplate = gameMode
+    override def getGameMode: GameModeTemplate = gameMode.get
 
     override def getPlayingField: Option[PlayingFieldInterface] = playingField
 
