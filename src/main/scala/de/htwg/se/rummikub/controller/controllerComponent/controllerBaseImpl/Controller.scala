@@ -4,16 +4,12 @@ import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 import de.htwg.se.rummikub.util.{Command, UndoManager}
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
-import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackInterface, PlayingFieldInterface}
+import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color, TokenFactoryInterface}
+import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackInterface, TokenStackFactoryInterface, PlayingFieldInterface, TableFactoryInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFactoryInterface}
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent, GameStateInterface}
-import de.htwg.se.rummikub.model.tokenComponent.TokenFactoryInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
-import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.TableFactoryInterface
-
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.PlayingField
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
 
 import scala.swing.Publisher
 
@@ -21,7 +17,8 @@ class Controller (using gameModeFactory: GameModeFactoryInterface,
                         tokenFactory: TokenFactoryInterface,
                         tokenStructureFactory: TokenStructureFactoryInterface,
                         tokenStackFactory: TokenStackFactoryInterface,
-                        tableFactory: TableFactoryInterface) extends ControllerInterface with Publisher {
+                        tableFactory: TableFactoryInterface,
+                        playingFieldBuilder: PlayingFieldBuilderInterface) extends ControllerInterface with Publisher {
 
     var gameMode: Option[GameModeTemplate] = None
     var playingField: Option[PlayingFieldInterface] = None
@@ -252,9 +249,15 @@ class Controller (using gameModeFactory: GameModeFactoryInterface,
 
     override def setStateInternal(state: GameStateInterface): Unit = {
         this.gameState = Some(state)
-        this.playingField = Some(
-            PlayingField(state.getPlayers.toList, state.getBoards.toList, state.getTable, state.currentStack)
-        )
+
+        val buildedPlayingField = playingFieldBuilder
+            .setPlayers(state.getPlayers.toList)
+            .setBoards(state.getBoards.toList)
+            .setInnerField(state.getTable)
+            .setStack(state.currentStack)
+            .build()
+
+        this.playingField = Some(buildedPlayingField)
         this.currentPlayerIndex = state.getCurrentPlayerIndex
     }
 
