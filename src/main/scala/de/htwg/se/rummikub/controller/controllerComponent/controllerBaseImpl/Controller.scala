@@ -13,9 +13,11 @@ import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFacto
 import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.{Row, Group}
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{TokenStack, Table, PlayingField}
 
+import de.htwg.se.rummikub.model.tokenComponent.TokenFactoryInterface
+
 import scala.swing.Publisher
 
-class Controller (using gameModeFactory: GameModeFactoryInterface) extends ControllerInterface with Publisher {
+class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory: TokenFactoryInterface) extends ControllerInterface with Publisher {
 
     var gameMode: Option[GameModeTemplate] = None
     var playingField: Option[PlayingFieldInterface] = None
@@ -205,7 +207,6 @@ class Controller (using gameModeFactory: GameModeFactoryInterface) extends Contr
             val tokenParts = tokenString.split(":")
             if (tokenParts.length < 2)
                 throw new IllegalArgumentException("Invalid token input.")
-            val tokenFactory = new StandardTokenFactory
 
             if (tokenParts(0) == "J") {
                 tokenParts(1) match {
