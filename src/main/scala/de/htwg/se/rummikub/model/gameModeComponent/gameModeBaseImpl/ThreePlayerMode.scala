@@ -3,15 +3,14 @@ package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 import de.htwg.se.rummikub.model.playerComponent.{PlayerInterface, PlayerFactoryInterface}
 import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, PlayingFieldInterface, TokenStackFactoryInterface, TableFactoryInterface, BoardFactoryInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
-import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
-
-import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.ThreePlayerFieldDirector
+import de.htwg.se.rummikub.model.builderComponent.{PlayingFieldBuilderInterface, FieldDirectorInterface}
 
 case class ThreePlayerMode(pns: List[String]) (using tokenStackFactory: TokenStackFactoryInterface,
                                                      tableFactory: TableFactoryInterface,
                                                      boardFactory: BoardFactoryInterface,
                                                      playerFactory: PlayerFactoryInterface,
-                                                     playingFieldBuilder: PlayingFieldBuilderInterface) extends GameModeTemplate {
+                                                     playingFieldBuilder: PlayingFieldBuilderInterface,
+                                                     director: FieldDirectorInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -20,8 +19,6 @@ case class ThreePlayerMode(pns: List[String]) (using tokenStackFactory: TokenSta
             println("Cannot create playing field: No players provided.")
             None
         } else {
-            val director = new ThreePlayerFieldDirector
-
             Some(director.construct(players))
         }
     }
