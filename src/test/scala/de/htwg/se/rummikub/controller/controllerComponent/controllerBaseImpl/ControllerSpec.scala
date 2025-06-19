@@ -21,11 +21,15 @@ import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.Joker
 import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 
 
 
 
 class ControllerSpec extends AnyWordSpec {
+  val gameModeFactory = new GameModeFactory
+  val controller: Controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+  given ControllerInterface = controller
 
   "A Controller" should {
 
@@ -167,6 +171,34 @@ class ControllerSpec extends AnyWordSpec {
       val tokens = controller.changeStringListToTokenList(List("J:red"))
       tokens should have size 1
       tokens.head shouldBe Joker(Color.RED)
+    }
+
+    "not allow first move if row sum is less than 30" in {
+      val gameModeFactory = new GameModeFactory
+      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+      val player = Player("Test", tokens = List(NumToken(5, Color.RED), NumToken(6, Color.BLUE), NumToken(7, Color.GREEN)))
+      val stack = TokenStack()
+      val rowTokens = List("5:red", "6:blue", "7:green")
+
+      val (resultPlayer, message) = controller.playRow(rowTokens, player, stack)
+      message should include ("First move must total at least 30 points with valid sets.")
+    }
+
+    "not update currentPlayer if getHasCompletedFirstMove is already true when passing turn" in {
+      val player = Player("Test", tokens = List(NumToken(10, Color.RED)), hasCompletedFirstMove = true)
+      val stack = TokenStack()
+      val table = Table(1, 20, List())
+      val playingField = PlayingField(List(player), List(), table, stack)
+      val controller = new Controller(gameMode, gameModeFactory)
+      controller.playingField = Some(playingField)
+      controller.currentPlayerIndex = 0
+
+      val state = controller.getState
+
+      val (newState, message) = controller.passTurn(state, ignoreFirstMoveCheck = false)
+
+      newState.currentPlayer shouldBe player
+      message should include ("ended their turn")
     }
 
     "execute add group command" in {
