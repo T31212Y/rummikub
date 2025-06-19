@@ -119,11 +119,15 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     }
 
     case ButtonClicked(`passButton`) => {
-      val (newState, message) = controller.passTurn(controller.getState, false)
-      controller.setStateInternal(newState)
-      stateLabel.text = message
-      updatePlayerBoardTitle(newState)
-      nextTurn
+      if (controller.getState.currentPlayer.getCommandHistory.length > 0) {
+        val (newState, message) = controller.passTurn(controller.getState, false)
+        controller.setStateInternal(newState)
+        stateLabel.text = message
+        updatePlayerBoardTitle(newState)
+        nextTurn
+      } else {
+        stateLabel.text = "You must make a move before passing your turn."
+      }
     }
 
     case ButtonClicked(`rowButton`) => {
