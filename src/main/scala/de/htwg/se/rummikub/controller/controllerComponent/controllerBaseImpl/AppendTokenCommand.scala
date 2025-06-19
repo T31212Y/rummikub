@@ -4,17 +4,18 @@ import de.htwg.se.rummikub.util.Command
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
+import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, GameStateInterface}
 
-class AppendTokenCommand(controller: Controller, token: TokenInterface, index: Int, isRow: Boolean, player: PlayerInterface) extends Command {
+class AppendTokenCommand(controller: ControllerInterface, token: TokenInterface, index: Int, isRow: Boolean, player: PlayerInterface) extends Command {
 
-  var oldState: Option[GameState] = Some(controller.getState)
+  var oldState: Option[GameStateInterface] = Some(controller.getState)
 
   override def doStep(): Unit = {
-    if (controller.playingField.isEmpty || controller.gameState.isEmpty) {
+    if (controller.getPlayingField.isEmpty) {
       println("No state available.")
       return
     }
-    val updatedTokensOnTable = controller.playingField.get.getInnerField.getTokensOnTable.zipWithIndex.map {
+    val updatedTokensOnTable = controller.getPlayingField.get.getInnerField.getTokensOnTable.zipWithIndex.map {
       case (tokenList, i) if i == index => tokenList :+ token
       case (tokenList, _)               => tokenList
     }
@@ -24,9 +25,9 @@ class AppendTokenCommand(controller: Controller, token: TokenInterface, index: I
         updatedTokensOnTable ++ List.fill(index - updatedTokensOnTable.length + 1)(List()).updated(index, List(token))
       else updatedTokensOnTable
 
-    controller.playingField = controller.playingField.map { pf =>
+    controller.setPlayingField(controller.getPlayingField.map { pf =>
       pf.updated(newPlayers = pf.getPlayers, newBoards = pf.getBoards, newInnerField = pf.getInnerField.updated(newTokensOnTable = finalTokensOnTable))
-    }
+    })
 
     controller.removeTokenFromPlayer(player, token)
   }
