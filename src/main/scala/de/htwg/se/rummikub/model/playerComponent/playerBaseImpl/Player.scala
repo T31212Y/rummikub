@@ -1,19 +1,15 @@
 package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 
-import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
-import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
-
-import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group
-import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Row
+import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
 
 case class Player(name: String, 
   tokens: List[TokenInterface] = List(), 
   commandHistory: List[String] = List(), 
   firstMoveTokens: List[TokenInterface] = List(), 
   hasCompletedFirstMove: Boolean = false
-) extends PlayerInterface {
+) (using tokenStructureFactory: TokenStructureFactoryInterface) extends PlayerInterface {
 
   override def toString: String = {
     s"Player: $name"
@@ -59,8 +55,8 @@ case class Player(name: String,
           subset <- remaining.combinations(size)
         } yield {
           val ts = subset.toList
-          val group = Group(ts)
-          val row = Row(ts)
+          val group = tokenStructureFactory.createGroup(ts)
+          val row = tokenStructureFactory.createRow(ts)
           List(group, row).filter(_.isValid).map(validSet => (validSet, ts))
         }
 

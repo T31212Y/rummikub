@@ -1,6 +1,5 @@
 package de.htwg.se.rummikub.model.playerComponent
 
-import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 
