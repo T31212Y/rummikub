@@ -26,7 +26,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
     var playingField: Option[PlayingFieldInterface] = None
     var gameState: Option[GameStateInterface] = None
     var currentPlayerIndex: Int = 0
-    var turnStartState: Option[GameState] = None
+    var turnStartState: Option[GameStateInterface] = None
 
     var turnUndoManager: UndoManager = new UndoManager
     var gameEnded: Boolean = false
@@ -452,5 +452,17 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
     override def setGameEnded(nge: Boolean): Unit = {
         gameEnded = nge
+    }
+
+    override def getTurnStartState: Option[GameStateInterface] = turnStartState
+
+    override def setTurnStartState(newState: Option[GameStateInterface]): Unit = {
+        turnStartState = newState
+    }
+
+    override def getUndoManager: UndoManager = turnUndoManager
+
+    override def setUndoManager(num: UndoManager): Unit = {
+        turnUndoManager = num
     }
 }

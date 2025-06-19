@@ -1,10 +1,11 @@
 package de.htwg.se.rummikub.controller.controllerComponent
 
+import de.htwg.se.rummikub.util.UndoManager
+
 import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackInterface, PlayingFieldInterface}
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
-
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 
 import scala.swing.Publisher
@@ -42,6 +43,10 @@ trait ControllerInterface extends Publisher {
     def getGameMode: GameModeTemplate
     def getPlayingField: Option[PlayingFieldInterface]
     def setGameEnded(nge: Boolean): Unit
+    def getTurnStartState: Option[GameStateInterface]
+    def setTurnStartState(newState: Option[GameStateInterface]): Unit
+    def getUndoManager: UndoManager
+    def setUndoManager(num: UndoManager): Unit
 }
 
 
