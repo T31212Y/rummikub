@@ -10,14 +10,16 @@ import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFa
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent, GameStateInterface}
 import de.htwg.se.rummikub.model.tokenComponent.TokenFactoryInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
 
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{TokenStack, Table, PlayingField}
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{Table, PlayingField}
 
 import scala.swing.Publisher
 
 class Controller (using gameModeFactory: GameModeFactoryInterface,
                         tokenFactory: TokenFactoryInterface,
-                        tokenStructureFactory: TokenStructureFactoryInterface) extends ControllerInterface with Publisher {
+                        tokenStructureFactory: TokenStructureFactoryInterface,
+                        tokenStackFactory: TokenStackFactoryInterface) extends ControllerInterface with Publisher {
 
     var gameMode: Option[GameModeTemplate] = None
     var playingField: Option[PlayingFieldInterface] = None
@@ -50,10 +52,6 @@ class Controller (using gameModeFactory: GameModeFactoryInterface,
         val newState = gameState.get.updated(newPlayers = updatedPlayers, newStack = updatedStack)
         setStateInternal(newState)
         publish(UpdateEvent())
-    }
-
-    override def createTokenStack: TokenStackInterface = {
-        TokenStack()
     }
 
     override def setPlayingField(pf: Option[PlayingFieldInterface]): Unit = {
@@ -246,7 +244,7 @@ class Controller (using gameModeFactory: GameModeFactoryInterface,
                         players = Vector.empty,
                         boards = Vector.empty,
                         currentPlayerIndex = 0,
-                        stack = createTokenStack
+                        stack = tokenStackFactory.createShuffledStack
                     )
     }
 

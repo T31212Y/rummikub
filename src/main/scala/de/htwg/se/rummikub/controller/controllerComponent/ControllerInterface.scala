@@ -11,7 +11,6 @@ import scala.swing.Publisher
 trait ControllerInterface extends Publisher {
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit
     def startGame: Unit
-    def createTokenStack: TokenStackInterface
     def setPlayingField(pf: Option[PlayingFieldInterface]): Unit
     def playingFieldToString: String
     def addTokenToPlayer(player: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, TokenStackInterface)
