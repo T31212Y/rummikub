@@ -12,9 +12,13 @@ import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFacto
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.StandardTokenStructureFactory
 
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.StandardTokenStackFactory
+
 object RummikubDependencyModule {
-    given gameModeFactory: GameModeFactoryInterface = new GameModeFactory
     given tokenFactory: TokenFactoryInterface = new StandardTokenFactory
+    given tokenStackFactory: TokenStackFactoryInterface = new StandardTokenStackFactory
+    given gameModeFactory: GameModeFactoryInterface = new GameModeFactory
     given tokenStructureFactory: TokenStructureFactoryInterface = new StandardTokenStructureFactory
     given controller: ControllerInterface = new Controller
 }
