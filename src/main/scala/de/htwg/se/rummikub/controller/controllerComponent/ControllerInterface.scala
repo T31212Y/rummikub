@@ -4,8 +4,7 @@ import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackInterface, Pla
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
-
-import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.{Row, Group}
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 
 import scala.swing.Publisher
 
@@ -13,8 +12,6 @@ trait ControllerInterface extends Publisher {
     def setupNewGame(amountPlayers: Int, names: List[String]): Unit
     def startGame: Unit
     def createTokenStack: TokenStackInterface
-    def createRow(r: List[TokenInterface]): Row
-    def createGroup(g: List[TokenInterface]): Group
     def setPlayingField(pf: Option[PlayingFieldInterface]): Unit
     def playingFieldToString: String
     def addTokenToPlayer(player: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, TokenStackInterface)
@@ -23,14 +20,14 @@ trait ControllerInterface extends Publisher {
     def passTurn(state: GameStateInterface, ignoreFirstMoveCheck: Boolean): (GameStateInterface, String)
     def setNextPlayer(state: GameStateInterface): GameStateInterface
     def winGame: Boolean
-    def addRowToTable(row: Row, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface)
-    def addGroupToTable(group: Group, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface)
+    def addRowToTable(row: TokenStructureInterface, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface)
+    def addGroupToTable(group: TokenStructureInterface, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface)
     def changeStringListToTokenList(list: List[String]): List[TokenInterface]
     def beginTurn(currentPlayer: PlayerInterface): Unit
     def getState: GameStateInterface
     def setStateInternal(state: GameStateInterface): Unit
-    def executeAddRow(row: Row, player: PlayerInterface, stack: TokenStackInterface): Unit
-    def executeAddGroup(group: Group, player: PlayerInterface, stack: TokenStackInterface): Unit
+    def executeAddRow(row: TokenStructureInterface, player: PlayerInterface, stack: TokenStackInterface): Unit
+    def executeAddGroup(group: TokenStructureInterface, player: PlayerInterface, stack: TokenStackInterface): Unit
     def executeAppendToRow(token: TokenInterface, rowIndex: Int, player: PlayerInterface): Unit
     def executeAppendToGroup(token: TokenInterface, groupIndex: Int, player: PlayerInterface): Unit
     def undo: Unit

@@ -8,16 +8,16 @@ import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
 import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackInterface, PlayingFieldInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFactoryInterface}
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent, GameStateInterface}
-
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
-import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.{Row, Group}
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{TokenStack, Table, PlayingField}
-
 import de.htwg.se.rummikub.model.tokenComponent.TokenFactoryInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
+
+import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.{TokenStack, Table, PlayingField}
 
 import scala.swing.Publisher
 
-class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory: TokenFactoryInterface) extends ControllerInterface with Publisher {
+class Controller (using gameModeFactory: GameModeFactoryInterface,
+                        tokenFactory: TokenFactoryInterface,
+                        tokenStructureFactory: TokenStructureFactoryInterface) extends ControllerInterface with Publisher {
 
     var gameMode: Option[GameModeTemplate] = None
     var playingField: Option[PlayingFieldInterface] = None
@@ -54,14 +54,6 @@ class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory:
 
     override def createTokenStack: TokenStackInterface = {
         TokenStack()
-    }
-
-    override def createRow(r: List[TokenInterface]): Row = {
-        Row(r)
-    }
-
-    override def createGroup(g: List[TokenInterface]): Group = {
-        Group(g)
     }
 
     override def setPlayingField(pf: Option[PlayingFieldInterface]): Unit = {
@@ -144,8 +136,8 @@ class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory:
         }
     }
 
-    override def addRowToTable(row: Row, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface) = {
-        val unmatched = row.tokens.filterNot(tokenInRow =>
+    override def addRowToTable(row: TokenStructureInterface, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface) = {
+        val unmatched = row.getTokens.filterNot(tokenInRow =>
           currentPlayer.getTokens.exists(playerToken => tokensMatch(tokenInRow, playerToken))
         )
       
@@ -154,11 +146,11 @@ class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory:
             (List.empty, currentPlayer)
         } else {
             val remainingTokens = currentPlayer.getTokens.filterNot(playerToken =>
-                row.tokens.exists(tokenInRow => tokensMatch(tokenInRow, playerToken))
+                row.getTokens.exists(tokenInRow => tokensMatch(tokenInRow, playerToken))
             )
 
-            val updatedPlayer = currentPlayer.updated(newTokens = remainingTokens, newCommandHistory = currentPlayer.getCommandHistory :+ s"row:${row.tokens.mkString(",")}", newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove).addToFirstMoveTokens(row.tokens)
-            val updatedTable = playingField.get.getInnerField.add(row.tokens)
+            val updatedPlayer = currentPlayer.updated(newTokens = remainingTokens, newCommandHistory = currentPlayer.getCommandHistory :+ s"row:${row.getTokens.mkString(",")}", newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove).addToFirstMoveTokens(row.getTokens)
+            val updatedTable = playingField.get.getInnerField.add(row.getTokens)
 
             val updatedPlayers = playingField.get.getPlayers.map {
                     case p if p.getName == currentPlayer.getName => updatedPlayer
@@ -169,12 +161,12 @@ class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory:
 
             setStateInternal(newState)
 
-            (row.tokens, updatedPlayer)
+            (row.getTokens, updatedPlayer)
         }
     }
 
-    override def addGroupToTable(group: Group, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface) = {
-        val unmatched = group.tokens.filterNot(tokenInGroup =>
+    override def addGroupToTable(group: TokenStructureInterface, currentPlayer: PlayerInterface): (List[TokenInterface], PlayerInterface) = {
+        val unmatched = group.getTokens.filterNot(tokenInGroup =>
           currentPlayer.getTokens.exists(playerToken => tokensMatch(tokenInGroup, playerToken))
         )
 
@@ -183,11 +175,11 @@ class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory:
             (List.empty, currentPlayer)
         } else {
             val remainingTokens = currentPlayer.getTokens.filterNot(playerToken =>
-                group.tokens.exists(tokenInGroup => tokensMatch(tokenInGroup, playerToken))
+                group.getTokens.exists(tokenInGroup => tokensMatch(tokenInGroup, playerToken))
             )
 
-            val updatedPlayer = currentPlayer.updated(newTokens = remainingTokens, newCommandHistory = currentPlayer.getCommandHistory :+ s"group:${group.tokens.mkString(",")}", newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove).addToFirstMoveTokens(group.tokens)
-            val updatedTable = playingField.get.getInnerField.add(group.tokens)
+            val updatedPlayer = currentPlayer.updated(newTokens = remainingTokens, newCommandHistory = currentPlayer.getCommandHistory :+ s"group:${group.getTokens.mkString(",")}", newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove).addToFirstMoveTokens(group.getTokens)
+            val updatedTable = playingField.get.getInnerField.add(group.getTokens)
 
             val updatedPlayers = playingField.get.getPlayers.map {
                     case p if p.getName == currentPlayer.getName => updatedPlayer
@@ -198,7 +190,7 @@ class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory:
 
             setStateInternal(newState)
 
-            (group.tokens, updatedPlayer)
+            (group.getTokens, updatedPlayer)
         }
     }
 
@@ -266,12 +258,12 @@ class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory:
         this.currentPlayerIndex = state.getCurrentPlayerIndex
     }
 
-    override def executeAddRow(row: Row, player: PlayerInterface, stack: TokenStackInterface): Unit = {
+    override def executeAddRow(row: TokenStructureInterface, player: PlayerInterface, stack: TokenStackInterface): Unit = {
         val cmd = new AddRowCommand(this, row, player, stack)
         turnUndoManager.doStep(cmd)
     }
 
-    override def executeAddGroup(group: Group, player: PlayerInterface, stack: TokenStackInterface): Unit = {
+    override def executeAddGroup(group: TokenStructureInterface, player: PlayerInterface, stack: TokenStackInterface): Unit = {
       if (!getState.players.exists(_.getName == player.getName))
         throw new NoSuchElementException(player.getName)
       val cmd = new AddGroupCommand(this, group, player, stack)
@@ -332,13 +324,13 @@ class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory:
     }
     override def playRow(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
         val tokens = changeStringListToTokenList(tokenStrings)
-        val row = createRow(tokens)
+        val row = tokenStructureFactory.createRow(tokens)
 
         if (!row.isValid)
             return (currentPlayer, "Your move is not valid for the first move requirement.")
         
         if (!currentPlayer.getHasCompletedFirstMove) {
-            val tentativePlayer = currentPlayer.addToFirstMoveTokens(row.tokens)
+            val tentativePlayer = currentPlayer.addToFirstMoveTokens(row.getTokens)
             if (!tentativePlayer.validateFirstMove) {
                 return (currentPlayer, "First move must total at least 30 points with valid sets.")
             }
@@ -348,10 +340,10 @@ class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory:
 
 
         val updatedPlayer = currentPlayer
-        .addToFirstMoveTokens(row.tokens)
+        .addToFirstMoveTokens(row.getTokens)
         .updated(
-            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, row.tokens).getTokens,
-            newCommandHistory = currentPlayer.getCommandHistory :+ s"playRow: ${row.tokens.mkString(",")}",
+            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, row.getTokens).getTokens,
+            newCommandHistory = currentPlayer.getCommandHistory :+ s"playRow: ${row.getTokens.mkString(",")}",
             newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove || true
         )
 
@@ -367,13 +359,13 @@ class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory:
 
     override def playGroup(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
         val tokens = changeStringListToTokenList(tokenStrings)
-        val group = createGroup(tokens)
+        val group = tokenStructureFactory.createGroup(tokens)
 
         if (!group.isValid)
             return (currentPlayer, "Your move is not valid for the first move requirement.")
 
         if (!currentPlayer.getHasCompletedFirstMove) {
-            val tentativePlayer = currentPlayer.addToFirstMoveTokens(group.tokens)
+            val tentativePlayer = currentPlayer.addToFirstMoveTokens(group.getTokens)
             if (!tentativePlayer.validateFirstMove) {
                 return (currentPlayer, "First move must total at least 30 points with valid sets.")
             }
@@ -382,10 +374,10 @@ class Controller (using gameModeFactory: GameModeFactoryInterface, tokenFactory:
         executeAddGroup(group, currentPlayer, stack)
 
         val updatedPlayer = currentPlayer
-            .addToFirstMoveTokens(group.tokens)
+            .addToFirstMoveTokens(group.getTokens)
             .updated(
-            newTokens = getUpdatedPlayerAfterMove(currentPlayer, group.tokens).getTokens,
-            newCommandHistory = currentPlayer.getCommandHistory :+ s"playGroup: ${group.tokens.mkString(",")}",
+            newTokens = getUpdatedPlayerAfterMove(currentPlayer, group.getTokens).getTokens,
+            newCommandHistory = currentPlayer.getCommandHistory :+ s"playGroup: ${group.getTokens.mkString(",")}",
             newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove || true
             )
 
