@@ -30,6 +30,7 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "create a PlayingField with three players" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val pfOpt = mode.createPlayingField(players)
       pfOpt.isDefined shouldBe true
       val pf = pfOpt.get
@@ -38,10 +39,12 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "return None if createPlayingField is called with empty player list" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       mode.createPlayingField(Nil) shouldBe None
     }
 
     "update the PlayingField and keep two boards" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val pf = mode.createPlayingField(players)
       val updatedOpt = mode.updatePlayingField(pf)
       updatedOpt.isDefined shouldBe true
@@ -50,6 +53,7 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "update the PlayingField and print error if less than 3 players" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val pf = mode.createPlayingField(players)
       val pfWithTwo = pf.map(f => f.updated(newPlayers = f.getPlayers.take(2), newBoards = f.getBoards, newInnerField = f.getInnerField))
       val out = new java.io.ByteArrayOutputStream()
@@ -62,6 +66,7 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "update a single board for a player" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val player = Player("Alice")
       val board = new Board(24, 14, 2, 2, "default", 10)
       val updated = mode.updateBoardSinglePlayer(player, board)
@@ -69,6 +74,7 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "update multiple boards for players (player 0 has > cntTokens)" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val tokens0 = (1 to 30).map(i => NumToken(i, Color.RED)).toList
       val tokens1 = (1 to 10).map(i => NumToken(i, Color.BLUE)).toList
 
@@ -86,6 +92,7 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "update multiple boards for players (player 1 has > cntTokens)" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val tokens0 = (1 to 10).map(i => NumToken(i, Color.RED)).toList
       val tokens1 = (1 to 30).map(i => NumToken(i, Color.BLUE)).toList
 
@@ -103,6 +110,7 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "update multiple boards for players (both have > cntTokens)" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val tokens0 = (1 to 30).map(i => NumToken(i, Color.RED)).toList
       val tokens1 = (1 to 30).map(i => NumToken(i, Color.BLUE)).toList
 
@@ -122,6 +130,7 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "render the PlayingField as a string" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val pf = mode.createPlayingField(players)
       val str = mode.renderPlayingField(pf)
       str should include ("Alice")
@@ -130,16 +139,19 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "renderPlayingField returns error string if None" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       mode.renderPlayingField(None) should include ("No playing field available")
     }
 
     "lineWithPlayerName should return a formatted line" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val line = mode.lineWithPlayerName("*", 20, "Alice")
       line.isDefined shouldBe true
       line.get should include ("Alice")
     }
 
     "lineWith2PlayerNames should return a formatted line" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val line = mode.lineWith2PlayerNames("*", 30, "Alice", "Charlie")
       line.isDefined shouldBe true
       line.get should include ("Alice")
@@ -147,6 +159,7 @@ class ThreePlayerModeSpec extends AnyWordSpec {
     }
 
     "A player's board should split tokens correctly when more than cntTokens are present" in {
+      val mode = ThreePlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val stack = new TokenStack(List())
       val manyTokens = stack.drawMultipleTokens(30)
       val player = Player("Azra", manyTokens._1)

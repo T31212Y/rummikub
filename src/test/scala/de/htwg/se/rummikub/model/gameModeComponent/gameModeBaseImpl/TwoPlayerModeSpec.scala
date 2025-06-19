@@ -30,17 +30,20 @@ class TwoPlayerModeSpec extends AnyWordSpec {
     }
 
     "return None if createPlayingField is called with empty player list" in {
+      val mode = TwoPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val pf = mode.createPlayingField(Nil)
       pf shouldBe None
     }
 
     "create a PlayingField with two players" in {
+      val mode = TwoPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val pf = mode.createPlayingField(players)
       pf.get.getPlayers.size should be(2)
       pf.get.getPlayers.map(_.getName) should contain allElementsOf playerNames
     }
 
     "update the PlayingField and keep two boards" in {
+      val mode = TwoPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val pf = mode.createPlayingField(players)
       val updatedOpt = mode.updatePlayingField(pf)
       updatedOpt.isDefined shouldBe true
@@ -48,6 +51,7 @@ class TwoPlayerModeSpec extends AnyWordSpec {
     }
 
     "update the PlayingField and print error if less than 2 players" in {
+      val mode = TwoPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val pf = mode.createPlayingField(players)
       val pfWithOne = pf.map(f => f.updated(newPlayers = f.getPlayers.take(1), newBoards = f.getBoards, newInnerField = f.getInnerField))
       val out = new java.io.ByteArrayOutputStream()
@@ -73,6 +77,7 @@ class TwoPlayerModeSpec extends AnyWordSpec {
     }
 
     "render the PlayingField as a string" in {
+      val mode = TwoPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val pf = mode.createPlayingField(players)
       val str = mode.renderPlayingField(pf)
       str should include ("Azra")
@@ -80,6 +85,7 @@ class TwoPlayerModeSpec extends AnyWordSpec {
     }
 
     "render the PlayingField as a string with method render" in {
+      val mode = TwoPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val pf = mode.createPlayingField(players)
 
       val out = new java.io.ByteArrayOutputStream()
@@ -92,20 +98,24 @@ class TwoPlayerModeSpec extends AnyWordSpec {
     }
 
     "renderPlayingField returns error string if None" in {
+      val mode = TwoPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       mode.renderPlayingField(None) should include ("No playing field available")
     }
 
     "lineWithPlayerName should return a formatted line" in {
+      val mode = TwoPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val line = mode.lineWithPlayerName("*", 20, "Azra")
       line.isDefined shouldBe true
       line.get should include ("Azra")
     }
 
     "lineWith2PlayerNames should return None" in {
+      val mode = TwoPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       mode.lineWith2PlayerNames("*", 20, "Azra", "Moritz") shouldBe None
     }
 
     "A player's board should split tokens correctly when more than cntTokens are present" in {
+      val mode = TwoPlayerMode(playerNames)(using tokenStackFactory, tableFactory, boardFactory, playerFactory, playingFieldBuilder, director)
       val stack = tokenStackFactory.createShuffledStack
       val manyTokensTuple = stack.drawMultipleTokens(30)
       val player = Player("Azra", manyTokensTuple._1)
