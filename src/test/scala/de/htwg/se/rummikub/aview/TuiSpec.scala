@@ -17,7 +17,7 @@ import de.htwg.se.rummikub.RummikubDependencyModule.given
 class TuiSpec extends AnyWordSpec with Matchers {
 
   "A Tui" should {
-    val tui = new Tui
+    val tui = new Tui(controller)
 
     "show welcome message" in {
       val welcome = tui.showWelcome
@@ -49,7 +49,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
 
     "show goodbye message" in {
       tui.inputCommands("quit")
-      implicitly[ControllerInterface].setGameEnded(true)
+      controller.setGameEnded(true)
       tui.showGoodbye should include ("Thank you for playing Rummikub! Goodbye!")
     }
 
@@ -99,6 +99,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
       Console.withOut(new PrintStream(outContent)) {
         tui.inputCommands("quit")
       }
+      println("output string: " + outContent.toString)
       outContent.toString should include ("Thank you for playing Rummikub! Goodbye!")
     }
 
@@ -129,18 +130,17 @@ class TuiSpec extends AnyWordSpec with Matchers {
     "handle 'pass' command" in {
       val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)), hasCompletedFirstMove = true)
       val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
-      
-      val controller = implicitly[ControllerInterface]
-      implicitly[ControllerInterface].setupNewGame(2, List("Emilia", "Noah"))
 
-      val updated = Some(controller.getPlayingField.get.updated(newPlayers = List(player1, player2), newBoards = controller.getPlayingField.get.getBoards, newInnerField = controller.getPlayingField.get.getInnerField))
-      
+      controller.setPlayingField(Some(controller.getPlayingField.get.updated(newPlayers = List(player1, player2), newBoards = controller.getPlayingField.get.getBoards, newInnerField = controller.getPlayingField.get.getInnerField)))
+
       val stack = tokenStackFactory.createShuffledStack
 
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
         tui.processGameInput("pass")
       }
+      println("output test: " + out.toString + ", currentPlayer: " + controller.getState.currentPlayer + ", commandHistory: " + controller.getState.currentPlayer.getCommandHistory)
+      out.toString should include ("ended their turn")
     }
 
     "handle 'undo' and 'redo' commands" in {
@@ -153,13 +153,13 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "handle 'end' command" in {
-      implicitly[ControllerInterface].setGameEnded(false)
+      controller.setGameEnded(false)
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
         tui.processGameInput("end")
       }
       out.toString should include ("Exiting the game")
-      implicitly[ControllerInterface].getGameEnded shouldBe true
+      controller.getGameEnded shouldBe true
     }
 
     "handle 'group' command" in {

@@ -195,13 +195,13 @@ class ControllerSpec extends AnyWordSpec {
     "passTurn should not allow passing if first move is not completed and ignoreFirstMoveCheck is false" in {
       val player = Player("Emilia", hasCompletedFirstMove = false)
       val player2 = Player("Noah")
-      val players = Vector(player, player2)
       val table = Table(16, 90, List.empty)
-      val boards = Vector.empty[Board]
+      val board = boardFactory.createBoard(15, 24, 2, 1, "up", 90)
+      val board2 = boardFactory.createBoard(15, 24, 2, 1, "down", 90)
       val stack = tokenStackFactory.createShuffledStack
-      val state = GameState(table, players, boards, 0, stack)
+      val state = GameState(table, Vector(player, player2), Vector(board, board2), 0, stack)
 
-      controller.setPlayingField(Some(PlayingField(players.toList, boards.toList, table, stack)))
+      controller.setPlayingField(Some(PlayingField(List(player, player2), List(board, board2), table, stack)))
 
       val (resultState, message) = controller.passTurn(state, false)
       resultState shouldBe state
@@ -211,7 +211,12 @@ class ControllerSpec extends AnyWordSpec {
     "winGame should return true and print winner if a player has no tokens" in {
       val winner = Player("Emilia", tokens = List())
       val loser = Player("Noah", tokens = List(NumToken(1, Color.RED)))
-      val pf = PlayingField(List(winner, loser), List(), Table(0, 0, List()), tokenStackFactory.createShuffledStack)
+      val table = Table(16, 90, List.empty)
+      val board = boardFactory.createBoard(15, 24, 2, 1, "up", 90)
+      val board2 = boardFactory.createBoard(15, 24, 2, 1, "down", 90)
+      val stack = tokenStackFactory.createShuffledStack
+
+      val pf = PlayingField(List(winner, loser), List(board, board2), table, stack)
 
       controller.setPlayingField(Some(pf))
 
@@ -225,7 +230,12 @@ class ControllerSpec extends AnyWordSpec {
     "winGame should return false if no player has won" in {
       val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
       val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
-      val pf = PlayingField(List(player1, player2), List(), Table(0, 0, List()), tokenStackFactory.createShuffledStack)
+      val table = Table(16, 90, List.empty)
+      val board = boardFactory.createBoard(15, 24, 2, 1, "up", 90)
+      val board2 = boardFactory.createBoard(15, 24, 2, 1, "down", 90)
+      val stack = tokenStackFactory.createShuffledStack
+
+      val pf = PlayingField(List(player1, player2), List(board, board2), table, stack)
 
       controller.setPlayingField(Some(pf))
 
@@ -240,10 +250,16 @@ class ControllerSpec extends AnyWordSpec {
 
     "addGroupToTable should not allow playing tokens not on the player's board" in {
       val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
+      val player2 = Player("Noah", tokens = List(NumToken(5, Color.RED)))
+      val table = Table(16, 90, List.empty)
+      val board = boardFactory.createBoard(15, 24, 2, 1, "up", 90)
+      val board2 = boardFactory.createBoard(15, 24, 2, 1, "down", 90)
+      val stack = tokenStackFactory.createShuffledStack
+
       val token = NumToken(9, Color.BLACK)
       val group = Group(List(token))
 
-      controller.setPlayingField(Some(PlayingField(List(player), List(), Table(0, 0, List()), tokenStackFactory.createShuffledStack)))
+      controller.setPlayingField(Some(PlayingField(List(player, player2), List(board, board2), table, stack)))
 
       val stream = new java.io.ByteArrayOutputStream()
       Console.withOut(stream) {
@@ -259,11 +275,13 @@ class ControllerSpec extends AnyWordSpec {
       val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)))
       val player2 = Player("Noah")
       val table = Table(16, 90, List.empty)
-      val boards = Vector.empty[Board]
+      val board = boardFactory.createBoard(15, 24, 2, 1, "up", 90)
+      val board2 = boardFactory.createBoard(15, 24, 2, 1, "down", 90)
       val stack = tokenStackFactory.createShuffledStack
-      val state = GameState(table, Vector(player, player2), boards, 0, stack)
 
-      controller.setPlayingField(Some(PlayingField(List(player), boards.toList, table, stack)))
+      val state = GameState(table, Vector(player, player2), Vector(board, board2), 0, stack)
+
+      controller.setPlayingField(Some(PlayingField(List(player, player2), List(board, board2), table, stack)))
       controller.setStateInternal(state)
       controller.setTurnStartState(None)
 
@@ -282,8 +300,13 @@ class ControllerSpec extends AnyWordSpec {
 
     "playRow should place a valid row and return success message" in {
       val player = Player("Emilia", tokens = List(NumToken(10, Color.RED), NumToken(11, Color.RED), NumToken(12, Color.RED)))
+      val player2 = Player("Noah")
+      val table = Table(16, 90, List.empty)
+      val board = boardFactory.createBoard(15, 24, 2, 1, "up", 90)
+      val board2 = boardFactory.createBoard(15, 24, 2, 1, "down", 90)
       val stack = tokenStackFactory.createShuffledStack
-      controller.setPlayingField(Some(PlayingField(List(player), List(), Table(0, 0, List()), stack)))
+
+      controller.setPlayingField(Some(PlayingField(List(player, player2), List(board, board2), table, stack)))
       val (resultPlayer, message) = controller.playRow(List("10:red", "11:red", "12:red"), player, stack)
       message shouldBe "Row successfully placed."
       resultPlayer.getHasCompletedFirstMove shouldBe true
@@ -299,8 +322,13 @@ class ControllerSpec extends AnyWordSpec {
 
     "playGroup should place a valid group and return success message" in {
       val player = Player("Emilia", tokens = List(NumToken(10, Color.RED), NumToken(10, Color.BLACK), NumToken(10, Color.BLUE)))
+      val player2 = Player("Noah")
+      val table = Table(16, 90, List.empty)
+      val board = boardFactory.createBoard(15, 24, 2, 1, "up", 90)
+      val board2 = boardFactory.createBoard(15, 24, 2, 1, "down", 90)
       val stack = tokenStackFactory.createShuffledStack
-      controller.setPlayingField(Some(PlayingField(List(player), List(), Table(0, 0, List()), stack)))
+
+      controller.setPlayingField(Some(PlayingField(List(player, player2), List(board, board2), table, stack)))
       val (resultPlayer, message) = controller.playGroup(List("10:red", "10:black", "10:blue"), player, stack)
       message shouldBe "Group successfully placed."
       resultPlayer.getHasCompletedFirstMove shouldBe true
