@@ -27,7 +27,18 @@ import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.StandardPlayerFa
 import de.htwg.se.rummikub.model.playingFieldComponent.BoardFactoryInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.StandardBoardFactory
 
+import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
+import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.{TwoPlayerFieldDirector, ThreePlayerFieldDirector, FourPlayerFieldDirector}
+
 object RummikubDependencyModule {
+    trait TwoPlayerTag
+    trait ThreePlayerTag
+    trait FourPlayerTag
+
+    type TwoPlayerFD = FieldDirectorInterface & TwoPlayerTag
+    type ThreePlayerFD = FieldDirectorInterface & ThreePlayerTag
+    type FourPlayerFD = FieldDirectorInterface & FourPlayerTag
+
     given tokenFactory: TokenFactoryInterface = new StandardTokenFactory
     given tokenStackFactory: TokenStackFactoryInterface = new StandardTokenStackFactory
     given tokenStructureFactory: TokenStructureFactoryInterface = new StandardTokenStructureFactory
@@ -35,6 +46,9 @@ object RummikubDependencyModule {
     given boardFactory: BoardFactoryInterface = new StandardBoardFactory
     given playerFactory: PlayerFactoryInterface = new StandardPlayerFactory
     given playingFieldBuilder: PlayingFieldBuilderInterface = new StandardPlayingFieldBuilder
+    given twoPlayerFieldDirector: TwoPlayerFD = new TwoPlayerFieldDirector with TwoPlayerTag
+    given threePlayerFieldDirector: ThreePlayerFD = new ThreePlayerFieldDirector with ThreePlayerTag
+    given fourPlayerFieldDirector: FourPlayerFD = new FourPlayerFieldDirector with FourPlayerTag
     given gameModeFactory: GameModeFactoryInterface = new GameModeFactory
     given controller: ControllerInterface = new Controller
 }
