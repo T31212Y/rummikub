@@ -110,13 +110,13 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
 
             val nextState = setNextPlayer(state.updateCurrentPlayer(updatedPlayer))
             turnStartState = None
-            val message = s"${state.currentPlayer.getName} ended their turn. It's now ${nextState.currentPlayer.getName}'s turn."
+            val message2 = s"${state.currentPlayer.getName} ended their turn. It's now ${nextState.currentPlayer.getName}'s turn."
 
             setStateInternal(nextState)
             setPlayingField(gameMode.updatePlayingField(playingField))
             publish(UpdateEvent())
 
-            (nextState, message)
+            (nextState, message2)
         }
     }
 
