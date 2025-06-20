@@ -24,4 +24,7 @@ trait GameStateInterface {
     def nextTurn: GameStateInterface
 
     def updated(newPlayers: Vector[PlayerInterface], newStack: TokenStackInterface, newFinalRoundsLeft: Option[Int]): GameStateInterface
+
+    def getStorageTokens: Vector[String]
+    def updatedStorage(newStorage: Vector[String]): GameStateInterface
 }
