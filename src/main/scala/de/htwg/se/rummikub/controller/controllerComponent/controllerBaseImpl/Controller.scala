@@ -478,4 +478,44 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
     override def setUndoManager(num: UndoManager): Unit = {
         turnUndoManager = num
     }
+
+    override def putTokenInStorage(tokenId: Int): Either[String, GameStateInterface] = {
+      val table = getState.getTable
+      val tokensOnTable = table.getTokensOnTable.flatten
+      if (tokenId < 0 || tokenId >= tokensOnTable.length) {
+        Left("Ungültiger Token-Index!")
+      } else {
+        val token = tokensOnTable(tokenId)
+        val updatedTokensOnTable = table.getTokensOnTable.flatten.zipWithIndex.filterNot(_._2 == tokenId).map(_._1)
+        val updatedStorage = getState.getStorageTokens :+ token.toString
+        val newState = getState.updatedStorage(updatedStorage)
+        Right(newState)
+      }
+    }
+
+
+
+    override def getTokenFromString(tokenStr: String): TokenInterface = {
+      val Array(num, color) = tokenStr.split(":")
+      if (num == "J")
+        tokenFactory.createJoker(Color.withName(color.trim.toLowerCase))
+      else
+        tokenFactory.createNumToken(num.toInt, Color.withName(color.trim.toLowerCase))
+    }
+
+    def getIndexedTokens: List[(Int, TokenInterface)] = {
+      playingField.get.getInnerField.getTokensOnTable.flatten.zipWithIndex.map(_.swap)
+    }
+
+    def getTokenPositionByIndex(index: Int): Option[(Int, Int)] = {
+      val tokensOnTable = playingField.get.getInnerField.getTokensOnTable
+      var count = 0
+      for ((group, groupIdx) <- tokensOnTable.zipWithIndex) {
+        for ((token, tokenIdx) <- group.zipWithIndex) {
+          if (count == index) return Some((groupIdx, tokenIdx))
+          count += 1
+        }
+      }
+      None
+    }
 }
