@@ -19,6 +19,8 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
   title = "Rummikub GUI"
   preferredSize = new Dimension(1200, 700)
+  minimumSize = new Dimension(1000, 600)
+
 
   val stateLabel = new Label("Welcome to Rummikub!")
 
@@ -51,10 +53,12 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     hGap = 10
     vGap = 10
     border = borderTitleBoard
+    preferredSize = new Dimension(1000, 180)
   }
 
   val tablePanel = new VerticalImagePanel("/playing-field-bg.jpg") {
     border = borderTitleTable
+    preferredSize = new Dimension(1000, 400)
   }
 
   val controlPanel = new BoxPanel(Orientation.Vertical) {
@@ -73,12 +77,14 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     contents += Swing.VStrut(5)
   }
 
+
   contents = new BorderPanel {
-    layout(new ScrollPane(playerBoardPanel)) = BorderPanel.Position.South
-    layout(new ScrollPane(tablePanel)) = BorderPanel.Position.Center
+    layout(playerBoardPanel) = BorderPanel.Position.South
+    layout(tablePanel) = BorderPanel.Position.Center
     layout(controlPanel) = BorderPanel.Position.East
     layout(stateLabel) = BorderPanel.Position.North
   }
+
 
   menuBar = new MenuBar {
     contents += new Menu("Game") {
@@ -241,11 +247,14 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     val groupsPerRow = 5
     val rows = tableTokens.grouped(groupsPerRow).toSeq
 
-    for ((rowGroups, rowIndex) <- rows.zipWithIndex) {
+    val rowsToShow = rows.take(2)
+
+    for ((rowGroups, rowIndex) <- rowsToShow.zipWithIndex) {
       val rowPanel = new FlowPanel(FlowPanel.Alignment.Left)() {
         opaque = false
         hGap = 15
         vGap = 10
+        tablePanel.preferredSize = new Dimension(1000, 250)
       }
 
       for ((tokenGroup, groupIndex) <- rowGroups.zipWithIndex) {
