@@ -43,6 +43,17 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
   val undoButton = new Button("undo")
   val redoButton = new Button("redo")
 
+  drawButton.enabled = false
+  passButton.enabled = false
+  rowButton.enabled = false
+  groupButton.enabled = false
+
+  appendToRowButton.enabled = false
+  appendToGroupButton.enabled = false
+
+  undoButton.enabled = false
+  redoButton.enabled = false
+
   for (btn <- Seq(drawButton, passButton, rowButton, groupButton, appendToRowButton, appendToGroupButton, undoButton, redoButton)) {
     btn.font = new Font("Arial", java.awt.Font.BOLD, 12)
     btn.background = java.awt.Color.WHITE
@@ -121,6 +132,17 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
         createNewGame
       })
       contents += new MenuItem(Action("start") {
+        drawButton.enabled = true
+        passButton.enabled = true
+        rowButton.enabled = true
+        groupButton.enabled = true
+
+        appendToRowButton.enabled = true
+        appendToGroupButton.enabled = true
+
+        undoButton.enabled = true
+        redoButton.enabled = true
+
         playGame
       })
       contents += new MenuItem(Action("quit") {
@@ -318,7 +340,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     updatePlayerTokens
     updateTable
 
-    drawButton.enabled = !state.currentStack.isEmpty
+    drawButton.enabled = !state.currentStack.isEmpty && controller.getGameStarted
 
     tokenStackSizeLabel.text = s"Remaining tokens in stack: ${controller.getState.currentStack.size}"
   }
