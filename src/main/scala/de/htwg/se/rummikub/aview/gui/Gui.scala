@@ -21,6 +21,16 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
   preferredSize = new Dimension(1200, 700)
 
   val stateLabel = new Label("Welcome to Rummikub!")
+  val tokenStackSizeLabel = new Label(s"Remaining tokens in stack: ${controller.getState.currentStack.size}") {
+    foreground = java.awt.Color.WHITE
+    font = new Font("Arial", java.awt.Font.BOLD, 14)
+  }
+
+  val finalRoundsLabel = new Label(s"Final rounds left: ${controller.getState.getFinalRoundsLeft.getOrElse("")}") {
+    foreground = java.awt.Color.WHITE
+    font = new Font("Arial", java.awt.Font.BOLD, 14)
+    visible = false
+  }
 
   val drawButton = new Button("draw")
   val passButton = new Button("pass")
@@ -45,8 +55,12 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
   val borderTitleTable = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(java.awt.Color.WHITE), "playing field ")
   borderTitleTable.setTitleColor(java.awt.Color.WHITE)
 
-  val borderTitleControl = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(java.awt.Color.WHITE), "available actions ")
+  val borderTitleAction = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(java.awt.Color.WHITE), "available actions ")
+  borderTitleAction.setTitleColor(java.awt.Color.WHITE)
+
+  val borderTitleControl = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(java.awt.Color.WHITE), "game info & actions")
   borderTitleControl.setTitleColor(java.awt.Color.WHITE)
+
   val playerBoardPanel = new HorizontalImagePanel("/board-bg.jpg") {
     hGap = 10
     vGap = 10
@@ -57,11 +71,9 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     border = borderTitleTable
   }
 
-  val controlPanel = new BoxPanel(Orientation.Vertical) {
-    border = borderTitleControl
+  val actionsPanel = new BoxPanel(Orientation.Vertical) {
+    border = borderTitleAction
     background = java.awt.Color(0, 41, 159)
-
-    contents += Swing.VGlue
 
     contents ++= Seq(
       createButtonRow(drawButton, passButton),
@@ -71,6 +83,28 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     )
 
     contents += Swing.VStrut(5)
+  }
+
+  val tokenStackLabelPanel = new FlowPanel(FlowPanel.Alignment.Left)(tokenStackSizeLabel) {
+    background = java.awt.Color(0, 41, 159)
+    hGap = 0
+    vGap = 0
+  }
+
+  val finalRoundsLabelPanel = new FlowPanel(FlowPanel.Alignment.Left)(finalRoundsLabel) {
+    background = java.awt.Color(0, 41, 159)
+    hGap = 0
+    vGap = 0
+  }
+
+  val controlPanel = new BoxPanel(Orientation.Vertical) {
+    border = borderTitleControl
+    background = java.awt.Color(0, 41, 159)
+
+    contents += tokenStackLabelPanel
+    contents += finalRoundsLabelPanel
+    contents += Swing.VGlue
+    contents += actionsPanel
   }
 
   contents = new BorderPanel {
@@ -284,8 +318,9 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     updatePlayerTokens
     updateTable
 
-    updateTable
-    updatePlayerTokens
+    drawButton.enabled = !state.currentStack.isEmpty
+
+    tokenStackSizeLabel.text = s"Remaining tokens in stack: ${controller.getState.currentStack.size}"
   }
 
   override def playGame: Unit = {
@@ -298,6 +333,31 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
   def nextTurn: Unit = {
     if (controller.winGame || controller.getGameEnded) {
       return
+    }
+
+    if (controller.getState.currentStack.isEmpty && controller.getState.getFinalRoundsLeft.isEmpty) {
+      val playersRemaining = controller.getState.getPlayers.length
+      controller.setStateInternal(controller.getState.updated(newPlayers = controller.getState.getPlayers, newStack = controller.getState.currentStack, newFinalRoundsLeft = Some(playersRemaining)))
+      stateLabel.text = s"No tokens left in stack, final round begins! You have $playersRemaining turns left to play."
+
+      finalRoundsLabel.visible = true
+    }
+
+    controller.getState.getFinalRoundsLeft match {
+      case Some(0) =>
+        finalRoundsLabel.text = "Final rounds left: 0"
+        controller.setGameEnded(true)
+        val winnerMessage = controller.endGame
+
+        Dialog.showMessage(contents.head, winnerMessage, title = "Game is over!")
+        stateLabel.text = "Game is over!"
+        return
+
+      case Some(n) =>
+        finalRoundsLabel.text = s"Final rounds left: ${controller.getState.getFinalRoundsLeft.getOrElse("")}"
+        controller.setStateInternal(controller.getState.updated(newPlayers = controller.getState.getPlayers, newStack = controller.getState.currentStack, newFinalRoundsLeft = Some(n - 1)))
+
+      case None =>
     }
 
     val currentPlayer = controller.getState.currentPlayer
