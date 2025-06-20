@@ -30,6 +30,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
     var turnUndoManager: UndoManager = new UndoManager
     var gameEnded: Boolean = false
+    var gameStarted: Boolean = false
 
     override def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
         gameMode = gameModeFactory.createGameMode(amountPlayers, names).toOption
@@ -43,6 +44,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
     }
 
     override def startGame: Unit = {
+        gameStarted = true
         val stack = getState.stack
         val (updatedPlayers, updatedStack) = gameState.get.getPlayers.foldLeft((Vector.empty[PlayerInterface], stack)) {
             case ((playersAcc, stackAcc), player) =>
@@ -477,5 +479,11 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
     override def setUndoManager(num: UndoManager): Unit = {
         turnUndoManager = num
+    }
+
+    override def getGameStarted: Boolean = gameStarted
+
+    override def setGameStarted(ngs: Boolean): Unit = {
+        gameStarted = ngs
     }
 }

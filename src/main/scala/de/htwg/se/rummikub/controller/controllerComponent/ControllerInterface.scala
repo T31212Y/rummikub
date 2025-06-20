@@ -47,6 +47,8 @@ trait ControllerInterface extends Publisher {
     def setTurnStartState(newState: Option[GameStateInterface]): Unit
     def getUndoManager: UndoManager
     def setUndoManager(num: UndoManager): Unit
+    def getGameStarted: Boolean
+    def setGameStarted(ngs: Boolean): Unit
 }
 
 
