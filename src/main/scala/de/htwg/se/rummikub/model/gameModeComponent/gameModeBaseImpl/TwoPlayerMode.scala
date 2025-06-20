@@ -1,18 +1,20 @@
 package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
-import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
-
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
-
-import de.htwg.se.rummikub.model._
+import de.htwg.se.rummikub.model.playerComponent.{PlayerInterface, PlayerFactoryInterface}
+import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, PlayingFieldInterface, TokenStackFactoryInterface, TableFactoryInterface, BoardFactoryInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
-import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.StandardPlayingFieldBuilder
-import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.TwoPlayerFieldDirector
+import de.htwg.se.rummikub.model.builderComponent.{PlayingFieldBuilderInterface, FieldDirectorInterface}
 
-case class TwoPlayerMode(pns: List[String]) extends GameModeTemplate {
+import com.google.inject.Inject
+import com.google.inject.name.Named
+
+case class TwoPlayerMode @Inject() (pns: List[String], 
+                                        tokenStackFactory: TokenStackFactoryInterface, 
+                                        tableFactory: TableFactoryInterface, 
+                                        boardFactory: BoardFactoryInterface, 
+                                        playerFactory: PlayerFactoryInterface,
+                                        playingFieldBuilder: PlayingFieldBuilderInterface,
+                                        @Named("TwoPlayer") director: FieldDirectorInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -21,15 +23,12 @@ case class TwoPlayerMode(pns: List[String]) extends GameModeTemplate {
             println("Cannot create playing field: No players provided.")
             None
         } else {
-            val builder = new StandardPlayingFieldBuilder
-            val director = new TwoPlayerFieldDirector(builder)
-
             Some(director.construct(players))
         }
     }
 
     override def createPlayers: List[PlayerInterface] = {
-        playerNames.map(name => Player(name))
+        playerNames.map(name => playerFactory.createPlayer(name))
     }
 
     override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = {
@@ -49,7 +48,7 @@ case class TwoPlayerMode(pns: List[String]) extends GameModeTemplate {
                     updateBoardSinglePlayer(player2, boardP2).fold(boardP2)(identity)
                 )
 
-                val updatedInnerField = new Table(
+                val updatedInnerField = tableFactory.createTable(
                     cntRows - 4,
                     boardP1.size(boardP1.wrapBoardRowSingle(boardP1.getBoardELRP12_1)) - 2,
                     field.getInnerField.getTokensOnTable

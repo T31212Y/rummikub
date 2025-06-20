@@ -1,8 +1,7 @@
 package de.htwg.se.rummikub.model.gameModeComponent
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, PlayingFieldInterface}
 
 trait GameModeTemplate {
     val cntRows: Int = 20

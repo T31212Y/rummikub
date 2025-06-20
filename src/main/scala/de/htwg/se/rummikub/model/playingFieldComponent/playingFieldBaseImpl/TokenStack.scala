@@ -3,7 +3,6 @@ package de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl
 import scala.util.Random
 
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
-import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.StandardTokenFactory
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
 
 case class TokenStack(tokens: List[TokenInterface]) extends TokenStackInterface {
@@ -37,12 +36,4 @@ case class TokenStack(tokens: List[TokenInterface]) extends TokenStackInterface 
   override def size: Int = tokens.size
 
   override def toString: String = tokens.map(_.toString).mkString(", ")
-}
-
-object TokenStack {
-  def apply(): TokenStack = {
-    val tokenFactory = new StandardTokenFactory
-    val allTokens = Random.shuffle(tokenFactory.generateAllTokens())
-    new TokenStack(allTokens)
-  }
 }

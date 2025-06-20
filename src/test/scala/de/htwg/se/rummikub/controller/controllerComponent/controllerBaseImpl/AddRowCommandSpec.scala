@@ -11,16 +11,27 @@ import de.htwg.se.rummikub.aview.Tui
 
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
+import com.google.inject.Guice
+import de.htwg.se.rummikub.RummikubModule
+
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+
 class AddRowCommandSpec extends AnyWordSpec {
 
   "An AddRowCommand" should {
+    val injector = Guice.createInjector(new RummikubModule)
+    val controller = injector.getInstance(classOf[ControllerInterface])
+    controller.setupNewGame(2, List("Emilia", "Noah"))
+
+    val tokenStackFactory = injector.getInstance(classOf[TokenStackFactoryInterface])
+    val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+
     "remove tokens from player and update removedTokens on doStep" in {
-        val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
+        val player = Player("Emilia", tokens = List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)), tokenStructureFactory = tokenStructureFactory)
         val row = Row(List(NumToken(1, Color.RED), NumToken(2, Color.BLUE)))
-        val stack = TokenStack()
-        val gameModeFactory = new GameModeFactory
-        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-        controller.setupNewGame(2, List("TestPlayer", "Other"))
+        val stack = tokenStackFactory.createShuffledStack
 
         val testToken = NumToken(1, Color.RED)
         val testToken2 = NumToken(2, Color.BLUE)
@@ -34,12 +45,9 @@ class AddRowCommandSpec extends AnyWordSpec {
     }
 
     "restore old state on undoStep" in {
-        val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED)))
+        val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
         val row = Row(List(NumToken(1, Color.RED)))
-        val stack = TokenStack()
-        val gameModeFactory = new GameModeFactory
-        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-        controller.setupNewGame(2, List("TestPlayer", "Other"))
+        val stack = tokenStackFactory.createShuffledStack
 
         val initialState = controller.getState
         val cmd = new AddRowCommand(controller, row, player, stack)
@@ -51,12 +59,9 @@ class AddRowCommandSpec extends AnyWordSpec {
     }
 
     "print message if no old state on undoStep" in {
-        val player = Player("TestPlayer")
+        val player = Player("Emilia", tokenStructureFactory = tokenStructureFactory)
         val row = Row(List(NumToken(1, Color.RED)))
-        val stack = TokenStack()
-        val gameModeFactory = new GameModeFactory
-        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-        controller.setupNewGame(2, List("TestPlayer", "Other"))
+        val stack = tokenStackFactory.createShuffledStack
 
         val cmd = new AddRowCommand(controller, row, player, stack) {
             oldState = None
@@ -70,12 +75,9 @@ class AddRowCommandSpec extends AnyWordSpec {
     }
 
     "redoStep should call doStep" in {
-        val player = Player("TestPlayer")
+        val player = Player("Emilia", tokenStructureFactory = tokenStructureFactory)
         val row = Row(List(NumToken(1, Color.RED)))
-        val stack = TokenStack()
-        val gameModeFactory = new GameModeFactory
-        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-        controller.setupNewGame(2, List("TestPlayer", "Other"))
+        val stack = tokenStackFactory.createShuffledStack
 
         var doStepCalled = false
 

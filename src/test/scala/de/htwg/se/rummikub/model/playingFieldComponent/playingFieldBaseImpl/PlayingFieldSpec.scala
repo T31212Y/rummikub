@@ -4,10 +4,17 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
 
+import com.google.inject.Guice
+import de.htwg.se.rummikub.RummikubModule
+
+import de.htwg.se.rummikub.model.gameModeComponent.GameModeFactoryInterface
+
 class PlayingFieldSpec extends AnyWordSpec {
   "A PlayingField" should {
+    val injector = Guice.createInjector(new RummikubModule)
+    val gameModeFactory = injector.getInstance(classOf[GameModeFactoryInterface])
+
     "be created with the correct number of players" in {
-      val gameModeFactory = new GameModeFactory
       val gameModeTry = gameModeFactory.createGameMode(2, List("Emilia", "Noah"))
       val gameMode = gameModeTry.get
       val players = gameMode.createPlayers
@@ -17,7 +24,6 @@ class PlayingFieldSpec extends AnyWordSpec {
     }
 
     "have a board for each player" in {
-      val gameModeFactory = new GameModeFactory
       val gameModeTry = gameModeFactory.createGameMode(2, List("Emilia", "Noah"))
       val gameMode = gameModeTry.get
       val players = gameMode.createPlayers
@@ -27,7 +33,6 @@ class PlayingFieldSpec extends AnyWordSpec {
     }
 
     "have an inner field" in {
-      val gameModeFactory = new GameModeFactory
       val gameModeTry = gameModeFactory.createGameMode(2, List("Emilia", "Noah"))
       val gameMode = gameModeTry.get
       val players = gameMode.createPlayers

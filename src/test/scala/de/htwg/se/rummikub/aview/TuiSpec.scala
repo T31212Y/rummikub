@@ -11,13 +11,23 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Toke
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
 
+import com.google.inject.Guice
+import de.htwg.se.rummikub.RummikubModule
+
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+
 class TuiSpec extends AnyWordSpec with Matchers {
 
   "A Tui" should {
+    val injector = Guice.createInjector(new RummikubModule)
+    val controller = injector.getInstance(classOf[ControllerInterface])
+    controller.setupNewGame(2, List("Emilia", "Noah"))
 
-    val gameModeFactory = new GameModeFactory
-    val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
     val tui = new Tui(controller)
+    val tokenStackFactory = injector.getInstance(classOf[TokenStackFactoryInterface])
+    val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
 
     "show welcome message" in {
       val welcome = tui.showWelcome
@@ -49,7 +59,7 @@ class TuiSpec extends AnyWordSpec with Matchers {
 
     "show goodbye message" in {
       tui.inputCommands("quit")
-      controller.gameEnded = true
+      controller.setGameEnded(true)
       tui.showGoodbye should include ("Thank you for playing Rummikub! Goodbye!")
     }
 
@@ -127,22 +137,20 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "handle 'pass' command" in {
-      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("row:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.BLUE), NumToken(13, Color.GREEN)), hasCompletedFirstMove = true)
-      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)))
-      val gameModeFactory = new GameModeFactory
-      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+      val player1 = Player("Emilia", tokens = List(NumToken(1, Color.RED)), commandHistory = List("group:10:red,10:blue,10:green"), firstMoveTokens = List(NumToken(11, Color.RED), NumToken(12, Color.RED), NumToken(13, Color.RED)), hasCompletedFirstMove = true, tokenStructureFactory = tokenStructureFactory)
+      val player2 = Player("Noah", tokens = List(NumToken(2, Color.BLUE)), commandHistory = List("row:11:blue,12:blue,13:blue"), firstMoveTokens = List(NumToken(11, Color.BLUE), NumToken(12, Color.BLUE), NumToken(13, Color.BLUE)), tokenStructureFactory = tokenStructureFactory)
+
       val tui = new Tui(controller)
+
+      controller.setPlayingField(Some(controller.getPlayingField.get.updated(newPlayers = List(player1, player2), newBoards = controller.getPlayingField.get.getBoards, newInnerField = controller.getPlayingField.get.getInnerField)))
       
-      controller.setupNewGame(2, List("Emilia", "Noah"))
-      controller.playingField = Some(controller.playingField.get.updated(newPlayers = List(player1, player2), newBoards = controller.playingField.get.getBoards, newInnerField = controller.playingField.get.getInnerField))
-      
-      val stack = TokenStack()
+      val stack = tokenStackFactory.createShuffledStack
 
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
         tui.processGameInput("pass")
       }
-      println("output test" + out.toString)
+      println("output test: " + out.toString + ", currentPlayer: " + controller.getState.currentPlayer + ", commandHistory: " + controller.getState.currentPlayer.getCommandHistory)
       out.toString should include ("ended their turn")
     }
 
@@ -156,13 +164,13 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "handle 'end' command" in {
-      controller.gameEnded = false
+      controller.setGameEnded(false)
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
         tui.processGameInput("end")
       }
       out.toString should include ("Exiting the game")
-      controller.gameEnded shouldBe true
+      controller.getGameEnded shouldBe true
     }
 
     "handle 'group' command" in {
@@ -210,11 +218,6 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "display the available commands" in {
-      
-      val gameModeFactory = new GameModeFactory
-      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-      val tui = new Tui(controller)
-
       val result = tui.showAvailableCommands
 
       val expected = Vector(

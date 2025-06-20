@@ -1,11 +1,7 @@
 package de.htwg.se.rummikub.model.builderComponent
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.TableInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, TableInterface, TokenStackInterface, PlayingFieldInterface}
 
 trait PlayingFieldBuilderInterface {
     def setPlayers(players: List[PlayerInterface]): PlayingFieldBuilderInterface
