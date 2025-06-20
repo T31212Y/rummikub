@@ -35,6 +35,7 @@ class Tui(controller: ControllerInterface) extends Reactor with GameView(control
 
             controller.setPlayingField(controller.getGameMode.updatePlayingField(controller.getPlayingField))
             println(currentPlayer.getName + ", it's your turn!\n")
+            println(s"Remaining tokens in stack: ${controller.getState.currentStack.size}\n")
             println("Available commands:")
             println("group - Play a group of tokens")
             println("row - Play a row of tokens")

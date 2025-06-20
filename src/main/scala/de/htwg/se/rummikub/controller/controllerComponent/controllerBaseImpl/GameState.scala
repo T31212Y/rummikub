@@ -9,7 +9,8 @@ case class GameState(
   players: Vector[PlayerInterface],
   boards: Vector[BoardInterface],
   currentPlayerIndex: Int,
-  stack: TokenStackInterface
+  stack: TokenStackInterface,
+  finalRoundsLeft: Option[Int] = None
 ) extends GameStateInterface {
 
   override def getTable: TableInterface = table
@@ -19,6 +20,8 @@ case class GameState(
   override def getBoards: Vector[BoardInterface] = boards
 
   override def getCurrentPlayerIndex: Int = currentPlayerIndex
+
+  override def getFinalRoundsLeft: Option[Int] = finalRoundsLeft
 
   override def currentPlayer: PlayerInterface = players(currentPlayerIndex)
 
@@ -44,5 +47,5 @@ case class GameState(
 
   override def nextTurn: GameState = copy(currentPlayerIndex = (currentPlayerIndex + 1) % players.length)
 
-  override def updated(newPlayers: Vector[PlayerInterface], newStack: TokenStackInterface): GameStateInterface = copy(players = newPlayers, stack = newStack)
+  override def updated(newPlayers: Vector[PlayerInterface], newStack: TokenStackInterface, newFinalRoundsLeft: Option[Int]): GameStateInterface = copy(players = newPlayers, stack = newStack, finalRoundsLeft = newFinalRoundsLeft)
 }

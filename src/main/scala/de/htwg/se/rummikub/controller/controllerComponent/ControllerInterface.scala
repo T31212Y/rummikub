@@ -38,7 +38,7 @@ trait ControllerInterface extends Publisher {
     def playGroup(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String)
     def appendTokenToRow(tokenString: String, index: Int): (PlayerInterface, String)
     def appendTokenToGroup(tokenString: String, index: Int): (PlayerInterface, String)
-    def endGame: Unit
+    def endGame: String
     def getGameEnded: Boolean
     def getGameMode: GameModeTemplate
     def getPlayingField: Option[PlayingFieldInterface]
