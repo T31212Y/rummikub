@@ -1,17 +1,17 @@
 package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
-import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
-
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
-
+import de.htwg.se.rummikub.model.playerComponent.{PlayerInterface, PlayerFactoryInterface}
+import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, PlayingFieldInterface, TokenStackFactoryInterface, TableFactoryInterface, BoardFactoryInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
-import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.StandardPlayingFieldBuilder
-import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.FourPlayerFieldDirector
+import de.htwg.se.rummikub.model.builderComponent.{PlayingFieldBuilderInterface, FieldDirectorInterface}
 
-case class FourPlayerMode(pns: List[String]) extends GameModeTemplate {
+import com.google.inject.Inject
+import com.google.inject.name.Named
+
+case class FourPlayerMode @Inject() (pns: List[String], tokenStackFactory: TokenStackFactoryInterface,
+                                      tableFactory: TableFactoryInterface, boardFactory: BoardFactoryInterface,
+                                      playerFactory: PlayerFactoryInterface, playingFieldBuilder: PlayingFieldBuilderInterface,
+                                      @Named("FourPlayer") director: FieldDirectorInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -20,15 +20,12 @@ case class FourPlayerMode(pns: List[String]) extends GameModeTemplate {
             println("Cannot create playing field: No players provided.")
             None
         } else {
-            val builder = new StandardPlayingFieldBuilder
-            val director = new FourPlayerFieldDirector(builder)
-
             Some(director.construct(players))
         }
     }
 
     override def createPlayers: List[PlayerInterface] = {
-        playerNames.map(name => Player(name))
+        playerNames.map(name => playerFactory.createPlayer(name))
     }
 
     override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = {
@@ -50,7 +47,7 @@ case class FourPlayerMode(pns: List[String]) extends GameModeTemplate {
                     updateBoardMultiPlayer(List(player2, player4), boardP24).fold(boardP24)(identity)
                 )
 
-                val updatedInnerField = new Table(cntRows - 4, boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)) - 2, field.getInnerField.getTokensOnTable)
+                val updatedInnerField = tableFactory.createTable(cntRows - 4, boardP24.size(boardP24.wrapBoardRowDouble(boardP24.getBoardELRP12_1, boardP24.getBoardELRP34_1)) - 2, field.getInnerField.getTokensOnTable)
 
                 field.updated(newPlayers = field.getPlayers, newBoards = updatedBoards, newInnerField = updatedInnerField)
             }

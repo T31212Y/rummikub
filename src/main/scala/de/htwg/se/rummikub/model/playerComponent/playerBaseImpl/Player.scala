@@ -1,18 +1,17 @@
 package de.htwg.se.rummikub.model.playerComponent.playerBaseImpl
 
-import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
-import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
 
-import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Group
-import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.Row
+import com.google.inject.Inject
 
-case class Player(name: String, 
+case class Player @Inject() (name: String, 
   tokens: List[TokenInterface] = List(), 
   commandHistory: List[String] = List(), 
   firstMoveTokens: List[TokenInterface] = List(), 
-  hasCompletedFirstMove: Boolean = false
+  hasCompletedFirstMove: Boolean = false,
+  tokenStructureFactory: TokenStructureFactoryInterface
 ) extends PlayerInterface {
 
   override def toString: String = {
@@ -59,8 +58,8 @@ case class Player(name: String,
           subset <- remaining.combinations(size)
         } yield {
           val ts = subset.toList
-          val group = Group(ts)
-          val row = Row(ts)
+          val group = tokenStructureFactory.createGroup(ts)
+          val row = tokenStructureFactory.createRow(ts)
           List(group, row).filter(_.isValid).map(validSet => (validSet, ts))
         }
 
@@ -97,6 +96,6 @@ case class Player(name: String,
   }
 
   override def updated(newTokens: List[TokenInterface], newCommandHistory: List[String], newHasCompletedFirstMove: Boolean): PlayerInterface = {
-    copy(tokens = newTokens, commandHistory = newCommandHistory, hasCompletedFirstMove = newHasCompletedFirstMove)
+    copy(tokens = newTokens, commandHistory = newCommandHistory, hasCompletedFirstMove = newHasCompletedFirstMove, firstMoveTokens = this.firstMoveTokens)
   }
 }

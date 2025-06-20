@@ -1,15 +1,12 @@
 package de.htwg.se.rummikub.model.builderComponent.builderBaseImpl
 
 import scala.util.{Try, Failure, Success}
-import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.TableInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, TableInterface, TokenStackInterface, PlayingFieldInterface}
+import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
 
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.PlayingField
-import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
 
 class StandardPlayingFieldBuilder extends PlayingFieldBuilderInterface {
     private var players: Option[List[PlayerInterface]] = None

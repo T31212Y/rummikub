@@ -1,17 +1,20 @@
 package de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl
 
-import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
-import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
-
-import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Table
-import de.htwg.se.rummikub.model.playingFieldComponent.BoardInterface
-import de.htwg.se.rummikub.model.playingFieldComponent.PlayingFieldInterface
-
+import de.htwg.se.rummikub.model.playerComponent.{PlayerInterface, PlayerFactoryInterface}
+import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, PlayingFieldInterface, TokenStackFactoryInterface, TableFactoryInterface, BoardFactoryInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
-import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.StandardPlayingFieldBuilder
-import de.htwg.se.rummikub.model.builderComponent.builderBaseImpl.ThreePlayerFieldDirector
+import de.htwg.se.rummikub.model.builderComponent.{PlayingFieldBuilderInterface, FieldDirectorInterface}
 
-case class ThreePlayerMode(pns: List[String]) extends GameModeTemplate {
+import com.google.inject.Inject
+import com.google.inject.name.Named
+
+case class ThreePlayerMode @Inject() (pns: List[String], 
+                                        tokenStackFactory: TokenStackFactoryInterface, 
+                                        tableFactory: TableFactoryInterface, 
+                                        boardFactory: BoardFactoryInterface, 
+                                        playerFactory: PlayerFactoryInterface,
+                                        playingFieldBuilder: PlayingFieldBuilderInterface,
+                                        @Named("ThreePlayer") director: FieldDirectorInterface) extends GameModeTemplate {
 
     val playerNames: List[String] = pns
 
@@ -20,15 +23,12 @@ case class ThreePlayerMode(pns: List[String]) extends GameModeTemplate {
             println("Cannot create playing field: No players provided.")
             None
         } else {
-            val builder = new StandardPlayingFieldBuilder
-            val director = new ThreePlayerFieldDirector(builder)
-
             Some(director.construct(players))
         }
     }
 
     override def createPlayers: List[PlayerInterface] = {
-        playerNames.map(name => Player(name))
+        playerNames.map(name => playerFactory.createPlayer(name))
     }
 
     override def updatePlayingField(playingField: Option[PlayingFieldInterface]): Option[PlayingFieldInterface] = {
@@ -52,7 +52,7 @@ case class ThreePlayerMode(pns: List[String]) extends GameModeTemplate {
                     updatedBoardP2
                 )
 
-                val updatedInnerField = new Table(cntRows - 4, boardP13.size(boardP13.wrapBoardRowDouble(boardP13.getBoardELRP12_1, boardP13.getBoardELRP34_1)) - 2, field.getInnerField.getTokensOnTable)
+                val updatedInnerField = tableFactory.createTable(cntRows - 4, boardP13.size(boardP13.wrapBoardRowDouble(boardP13.getBoardELRP12_1, boardP13.getBoardELRP34_1)) - 2, field.getInnerField.getTokensOnTable)
 
                 field.updated(newPlayers = field.getPlayers, newBoards = updatedBoards, newInnerField = updatedInnerField)
             }

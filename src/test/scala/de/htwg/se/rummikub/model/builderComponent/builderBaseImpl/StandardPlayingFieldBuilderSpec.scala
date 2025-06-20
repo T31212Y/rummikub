@@ -7,11 +7,19 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Tabl
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Board
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
 
+import com.google.inject.Guice
+import de.htwg.se.rummikub.RummikubModule
+
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+
 class StandardPlayingFieldBuilderSpec extends AnyWordSpec {
   "A StandardPlayingFieldBuilder" should {
+    val injector = Guice.createInjector(new RummikubModule)
+    val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+
     "set players, boards and innerField and build a PlayingField" in {
       val builder = new StandardPlayingFieldBuilder
-      val players = List(Player("A"), Player("B"))
+      val players = List(Player("A", tokenStructureFactory = tokenStructureFactory), Player("B", tokenStructureFactory = tokenStructureFactory))
       val boards = List(Board(24, 14, 2, 2, "default", 10), Board(24, 14, 2, 2, "default", 10))
       val table = Table(2, 14)
       val stack = TokenStack(List()) 
@@ -38,7 +46,7 @@ class StandardPlayingFieldBuilderSpec extends AnyWordSpec {
 
     "throw an exception if boards are not set" in {
       val builder = new StandardPlayingFieldBuilder
-      val players = List(Player("A"))
+      val players = List(Player("A", tokenStructureFactory = tokenStructureFactory))
       val table = Table(1, 14)
       builder.setPlayers(players).setInnerField(table)
       an [IllegalStateException] should be thrownBy builder.build()
@@ -46,7 +54,7 @@ class StandardPlayingFieldBuilderSpec extends AnyWordSpec {
 
     "throw an exception if innerField is not set" in {
       val builder = new StandardPlayingFieldBuilder
-      val players = List(Player("A"))
+      val players = List(Player("A", tokenStructureFactory = tokenStructureFactory))
       val boards = List(Board(24, 14, 2, 2, "default", 10))
       builder.setPlayers(players).setBoards(boards)
       an [IllegalStateException] should be thrownBy builder.build()
@@ -54,7 +62,7 @@ class StandardPlayingFieldBuilderSpec extends AnyWordSpec {
 
     "throw an exception if stack is not set" in {
       val builder = new StandardPlayingFieldBuilder
-      val players = List(Player("A"))
+      val players = List(Player("A", tokenStructureFactory = tokenStructureFactory))
       val boards = List(Board(24, 14, 2, 2, "default", 10))
       val table = Table(1, 14)
       builder.setPlayers(players).setBoards(boards).setInnerField(table)

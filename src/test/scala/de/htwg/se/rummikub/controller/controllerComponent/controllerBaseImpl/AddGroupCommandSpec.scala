@@ -12,18 +12,27 @@ import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.
 import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFactory
 import de.htwg.se.rummikub.aview.Tui
 
+import com.google.inject.Guice
+import de.htwg.se.rummikub.RummikubModule
+
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
 
 class AddGroupCommandSpec extends AnyWordSpec {
 
   "An AddGroupCommand" should {
+    val injector = Guice.createInjector(new RummikubModule)
+    val controller = injector.getInstance(classOf[ControllerInterface])
+    controller.setupNewGame(2, List("Emilia", "Noah"))
+
+    val tokenStackFactory = injector.getInstance(classOf[TokenStackFactoryInterface])
+    val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+
     "remove tokens from player and update removedTokens on doStep" in {
-        val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
+        val player = Player("Emilia", tokens = List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)), tokenStructureFactory = tokenStructureFactory)
         val group = Group(List(NumToken(1, Color.RED), NumToken(1, Color.BLUE)))
-        val stack = TokenStack()
-        val gameModeFactory = new GameModeFactory
-        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-        val tui = new Tui(controller)
-        controller.setupNewGame(2, List("TestPlayer", "Other"))
+        val stack = tokenStackFactory.createShuffledStack
 
         val testToken = NumToken(1, Color.RED)
         val testToken2 = NumToken(1, Color.BLUE)
@@ -37,13 +46,9 @@ class AddGroupCommandSpec extends AnyWordSpec {
     }
 
     "restore old state on undoStep" in {
-        val player = Player("TestPlayer", tokens = List(NumToken(1, Color.RED)))
+        val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
         val group = Group(List(NumToken(1, Color.RED)))
-        val stack = TokenStack()
-        val gameModeFactory = new GameModeFactory
-        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-        val tui = new Tui(controller)
-        controller.setupNewGame(2, List("TestPlayer", "Other"))
+        val stack = tokenStackFactory.createShuffledStack
 
         val initialState = controller.getState
         val cmd = new AddGroupCommand(controller, group, player, stack)
@@ -55,13 +60,9 @@ class AddGroupCommandSpec extends AnyWordSpec {
     }
 
     "print message if no old state on undoStep" in {
-        val player = Player("TestPlayer")
+        val player = Player("Emilia", tokenStructureFactory = tokenStructureFactory)
         val group = Group(List(NumToken(1, Color.RED)))
-        val stack = TokenStack()
-        val gameModeFactory = new GameModeFactory
-        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-        val tui = new Tui(controller)
-        controller.setupNewGame(2, List("TestPlayer", "Other"))
+        val stack = tokenStackFactory.createShuffledStack
 
         val cmd = new AddGroupCommand(controller, group, player, stack) {
             oldState = None
@@ -75,12 +76,9 @@ class AddGroupCommandSpec extends AnyWordSpec {
     }
 
     "redoStep should call doStep" in {
-        val player = Player("TestPlayer")
+        val player = Player("Emilia", tokenStructureFactory = tokenStructureFactory)
         val group = Group(List(NumToken(1, Color.RED)))
-        val stack = TokenStack()
-        val gameModeFactory = new GameModeFactory
-        val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
-        controller.setupNewGame(2, List("TestPlayer", "Other"))
+        val stack = tokenStackFactory.createShuffledStack
 
         var doStepCalled = false
 

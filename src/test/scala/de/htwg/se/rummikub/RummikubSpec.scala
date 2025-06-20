@@ -11,6 +11,10 @@ import org.scalatest.wordspec.AnyWordSpec
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
 
+import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
+
+import com.google.inject.Guice
+
 class RummikubSpec extends AnyWordSpec with Matchers {
   "Rummikub" should {
     "have a main method that runs without exceptions" in {
@@ -23,13 +27,13 @@ class RummikubSpec extends AnyWordSpec with Matchers {
     }
 
     "initialize the game correctly with default players" in {
-      val gameModeFactory = new GameModeFactory
-      val controller = new Controller(gameModeFactory.createGameMode(2, List("Emilia", "Noah")).get, gameModeFactory)
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
       controller.setupNewGame(2, List("Emilia", "Noah"))
 
-      controller.playingField.get.getPlayers should have size 2
-      controller.playingField.get.getPlayers.head.getName should be("Emilia")
-      controller.playingField.get.getPlayers(1).getName should be("Noah")
+      controller.getPlayingField.get.getPlayers should have size 2
+      controller.getPlayingField.get.getPlayers.head.getName should be("Emilia")
+      controller.getPlayingField.get.getPlayers(1).getName should be("Noah")
     }
 
     "process commands through the Tui" in {

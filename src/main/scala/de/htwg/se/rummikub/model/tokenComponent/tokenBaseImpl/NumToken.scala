@@ -6,5 +6,8 @@ case class NumToken(number: Int, color: Color) extends TokenInterface {
   override def getNumber = Some(number)
   override def getColor = color
 
+  override def isJoker: Boolean = false
+  override def isNumToken: Boolean = true
+
   override def toString: String = f"${color.toString}$number%2d${color.reset}"
 }
