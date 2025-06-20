@@ -21,7 +21,13 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
   preferredSize = new Dimension(1200, 700)
   minimumSize = new Dimension(1000, 600)
 
-  val stateLabel = new Label("Welcome to Rummikub!")
+  val stateLabel = new Label("Welcome to Rummikub!") {
+    foreground = java.awt.Color.BLACK
+    background = java.awt.Color.WHITE
+    font = new Font("Arial", java.awt.Font.BOLD, 14)
+    opaque = true 
+  }
+
   val tokenStackSizeLabel = new Label(s"Remaining tokens in stack: ${controller.getState.currentStack.size}") {
     foreground = java.awt.Color.WHITE
     font = new Font("Arial", java.awt.Font.BOLD, 14)
@@ -32,6 +38,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     font = new Font("Arial", java.awt.Font.BOLD, 14)
     visible = false
   }
+
 
   val drawButton = new Button("draw")
   val passButton = new Button("pass")
@@ -69,6 +76,14 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     preferredSize = new Dimension(1000, 180)
   }
 
+  val putInStorageButton = new Button("Place in Storage")
+  putInStorageButton.font = new Font("Arial", java.awt.Font.BOLD, 12)
+  putInStorageButton.background = java.awt.Color.WHITE
+  putInStorageButton.foreground = java.awt.Color.BLACK
+  putInStorageButton.preferredSize = new Dimension(130, 30)
+
+
+
   val tablePanel = new VerticalImagePanel("/playing-field-bg.jpg") {
     border = borderTitleTable
     preferredSize = new Dimension(1000, 400)
@@ -78,14 +93,29 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     border = borderTitleAction
     background = java.awt.Color(0, 41, 159)
 
+
     contents ++= Seq(
       createButtonRow(drawButton, passButton),
       createButtonRow(rowButton, groupButton),
       createButtonRow(appendToRowButton, appendToGroupButton),
-      createButtonRow(undoButton, redoButton)
+      createButtonRow(undoButton, redoButton),
+      createSingleButtonRow(putInStorageButton)
     )
 
     contents += Swing.VStrut(5)
+  }
+
+  def createSingleButtonRow(button: Button, width: Int = 130, height: Int = 30): FlowPanel = {
+    val preferredSize = new Dimension(width, height)
+    button.preferredSize = preferredSize
+
+    new FlowPanel(FlowPanel.Alignment.Center)(button) {
+      hGap = 5
+      vGap = 0
+      background = new java.awt.Color(0, 41, 159)
+      border = Swing.EmptyBorder(0, 0, 0, 0)
+      maximumSize = new Dimension(300, height + 5)
+    }
   }
 
   val tokenStackLabelPanel = new FlowPanel(FlowPanel.Alignment.Left)(tokenStackSizeLabel) {
@@ -100,13 +130,21 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     vGap = 0
   }
 
+  val storagePanel = new FlowPanel(FlowPanel.Alignment.Left)() {
+    border = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(java.awt.Color.WHITE), "Storage")
+    preferredSize = new Dimension(300, 150)
+    background = new java.awt.Color(245, 245, 220)
+  }
+
   val controlPanel = new BoxPanel(Orientation.Vertical) {
     border = borderTitleControl
     background = java.awt.Color(0, 41, 159)
 
     contents += tokenStackLabelPanel
     contents += finalRoundsLabelPanel
-    contents += Swing.VGlue
+    contents += Swing.VStrut(10)
+    contents += storagePanel
+    contents += Swing.VStrut(10)
     contents += actionsPanel
   }
 
@@ -115,7 +153,15 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     layout(tablePanel) = BorderPanel.Position.Center
     layout(controlPanel) = BorderPanel.Position.East
     layout(stateLabel) = BorderPanel.Position.North
+
+    val topPanel = new BoxPanel(Orientation.Vertical) {
+      contents += stateLabel
+      background = java.awt.Color.WHITE
+    }
+
+    layout(topPanel) = BorderPanel.Position.North
   }
+
 
   menuBar = new MenuBar {
     contents += new Menu("Game") {
@@ -144,7 +190,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     }
   }
 
-  listenTo(drawButton, passButton, rowButton, groupButton, appendToRowButton, appendToGroupButton, undoButton, redoButton)
+  listenTo(drawButton, passButton, rowButton, groupButton, appendToRowButton, appendToGroupButton, undoButton, redoButton, putInStorageButton)
 
   reactions += {
     case ButtonClicked(`drawButton`) => {
@@ -246,6 +292,29 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     case ButtonClicked(`undoButton`) => controller.undo
 
     case ButtonClicked(`redoButton`) => controller.redo
+
+    case ButtonClicked(`putInStorageButton`) =>
+      val input = Dialog.showInput(
+        parent = null,
+        message = "Enter the index of the token to put in Storage:",
+        title = "Put in Storage",
+        initial = ""
+      )
+      input match {
+        case Some(idxStr) if idxStr.nonEmpty =>
+          try {
+            val tokenId = idxStr.trim.toInt
+            val (newState, message) = controller.putTokenInStorage(tokenId)
+            controller.setStateInternal(newState)
+            stateLabel.text = message
+          } catch {
+            case _: NumberFormatException =>
+              stateLabel.text = "Invalid index format!"
+          }
+        case Some(_) =>
+          stateLabel.text = "No index entered."
+        case None =>
+      }
   }
 
   def updatePlayerBoardTitle(state: GameStateInterface): Unit = {
@@ -268,6 +337,19 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
     playerBoardPanel.revalidate()
     playerBoardPanel.repaint()
+  }
+
+  def updateStoragePanel(): Unit = {
+    storagePanel.contents.clear()
+    val storageTokens = controller.getState.getStorageTokens
+
+    for (token <- storageTokens) {
+      val tokenObj: de.htwg.se.rummikub.model.tokenComponent.TokenInterface = controller.getTokenFromString(token)
+      storagePanel.contents += TokenPanel(tokenObj, controller)
+    }
+
+    storagePanel.revalidate()
+    storagePanel.repaint()
   }
 
   def updateTable: Unit = {
@@ -327,6 +409,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
     updatePlayerTokens
     updateTable
+    updateStoragePanel()
 
     drawButton.enabled = !state.currentStack.isEmpty
 
