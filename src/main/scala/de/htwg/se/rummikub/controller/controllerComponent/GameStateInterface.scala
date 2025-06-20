@@ -8,6 +8,7 @@ trait GameStateInterface {
     def getPlayers: Vector[PlayerInterface]
     def getBoards: Vector[BoardInterface]
     def getCurrentPlayerIndex: Int
+    def getFinalRoundsLeft: Option[Int]
 
     def currentPlayer: PlayerInterface
     def currentBoard: BoardInterface
@@ -22,5 +23,5 @@ trait GameStateInterface {
     def updatePlayers(newPlayers: Vector[PlayerInterface]): GameStateInterface
     def nextTurn: GameStateInterface
 
-    def updated(newPlayers: Vector[PlayerInterface], newStack: TokenStackInterface): GameStateInterface
+    def updated(newPlayers: Vector[PlayerInterface], newStack: TokenStackInterface, newFinalRoundsLeft: Option[Int]): GameStateInterface
 }
