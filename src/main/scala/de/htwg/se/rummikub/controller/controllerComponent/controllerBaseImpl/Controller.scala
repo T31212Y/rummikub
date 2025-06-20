@@ -24,6 +24,7 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
 
     var turnUndoManager: UndoManager = new UndoManager
     var gameEnded: Boolean = false
+    var gameStarted: Boolean = false
 
     override def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
         gameMode = gameModeFactory.createGameMode(amountPlayers, names).get
@@ -37,6 +38,7 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
     }
 
     override def startGame: Unit = {
+        gameStarted = true
         val stack = getState.stack
         val (updatedPlayers, updatedStack) = gameState.get.getPlayers.foldLeft((Vector.empty[PlayerInterface], stack)) {
             case ((playersAcc, stackAcc), player) =>
@@ -427,5 +429,11 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
 
     override def setGameEnded(nge: Boolean): Unit = {
         gameEnded = nge
+    }
+
+    override def getGameStarted: Boolean = gameStarted
+
+    override def setGameStarted(ngs: Boolean): Unit = {
+        gameStarted = ngs
     }
 }

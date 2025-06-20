@@ -45,6 +45,8 @@ trait ControllerInterface extends Publisher {
     def getGameMode: GameModeTemplate
     def getPlayingField: Option[PlayingFieldInterface]
     def setGameEnded(nge: Boolean): Unit
+    def getGameStarted: Boolean
+    def setGameStarted(ngs: Boolean): Unit
 }
 
 
