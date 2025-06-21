@@ -10,4 +10,7 @@ case class Joker(color: Color) extends TokenInterface {
   override def isNumToken: Boolean = false
   
   override def toString: String = s" ${color.toString}J${color.reset}"
+
+  override def serialize: String = s"J:${color.name}"
+
 }
