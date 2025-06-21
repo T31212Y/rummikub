@@ -205,6 +205,8 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
       if (controller.getState.currentPlayer.getCommandHistory.length > 0) {
         val (newState, message) = controller.passTurn(controller.getState, false)
         controller.setStateInternal(newState)
+        println("Storage tokens after putTokenInStorage: " + controller.getState.getStorageTokens.mkString(", "))
+
         stateLabel.text = message
         updatePlayerBoardTitle(newState)
         nextTurn
@@ -319,7 +321,6 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
           }
         case Some(_) =>
           Dialog.showMessage(null, "No index entered.")
-
         case None =>
       }
     }
@@ -349,12 +350,11 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     def updateStoragePanel(): Unit = {
       storagePanel.contents.clear()
       val storageTokens = controller.getState.getStorageTokens
-
-      for (token <- storageTokens) {
-        val tokenObj: de.htwg.se.rummikub.model.tokenComponent.TokenInterface = controller.getTokenFromString(token)
-        storagePanel.contents += TokenPanel(tokenObj, controller)
+      for (tokenStr <- storageTokens) {
+        val label = new Label(tokenStr)
+        label.foreground = java.awt.Color.BLACK
+        storagePanel.contents += label
       }
-
       storagePanel.revalidate()
       storagePanel.repaint()
     }
