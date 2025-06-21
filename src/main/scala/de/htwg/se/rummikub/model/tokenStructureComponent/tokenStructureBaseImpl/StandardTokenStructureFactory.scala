@@ -8,4 +8,6 @@ class StandardTokenStructureFactory extends TokenStructureFactoryInterface {
   override def createGroup(tokens: List[TokenInterface]): TokenStructureInterface = new Group(tokens)
 
   override def createRow(tokens: List[TokenInterface]): TokenStructureInterface = new Row(tokens)
+
+  //override def tokenStructureFactory: TokenStructureFactoryInterface = this
 }
