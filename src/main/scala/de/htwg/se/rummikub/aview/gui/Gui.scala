@@ -8,6 +8,7 @@ import scala.swing.event._
 import javax.swing.BorderFactory
 import javax.swing.border.TitledBorder
 import javax.swing.ImageIcon
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
 class Gui(controller: ControllerInterface) extends Frame with Reactor with GameView(controller) {
 
@@ -350,14 +351,29 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     def updateStoragePanel(): Unit = {
       storagePanel.contents.clear()
       val storageTokens = controller.getState.getStorageTokens
+
       for (tokenStr <- storageTokens) {
-        val label = new Label(tokenStr)
-        label.foreground = java.awt.Color.BLACK
+        val token = controller.getTokenFromString(tokenStr)
+
+        val label = new Label {
+          text = token.getNumber.map(_.toString).getOrElse("J")
+          foreground = token.getColor match {
+            case Color.RED => java.awt.Color.RED
+            case Color.BLUE => java.awt.Color.BLUE
+            case Color.GREEN => java.awt.Color.GREEN
+            case Color.BLACK => java.awt.Color.BLACK
+            case _ => java.awt.Color.GRAY
+          }
+          font = new Font("Arial", java.awt.Font.BOLD, 16)
+        }
+
         storagePanel.contents += label
       }
+
       storagePanel.revalidate()
       storagePanel.repaint()
     }
+
 
     def updateTable: Unit = {
       tablePanel.contents.clear()
