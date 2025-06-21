@@ -10,6 +10,7 @@ import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFa
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent, GameStateInterface}
 import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
 import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+import de.htwg.se.rummikub.model.playingFieldComponent.TableInterface
 
 import scala.swing.Publisher
 
@@ -570,5 +571,51 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
     (rowStrings ++ groupStrings).mkString("\n")
     }
+
+    def fromStorageToTable(table: TableInterface, tokenStr: String, groupIndex: Int, insertAtIndex: Int): TableInterface = {
+        val token = getTokenFromString(tokenStr)
+        val tableGroups = table.getTokensOnTable
+
+        if (groupIndex < 0 || groupIndex >= tableGroups.length)
+            throw new IndexOutOfBoundsException(s"Group index $groupIndex is invalid.")
+
+        val group = tableGroups(groupIndex)
+
+        if (insertAtIndex < 0 || insertAtIndex > group.length)
+            throw new IndexOutOfBoundsException(s"Insert index $insertAtIndex is invalid in group $groupIndex.")
+
+        val updatedGroup = group.patch(insertAtIndex, Seq(token), 0)
+        val updatedGroups = tableGroups.updated(groupIndex, updatedGroup)
+
+        table.updated(updatedGroups)
+    }
+
+
+
+    def putTokenFromStorageToTable(state: GameState, tokenStr: String, groupIndex: Int, insertAtIndex: Int): (GameState, String) = {
+        if (!state.getStorageTokens.contains(tokenStr)) {
+            (state, "Token not found in storage!")
+        } else {
+            try {
+            val newStorage = state.getStorageTokens.filterNot(_ == tokenStr)
+            val newTable = addTokenToTable(state.getTable, tokenStr, groupIndex, insertAtIndex)
+
+            val newState = state.copy(
+                table = newTable,
+                storageTokens = newStorage
+            )
+            (newState, s"Moved token $tokenStr from storage to table at group $groupIndex, position $insertAtIndex.")
+            } catch {
+            case e: IndexOutOfBoundsException =>
+                (state, s"Error: ${e.getMessage}")
+            case e: Exception =>
+                (state, s"Unknown error: ${e.getMessage}")
+            }
+        }
+    }
+    override def putTokenFromStorageToTable(state: GameStateInterface, tokenStr: String, groupIndex: Int, insertAtIndex: Int): (GameStateInterface, String) {
+        
+    }
+
 }
 
