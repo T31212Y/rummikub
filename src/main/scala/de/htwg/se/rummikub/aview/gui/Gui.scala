@@ -362,7 +362,6 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
             case Color.BLUE => java.awt.Color.BLUE
             case Color.GREEN => java.awt.Color.GREEN
             case Color.BLACK => java.awt.Color.BLACK
-            case _ => java.awt.Color.GRAY
           }
           font = new Font("Arial", java.awt.Font.BOLD, 16)
         }
