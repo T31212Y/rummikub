@@ -70,4 +70,8 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[TokenInterf
     override def updated(newTokensOnTable: List[List[TokenInterface]]): TableInterface = {
         copy(tokensOnTable = newTokensOnTable)
     }
+    
+    def containsToken(tokenStr: String): Boolean = {
+        getTokensOnTable.flatten.exists(_.toString == tokenStr)
+    }
 }
