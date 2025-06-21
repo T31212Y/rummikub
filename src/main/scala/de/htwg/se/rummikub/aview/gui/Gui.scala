@@ -203,17 +203,26 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     }
 
     case ButtonClicked(`passButton`) => {
-      if (controller.getState.currentPlayer.getCommandHistory.length > 0) {
-        val (newState, message) = controller.passTurn(controller.getState, false)
-        controller.setStateInternal(newState)
-        println("Storage tokens after putTokenInStorage: " + controller.getState.getStorageTokens.mkString(", "))
+        val currentState = controller.getState
+        val tableValid = controller.getGameMode.isValidTable(currentState.getTable.getTokensOnTable)
+        val storageEmpty = currentState.getStorageTokens.isEmpty
+        val hasMadeMove = currentState.currentPlayer.getCommandHistory.nonEmpty
 
-        stateLabel.text = message
-        updatePlayerBoardTitle(newState)
-        nextTurn
-      } else {
-        stateLabel.text = "You must make a move before passing your turn."
-      }
+        if (!hasMadeMove) {
+          stateLabel.text = "You must make a move before passing your turn."
+        } else if (!tableValid) {
+          stateLabel.text = "You can't pass: The table is not valid!"
+        } else if (!storageEmpty) {
+          stateLabel.text = "You can't pass: You still have tokens in storage!"
+        } else {
+          val (newState, message) = controller.passTurn(currentState, false)
+          controller.setStateInternal(newState)
+          println("Storage tokens after putTokenInStorage: " + newState.getStorageTokens.mkString(", "))
+
+          stateLabel.text = message
+          updatePlayerBoardTitle(newState)
+          nextTurn
+        }
     }
 
     case ButtonClicked(`rowButton`) => {
