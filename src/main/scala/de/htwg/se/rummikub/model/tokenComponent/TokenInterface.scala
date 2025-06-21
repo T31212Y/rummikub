@@ -6,6 +6,8 @@ trait TokenInterface {
 
   def isJoker: Boolean
   def isNumToken: Boolean
+  def serialize: String
+
 
   override def toString: String
 }
