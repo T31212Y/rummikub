@@ -233,24 +233,29 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
             val copiedPlayers = field.getPlayers.map(_.deepCopy)
             val copiedBoards = field.getBoards.map(identity)
             val finalRounds = gameState.map(_.getFinalRoundsLeft).getOrElse(None)
+            val storageTokens = gameState.map(_.getStorageTokens).getOrElse(Vector.empty)
 
             GameState(
-                table = field.getInnerField,
-                players = copiedPlayers.toVector,
-                boards = copiedBoards.toVector,
-                currentPlayerIndex = currentPlayerIndex,
-                stack = field.getStack,
-                finalRoundsLeft = finalRounds
+            table = field.getInnerField,
+            players = copiedPlayers.toVector,
+            boards = copiedBoards.toVector,
+            currentPlayerIndex = currentPlayerIndex,
+            stack = field.getStack,
+            finalRoundsLeft = finalRounds,
+            storageTokens = storageTokens
             )
+
         case None => GameState(
-                        table = tableFactory.createTable(16, 90, List.empty),
-                        players = Vector.empty,
-                        boards = Vector.empty,
-                        currentPlayerIndex = 0,
-                        stack = tokenStackFactory.createShuffledStack,
-                        finalRoundsLeft = None
-                    )
+            table = tableFactory.createTable(16, 90, List.empty),
+            players = Vector.empty,
+            boards = Vector.empty,
+            currentPlayerIndex = 0,
+            stack = tokenStackFactory.createShuffledStack,
+            finalRoundsLeft = None,
+            storageTokens = Vector.empty
+        )
     }
+
 
     override def setStateInternal(state: GameStateInterface): Unit = {
         this.gameState = Some(state)
@@ -516,7 +521,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
             rowOrGroup.flatMap { token =>
             if (currentIndex == tokenId) {
                 currentIndex += 1
-                None  // Entfernen: Token wird nicht mehr in Table behalten
+                None 
             } else {
                 currentIndex += 1
                 Some(token)
@@ -529,7 +534,8 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         } else {
             val token = tokensOnTable.flatten.apply(tokenId)
             val updatedTable = table.updated(updatedTokensOnTable)
-            val updatedStorage = getState.getStorageTokens :+ token.toString 
+            val tokenStr = s"${token.getNumber.getOrElse("J")}(${token.getColor.name})"
+            val updatedStorage = getState.getStorageTokens :+ tokenStr 
             val newState = getState.updatedStorage(updatedStorage).updateTable(updatedTable)
             Some(newState)
         }
