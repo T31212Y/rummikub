@@ -10,4 +10,7 @@ case class NumToken(number: Int, color: Color) extends TokenInterface {
   override def isNumToken: Boolean = true
 
   override def toString: String = f"${color.toString}$number%2d${color.reset}"
+
+  override def serialize: String = s"$number:${color.name}"
+
 }
