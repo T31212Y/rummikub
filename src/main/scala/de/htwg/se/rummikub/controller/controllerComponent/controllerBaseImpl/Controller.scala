@@ -589,33 +589,13 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
         table.updated(updatedGroups)
     }
+    override def fromStorageToTable(state: GameStateInterface, tokenStr: String, groupIndex: Int, insertAtIndex: Int): (GameStateInterface, String) = {
+    // TODO: Implementiere hier die Logik, um den Token aus dem Storage
+    // in die Tabelle einzufügen, an der Position zwischen groupIndex und insertAtIndex
 
+    // Beispiel-Rückgabe (noch nicht implementiert)
+        (state, "Methode fromStorageToTable noch nicht implementiert.")
 
-
-    def putTokenFromStorageToTable(state: GameState, tokenStr: String, groupIndex: Int, insertAtIndex: Int): (GameState, String) = {
-        if (!state.getStorageTokens.contains(tokenStr)) {
-            (state, "Token not found in storage!")
-        } else {
-            try {
-            val newStorage = state.getStorageTokens.filterNot(_ == tokenStr)
-            val newTable = addTokenToTable(state.getTable, tokenStr, groupIndex, insertAtIndex)
-
-            val newState = state.copy(
-                table = newTable,
-                storageTokens = newStorage
-            )
-            (newState, s"Moved token $tokenStr from storage to table at group $groupIndex, position $insertAtIndex.")
-            } catch {
-            case e: IndexOutOfBoundsException =>
-                (state, s"Error: ${e.getMessage}")
-            case e: Exception =>
-                (state, s"Unknown error: ${e.getMessage}")
-            }
-        }
     }
-    override def putTokenFromStorageToTable(state: GameStateInterface, tokenStr: String, groupIndex: Int, insertAtIndex: Int): (GameStateInterface, String) {
-        
-    }
-
 }
 
