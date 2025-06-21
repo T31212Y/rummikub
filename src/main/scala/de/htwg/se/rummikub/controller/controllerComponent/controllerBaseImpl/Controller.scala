@@ -93,27 +93,34 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
         if (!ignoreFirstMoveCheck && !currentPlayer.getHasCompletedFirstMove && !currentPlayer.validateFirstMove) {
             val message = "The first move must have a total of at least 30 points. You cannot end your turn."
-            (state, message)
-        } else {
-            val updatedPlayer = if (!currentPlayer.getHasCompletedFirstMove) {
-                currentPlayer.updated(
-                    currentPlayer.getTokens,
-                    newCommandHistory = currentPlayer.getCommandHistory,
-                    newHasCompletedFirstMove = true
-                )
-            } else currentPlayer
-
-            val nextState = setNextPlayer(state.updateCurrentPlayer(updatedPlayer))
-            turnStartState = None
-            val message = s"${currentPlayer.getName} ended their turn. It's now ${nextState.currentPlayer.getName}'s turn."
-
-            setStateInternal(nextState)
-            setPlayingField(gameMode.get.updatePlayingField(playingField))
-            publish(UpdateEvent())
-
-            (nextState, message)
+            return (state, message)
         }
+
+        val tableValid = gameMode.get.isValidTable(state.getTable.getTokensOnTable)
+        if (!tableValid) {
+            val message = "You cannot end your turn. The table is not valid!"
+            return (state, message)
+        }
+
+        val updatedPlayer = if (!currentPlayer.getHasCompletedFirstMove) {
+            currentPlayer.updated(
+            currentPlayer.getTokens,
+            newCommandHistory = currentPlayer.getCommandHistory,
+            newHasCompletedFirstMove = true
+            )
+        } else currentPlayer
+
+        val nextState = setNextPlayer(state.updateCurrentPlayer(updatedPlayer))
+        turnStartState = None
+        val message = s"${currentPlayer.getName} ended their turn. It's now ${nextState.currentPlayer.getName}'s turn."
+
+        setStateInternal(nextState)
+        setPlayingField(gameMode.get.updatePlayingField(playingField))
+        publish(UpdateEvent())
+
+        (nextState, message)
     }
+
 
     override def setNextPlayer(state: GameStateInterface): GameStateInterface = {
         val current = state.getCurrentPlayerIndex
