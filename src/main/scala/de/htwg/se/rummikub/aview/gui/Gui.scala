@@ -348,7 +348,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
           try {
             val groupIndex = groupStr.trim.toInt
             val insertAt = posStr.trim.toInt
-            val (newState, message) = controller.putTokenFromStorageToTable(controller.getState, tokenStr.trim, groupIndex, insertAt)
+            val (newState, message) = controller.fromStorageToTable(controller.getState, tokenStr.trim, groupIndex, insertAt)
             controller.setStateInternal(newState)
             stateLabel.text = message
             update
