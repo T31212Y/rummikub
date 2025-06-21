@@ -294,29 +294,36 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     case ButtonClicked(`redoButton`) => controller.redo
 
     case ButtonClicked(`putInStorageButton`) =>
+      val displayList = controller.getDisplayStringForTokensWithIndex
       val input = Dialog.showInput(
         parent = null,
-        message = "Enter the index of the token to put in Storage:",
+        message = s"Tokens on Table:\n$displayList\n\nEnter the index of the token to put in Storage:",
         title = "Put in Storage",
         initial = ""
       )
+
       input match {
         case Some(idxStr) if idxStr.nonEmpty =>
           try {
             val tokenId = idxStr.trim.toInt
-            val (newState, message) = controller.putTokenInStorage(tokenId)
-            controller.setStateInternal(newState)
-            stateLabel.text = message
+            controller.putTokenInStorage(tokenId) match {
+              case Some(newState) =>
+                controller.setStateInternal(newState)
+              case None =>
+                Dialog.showMessage(null, "Ungültiger Token-Index!")
+            }
           } catch {
             case _: NumberFormatException =>
-              stateLabel.text = "Invalid index format!"
+              Dialog.showMessage(null, "Invalid index format!")
           }
+
         case Some(_) =>
-          stateLabel.text = "No index entered."
+          Dialog.showMessage(null, "No index entered.")
+
         case None =>
       }
   }
-
+  
   def updatePlayerBoardTitle(state: GameStateInterface): Unit = {
     val titledBorder = playerBoardPanel.border.asInstanceOf[TitledBorder]
     titledBorder.setTitle(s"${state.currentPlayer.getName} ")
