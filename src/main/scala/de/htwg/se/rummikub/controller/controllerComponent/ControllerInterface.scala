@@ -51,7 +51,7 @@ trait ControllerInterface extends Publisher {
   def getColoredTokenString(token: TokenInterface): String
   def getDisplayStringForTokensWithIndex: String
   def putTokenInStorage(tokenId: Int): Option[GameStateInterface]
-  def getFormattedTokensOnTable: String
+  def getFormattedTokensOnTableWithLabels: String
 }
 
 
