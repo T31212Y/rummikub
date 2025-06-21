@@ -7,6 +7,7 @@ import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
 import de.htwg.se.rummikub.util.UndoManager
 
+
 import scala.swing.Publisher
 
 trait ControllerInterface extends Publisher {
@@ -52,6 +53,8 @@ trait ControllerInterface extends Publisher {
   def getDisplayStringForTokensWithIndex: String
   def putTokenInStorage(tokenId: Int): Option[GameStateInterface]
   def getFormattedTokensOnTableWithLabels: String
+  def fromStorageToTable(state: GameStateInterface, tokenStr: String, groupIndex: Int, insertAtIndex: Int): (GameStateInterface, String)
+
 }
 
 
