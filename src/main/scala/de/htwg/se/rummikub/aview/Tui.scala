@@ -137,4 +137,12 @@ class Tui(controller: ControllerInterface) extends Reactor with GameView(control
         case _: UpdateEvent =>
             println(controller.playingFieldToString)
     }
+    def showTableTokensWithIndex(): Unit = {
+        val indexed = controller.getState.getTable.getTokensOnTable.flatten.zipWithIndex
+        println("Tokens on Table with Index:")
+        indexed.foreach { case (token, idx) =>
+            println(s"[$idx] $token")
+        }
+    }
+
 }
