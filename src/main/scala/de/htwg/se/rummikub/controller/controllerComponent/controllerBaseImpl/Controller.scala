@@ -589,13 +589,36 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
         table.updated(updatedGroups)
     }
+
     override def fromStorageToTable(state: GameStateInterface, tokenStr: String, groupIndex: Int, insertAtIndex: Int): (GameStateInterface, String) = {
-    // TODO: Implementiere hier die Logik, um den Token aus dem Storage
-    // in die Tabelle einzufügen, an der Position zwischen groupIndex und insertAtIndex
+    val storage = state.getStorageTokens
+    if (!storage.contains(tokenStr)) {
+        return (state, "Token nicht im Storage gefunden!")
+    }
 
-    // Beispiel-Rückgabe (noch nicht implementiert)
-        (state, "Methode fromStorageToTable noch nicht implementiert.")
+    val token = getTokenFromString(tokenStr)
+    val table = state.getTable
+    val tokensOnTable = table.getTokensOnTable
 
+    if (groupIndex < 0 || groupIndex >= tokensOnTable.length) {
+        return (state, "Ungültiger Gruppen-Index!")
+    }
+
+    val group = tokensOnTable(groupIndex)
+    if (insertAtIndex < 0 || insertAtIndex > group.length) {
+        return (state, "Ungültige Einfügeposition!")
+    }
+
+    val updatedGroup = group.patch(insertAtIndex, Seq(token), 0)
+    val updatedTokensOnTable = tokensOnTable.updated(groupIndex, updatedGroup)
+    val updatedTable = table.updated(updatedTokensOnTable)
+
+    val updatedStorage = storage.filterNot(_ == tokenStr)
+    val newState = state
+        .updatedStorage(updatedStorage)
+        .updateTable(updatedTable)
+
+    (newState, s"Token $tokenStr wurde an Position $insertAtIndex in Gruppe $groupIndex eingefügt.")
     }
 }
 
