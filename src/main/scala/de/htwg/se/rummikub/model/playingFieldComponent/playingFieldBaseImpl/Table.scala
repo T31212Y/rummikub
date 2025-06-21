@@ -74,4 +74,13 @@ case class Table(cntRows: Int, length: Int, tokensOnTable: List[List[TokenInterf
     def containsToken(tokenStr: String): Boolean = {
         getTokensOnTable.flatten.exists(_.toString == tokenStr)
     }
+    override def indexedTokens: List[(Int, TokenInterface)] =
+        tokensOnTable.flatten.zipWithIndex.map(_.swap)
+
+    override def indexedTokensWithPosition: List[((Int, Int), TokenInterface)] =
+        tokensOnTable.zipWithIndex.flatMap { case (row, rowIndex) =>
+            row.zipWithIndex.map { case (token, colIndex) =>
+                ((rowIndex, colIndex), token)
+            }
+        }
 }
