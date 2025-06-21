@@ -18,4 +18,8 @@ trait TableInterface {
 
     def updated(newTokensOnTable: List[List[TokenInterface]]): TableInterface
     def containsToken(tokenStr: String): Boolean
+
+    def indexedTokens: List[(Int, TokenInterface)]
+    def indexedTokensWithPosition: List[((Int, Int), TokenInterface)]
+
 }
