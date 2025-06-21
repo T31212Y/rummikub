@@ -17,4 +17,5 @@ trait TableInterface {
     override def toString: String
 
     def updated(newTokensOnTable: List[List[TokenInterface]]): TableInterface
+    def containsToken(tokenStr: String): Boolean
 }
