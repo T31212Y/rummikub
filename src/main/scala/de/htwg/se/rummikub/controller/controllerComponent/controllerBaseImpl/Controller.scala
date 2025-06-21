@@ -502,32 +502,66 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         s"$numberStr ($colorName)"
     }
     def getDisplayStringForTokensWithIndex: String = {
-    getIndexedTokensOnTable.map { case (idx, token) =>
-        s"[$idx] ${getColoredTokenString(token)}"
-    }.mkString("\n ")
+        getIndexedTokensOnTable.map { case (idx, token) =>
+            s"[$idx] ${getColoredTokenString(token)}"
+        }.mkString("\n ")
     }
 
     override def putTokenInStorage(tokenId: Int): Option[GameStateInterface] = {
         val table = getState.getTable
-        val tokensOnTableFlat = table.getTokensOnTable.flatten
-        if (tokenId < 0 || tokenId >= tokensOnTableFlat.length) {
+        val tokensOnTable = table.getTokensOnTable
+
+        var currentIndex = 0
+        val updatedTokensOnTable = tokensOnTable.map { rowOrGroup =>
+            rowOrGroup.flatMap { token =>
+            if (currentIndex == tokenId) {
+                currentIndex += 1
+                None  // Entfernen: Token wird nicht mehr in Table behalten
+            } else {
+                currentIndex += 1
+                Some(token)
+            }
+            }
+        }.filter(_.nonEmpty)
+
+        if (tokenId < 0 || tokenId >= currentIndex) {
             None
         } else {
-            val token = tokensOnTableFlat(tokenId)
-            val updatedTokensOnTableFlat = tokensOnTableFlat.zipWithIndex.filterNot(_._2 == tokenId).map(_._1)
-            val updatedTable = table.updated(List(updatedTokensOnTableFlat))
-            val updatedStorage = getState.getStorageTokens :+ token.toString
+            val token = tokensOnTable.flatten.apply(tokenId)
+            val updatedTable = table.updated(updatedTokensOnTable)
+            val updatedStorage = getState.getStorageTokens :+ token.toString 
             val newState = getState.updatedStorage(updatedStorage).updateTable(updatedTable)
             Some(newState)
         }
     }
-    def getFormattedTokensOnTable: String = {
-        val table = getState.getTable
-        val rowsOrGroups = table.getTokensOnTable
 
-        rowsOrGroups.zipWithIndex.map { case (tokens, idx) =>
-            val tokenStrings = tokens.map(getColoredTokenString).mkString(", ")
-            s"[$idx]: $tokenStrings"
-        }.mkString("\n")
+
+    def getFormattedTokensOnTableWithLabels: String = {
+    val table = getState.getTable
+    val rowsCount = table.getCntRows
+    val tokensOnTable = table.getTokensOnTable
+
+    var globalIndex = 0
+
+    val rowStrings = tokensOnTable.take(rowsCount).zipWithIndex.map { case (tokens, idx) =>
+        val tokensStr = tokens.map { token =>
+        val s = s"[$globalIndex] ${token.getNumber.getOrElse("")} (${token.getColor.name})"
+        globalIndex += 1
+        s
+        }.mkString(", ")
+        s"row$idx: $tokensStr"
+    }
+
+    val groupStrings = tokensOnTable.drop(rowsCount).zipWithIndex.map { case (tokens, idx) =>
+        val tokensStr = tokens.map { token =>
+        val s = s"[$globalIndex] ${token.getNumber.getOrElse("")} (${token.getColor.name})"
+        globalIndex += 1
+        s
+        }.mkString(", ")
+        s"group$idx: $tokensStr"
+    }
+
+    (rowStrings ++ groupStrings).mkString("\n")
     }
 }
+
