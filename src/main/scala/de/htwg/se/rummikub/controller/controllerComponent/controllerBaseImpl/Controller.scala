@@ -479,43 +479,55 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         turnUndoManager = num
     }
 
-    override def putTokenInStorage(tokenId: Int): Either[String, GameStateInterface] = {
-      val table = getState.getTable
-      val tokensOnTable = table.getTokensOnTable.flatten
-      if (tokenId < 0 || tokenId >= tokensOnTable.length) {
-        Left("Ungültiger Token-Index!")
-      } else {
-        val token = tokensOnTable(tokenId)
-        val updatedTokensOnTable = table.getTokensOnTable.flatten.zipWithIndex.filterNot(_._2 == tokenId).map(_._1)
-        val updatedStorage = getState.getStorageTokens :+ token.toString
-        val newState = getState.updatedStorage(updatedStorage)
-        Right(newState)
-      }
-    }
-
-
-
     override def getTokenFromString(tokenStr: String): TokenInterface = {
-      val Array(num, color) = tokenStr.split(":")
-      if (num == "J")
-        tokenFactory.createJoker(Color.withName(color.trim.toLowerCase))
-      else
-        tokenFactory.createNumToken(num.toInt, Color.withName(color.trim.toLowerCase))
+        val Array(num, colorStr) = tokenStr.split(":")
+        val color = Color.values.find(_.name == colorStr.trim.toLowerCase)
+            .getOrElse(throw new IllegalArgumentException(s"Unknown color: $colorStr"))
+
+        if (num == "J")
+            tokenFactory.createJoker(color)
+        else
+            tokenFactory.createNumToken(num.toInt, color)
     }
 
-    def getIndexedTokens: List[(Int, TokenInterface)] = {
-      playingField.get.getInnerField.getTokensOnTable.flatten.zipWithIndex.map(_.swap)
+    def getIndexedTokensOnTable: List[(Int, TokenInterface)] = {
+    val table = getState.getTable
+    val tokens = table.getTokensOnTable.flatten
+    tokens.zipWithIndex.map { case (token, idx) => (idx, token) }
     }
 
-    def getTokenPositionByIndex(index: Int): Option[(Int, Int)] = {
-      val tokensOnTable = playingField.get.getInnerField.getTokensOnTable
-      var count = 0
-      for ((group, groupIdx) <- tokensOnTable.zipWithIndex) {
-        for ((token, tokenIdx) <- group.zipWithIndex) {
-          if (count == index) return Some((groupIdx, tokenIdx))
-          count += 1
+    def getColoredTokenString(token: TokenInterface): String = {
+        val numberStr = token.getNumber.map(_.toString).getOrElse("J")
+        val colorName = token.getColor.name.capitalize
+        s"$numberStr ($colorName)"
+    }
+    def getDisplayStringForTokensWithIndex: String = {
+    getIndexedTokensOnTable.map { case (idx, token) =>
+        s"[$idx] ${getColoredTokenString(token)}"
+    }.mkString("\n ")
+    }
+
+    override def putTokenInStorage(tokenId: Int): Option[GameStateInterface] = {
+        val table = getState.getTable
+        val tokensOnTableFlat = table.getTokensOnTable.flatten
+        if (tokenId < 0 || tokenId >= tokensOnTableFlat.length) {
+            None
+        } else {
+            val token = tokensOnTableFlat(tokenId)
+            val updatedTokensOnTableFlat = tokensOnTableFlat.zipWithIndex.filterNot(_._2 == tokenId).map(_._1)
+            val updatedTable = table.updated(List(updatedTokensOnTableFlat))
+            val updatedStorage = getState.getStorageTokens :+ token.toString
+            val newState = getState.updatedStorage(updatedStorage).updateTable(updatedTable)
+            Some(newState)
         }
-      }
-      None
+    }
+    def getFormattedTokensOnTable: String = {
+        val table = getState.getTable
+        val rowsOrGroups = table.getTokensOnTable
+
+        rowsOrGroups.zipWithIndex.map { case (tokens, idx) =>
+            val tokenStrings = tokens.map(getColoredTokenString).mkString(", ")
+            s"[$idx]: $tokenStrings"
+        }.mkString("\n")
     }
 }
