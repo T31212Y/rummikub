@@ -485,15 +485,16 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
     }
 
     override def getTokenFromString(tokenStr: String): TokenInterface = {
-        val Array(num, colorStr) = tokenStr.split(":")
+        val Array(numStr, colorStr) = tokenStr.split(":")
         val color = Color.values.find(_.name == colorStr.trim.toLowerCase)
             .getOrElse(throw new IllegalArgumentException(s"Unknown color: $colorStr"))
 
-        if (num == "J")
+        if (numStr.trim == "J")
             tokenFactory.createJoker(color)
         else
-            tokenFactory.createNumToken(num.toInt, color)
+            tokenFactory.createNumToken(numStr.trim.toInt, color)
     }
+
 
     def getIndexedTokensOnTable: List[(Int, TokenInterface)] = {
     val table = getState.getTable
@@ -534,7 +535,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         } else {
             val token = tokensOnTable.flatten.apply(tokenId)
             val updatedTable = table.updated(updatedTokensOnTable)
-            val tokenStr = s"${token.getNumber.getOrElse("J")}(${token.getColor.name})"
+            val tokenStr = s"${token.getNumber.map(_.toString).getOrElse("J")}:${token.getColor.name.toLowerCase}"
             val updatedStorage = getState.getStorageTokens :+ tokenStr 
             val newState = getState.updatedStorage(updatedStorage).updateTable(updatedTable)
             Some(newState)
@@ -551,7 +552,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
     val rowStrings = tokensOnTable.take(rowsCount).zipWithIndex.map { case (tokens, idx) =>
         val tokensStr = tokens.map { token =>
-        val s = s"[$globalIndex] ${token.getNumber.getOrElse("")} (${token.getColor.name})"
+        val s = s"[$globalIndex] ${token.getNumber.map(_.toString).getOrElse("J")} (${token.getColor.name})"
         globalIndex += 1
         s
         }.mkString(", ")
