@@ -41,6 +41,8 @@ class Tui(controller: ControllerInterface) extends Reactor with GameView(control
             println("row - Play a row of tokens")
             println("appendToRow - Append a token to an existing row")
             println("appendToGroup - Append a token to an existing group")
+            println("store - Store a token from the Table in storage")
+            println("restore - Move a token from storage to a group on the table")
             println("draw - Draw a token from the stack and pass your turn")
             println("undo - Undo last move")
             println("redo - Redo last undone move")
@@ -113,6 +115,57 @@ class Tui(controller: ControllerInterface) extends Reactor with GameView(control
                 val (updatedPlayer, message) = controller.appendTokenToGroup(tokenInput, index)
                 println(message)
             }
+            case "store" => {
+                showTableTokensWithIndex()
+                println("Enter the index of the token to store:")
+                val input = readLine().trim
+
+                try {
+                    val index = input.toInt
+                    controller.putTokenInStorage(index) match {
+                        case Some(newState) =>
+                            controller.setStateInternal(newState)
+                            println(s"Token stored successfully.")
+                        case None =>
+                            println("Invalid token index!")
+                    }
+                } catch {
+                    case _: NumberFormatException =>
+                        println("Invalid input! Please enter a number.")
+                }
+            }
+
+            case "restore" => {
+                val storageTokens = controller.getState.getStorageTokens
+                println("Tokens im Storage:")
+                if (storageTokens.isEmpty) {
+                    println("  (keine Tokens im Storage)")
+                } else {
+                    storageTokens.foreach(token => println(s"  $token"))
+                }
+
+                println("Enter the token string (e.g. '5:red') to move from Storage:")
+                val tokenStr = readLine().trim
+
+                println("Enter the group index:")
+                val groupIndexInput = readLine().trim
+
+                println("Enter the insert position in the group:")
+                val insertAtInput = readLine().trim
+
+                try {
+                    val groupIndex = groupIndexInput.toInt
+                    val insertAt = insertAtInput.toInt
+                    val (newState, message) = controller.fromStorageToTable(controller.getState, tokenStr, groupIndex, insertAt)
+                    controller.setStateInternal(newState)
+                    println(message)
+                } catch {
+                    case _: NumberFormatException =>
+                    println("Invalid input! Group index and insert position must be integers.")
+                }
+                }
+
+
 
             case "undo" => {
                 controller.undo
