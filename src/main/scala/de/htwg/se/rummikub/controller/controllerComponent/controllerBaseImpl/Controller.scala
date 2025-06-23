@@ -331,8 +331,8 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
 
         val row = createRow(tokens)
 
-        if (!row.isValid)
-            return (currentPlayer, "Your move is not valid for the first move requirement.")
+        /*if (!row.isValid)
+            return (currentPlayer, "Your move is not valid for the first move requirement.")*/
 
         executeAddRow(row, currentPlayer, stack)
 
@@ -353,8 +353,8 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
 
         val group = createGroup(tokens)
 
-        if (!group.isValid)
-            return (currentPlayer, "Your move is not valid for the first move requirement.")
+        /*if (!group.isValid)
+            return (currentPlayer, "Your move is not valid for the first move requirement.")*/
 
         executeAddGroup(group, currentPlayer, stack)
 
@@ -435,5 +435,22 @@ class Controller(var gameMode: GameModeTemplate, val gameModeFactory: GameModeFa
 
     override def setGameStarted(ngs: Boolean): Unit = {
         gameStarted = ngs
+    }
+
+    override def placeTokens(tokenStrings: List[String], zoneType: String): (GameStateInterface, String) = {
+        zoneType match {
+            case "row" =>
+            val (newPlayer, msg) = playRow(tokenStrings, getState.currentPlayer, getState.currentStack)
+            setStateInternal(getState.updateCurrentPlayer(newPlayer))
+            (getState, msg)
+
+            case "group" =>
+            val (newPlayer, msg) = playGroup(tokenStrings, getState.currentPlayer, getState.currentStack)
+            setStateInternal(getState.updateCurrentPlayer(newPlayer))
+            (getState, msg)
+
+            case _ =>
+            (getState, "Unknown drop zone")
+        }
     }
 }

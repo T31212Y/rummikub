@@ -47,6 +47,7 @@ trait ControllerInterface extends Publisher {
     def setGameEnded(nge: Boolean): Unit
     def getGameStarted: Boolean
     def setGameStarted(ngs: Boolean): Unit
+    def placeTokens(tokenStrings: List[String], zoneType: String): (GameStateInterface, String)
 }
 
 

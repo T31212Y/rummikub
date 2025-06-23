@@ -2,12 +2,17 @@ package de.htwg.se.rummikub.aview.gui
 
 import de.htwg.se.rummikub.aview.GameView
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent, GameStateInterface}
+import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
+import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{Joker, NumToken}
 
 import scala.swing._
 import scala.swing.event._
 import javax.swing.BorderFactory
 import javax.swing.border.TitledBorder
 import javax.swing.ImageIcon
+import javax.swing.TransferHandler
+import java.awt.datatransfer.DataFlavor
+import java.awt.dnd.{DropTarget, DropTargetDragEvent, DropTargetEvent}
 
 class Gui(controller: ControllerInterface) extends Frame with Reactor with GameView(controller) {
 
@@ -31,6 +36,10 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     font = new Font("Arial", java.awt.Font.BOLD, 14)
     visible = false
   }
+
+  val rowDropZone = new DropZone(isRow = true, controller)
+  val groupDropZone = new DropZone(isRow = false, controller)
+  val selectionManager = new SelectionManager
 
   val drawButton = new Button("draw")
   val passButton = new Button("pass")
@@ -80,6 +89,8 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
   val tablePanel = new VerticalImagePanel("/playing-field-bg.jpg") {
     border = borderTitleTable
+    contents += rowDropZone
+    contents += groupDropZone
   }
 
   val actionsPanel = new BoxPanel(Orientation.Vertical) {
@@ -277,7 +288,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     val currentPlayer = controller.getState.currentPlayer
 
     for ((token, index) <- currentPlayer.getTokens.zipWithIndex) {
-      val panel = TokenPanel(token, controller)
+      val panel = TokenPanel(token, controller, List(rowDropZone, groupDropZone), selectionManager)
       playerBoardPanel.contents += panel
     }
 
@@ -286,7 +297,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
   }
 
   def updateTable: Unit = {
-    tablePanel.contents.clear()
+    tablePanel.contents --= tablePanel.contents.filterNot(c => c == rowDropZone || c == groupDropZone)
 
     val tableTokens = controller.getState.getTable.getTokensOnTable
 
@@ -301,27 +312,66 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
       }
 
       for ((tokenGroup, groupIndex) <- rowGroups.zipWithIndex) {
-        val groupPanel = new FlowPanel(FlowPanel.Alignment.Center)() {
-          opaque = false
-          hGap = 4
-          vGap = 2
+        def createGroupPanel(): FlowPanel = {
+          val groupPanel = new FlowPanel(FlowPanel.Alignment.Center)() {
+            opaque = true
+            hGap = 4
+            vGap = 2
 
-          val borderColor = java.awt.Color.WHITE
-          val borderFont = new Font("Arial", java.awt.Font.BOLD, 12)
+            background = new java.awt.Color(0, 0, 0, 0)
+            val borderColor = java.awt.Color.WHITE
+            val borderFont = new Font("Arial", java.awt.Font.BOLD, 12)
 
-          border = BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(borderColor),
-            s"index ${rowIndex * groupsPerRow + groupIndex}",
-            javax.swing.border.TitledBorder.CENTER,
-            javax.swing.border.TitledBorder.BOTTOM,
-            borderFont,
-            borderColor
-          )
+            border = BorderFactory.createTitledBorder(
+              BorderFactory.createLineBorder(borderColor),
+              s"index ${rowIndex * groupsPerRow + groupIndex}",
+              javax.swing.border.TitledBorder.CENTER,
+              javax.swing.border.TitledBorder.BOTTOM,
+              borderFont,
+              borderColor
+            )
+          }
+
+          groupPanel.peer.setTransferHandler(new TransferHandler("token") {
+            override def canImport(support: TransferHandler.TransferSupport): Boolean = {
+              support.isDataFlavorSupported(DataFlavor.stringFlavor)
+            }
+
+            override def importData(support: TransferHandler.TransferSupport): Boolean = {
+              try {
+                val data = support.getTransferable.getTransferData(DataFlavor.stringFlavor).asInstanceOf[String]
+                val token = parseTokenFromString(data)
+                val tokenPanel = TokenPanel(token, controller, List.empty, selectionManager)
+                groupPanel.contents += tokenPanel
+                groupPanel.revalidate()
+                groupPanel.repaint()
+                true
+              } catch {
+                case _: Exception => false
+              }
+            }
+          })
+
+          groupPanel.peer.setDropTarget(new DropTarget() {
+            override def dragEnter(dtde: DropTargetDragEvent): Unit = {
+              groupPanel.border = BorderFactory.createLineBorder(java.awt.Color.GREEN, 2)
+              groupPanel.repaint()
+            }
+            override def dragExit(dte: DropTargetEvent): Unit = {
+              groupPanel.border = BorderFactory.createLineBorder(java.awt.Color.WHITE)
+              groupPanel.repaint()
+            }
+          })
+
+          tokenGroup.foreach { token =>
+            val tokenPanel = TokenPanel(token, controller, List(), selectionManager)
+            groupPanel.contents += tokenPanel
+          }
+
+          groupPanel
         }
 
-        tokenGroup.foreach { token =>
-          groupPanel.contents += TokenPanel(token, controller)
-        }
+        val groupPanel = createGroupPanel()
 
         rowPanel.contents += groupPanel
       }
@@ -343,6 +393,15 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     drawButton.enabled = !state.currentStack.isEmpty && controller.getGameStarted
 
     tokenStackSizeLabel.text = s"Remaining tokens in stack: ${controller.getState.currentStack.size}"
+  }
+
+  def parseTokenFromString(data: String): TokenInterface = {
+    val parts = data.split(":")
+    if (parts(0) == "J") {
+      Joker(Color.valueOf(parts(1).toUpperCase))
+    } else {
+      NumToken(parts(0).toInt, Color.valueOf(parts(1).toUpperCase))
+    }
   }
 
   override def playGame: Unit = {
