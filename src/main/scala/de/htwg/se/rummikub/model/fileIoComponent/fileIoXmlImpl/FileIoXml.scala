@@ -62,7 +62,7 @@ class FileIoXml extends FileIOInterface {
         </tokens>
     }
 
-    def convertStringToColor(col: String): Color = {
+    override def convertStringToColor(col: String): Color = {
         var color: Option[Color] = None
 
         col match {
