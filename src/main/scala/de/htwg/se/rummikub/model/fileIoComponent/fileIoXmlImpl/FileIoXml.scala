@@ -10,30 +10,35 @@ import com.google.inject.Guice
 
 class FileIoXml extends FileIOInterface {
 
-    override def from: TokenInterface = {
-        var token: Option[TokenInterface] = None
-        val file = scala.xml.XML.loadFile("token.xml")
-        val numAttr = (file \\ "token" \ "number")
-        val colAttr = (file \\ "token" \ "color")
-        val num = numAttr.text.trim.toInt
-        val col = colAttr.text
+    override def from: List[TokenInterface] = {
+        val file = scala.xml.XML.loadFile("tokens.xml")
 
         val injector = Guice.createInjector(new RummikubModule)
         val tokenFactory = injector.getInstance(classOf[TokenFactoryInterface])
-        if (num != 0) {
-            token = Some(tokenFactory.createNumToken(num, convertStringToColor(col)))
-        } else {
-            token = Some(tokenFactory.createJoker(convertStringToColor(col)))
-        }
 
-        token.get
+        val tokenElems = file \\ "token"
+
+        tokenElems.map { token =>
+            val numAttr = (token \ "number")
+            val colAttr = (token \ "color")
+
+            val num = numAttr.text.trim.toInt
+            val col = colAttr.text.trim
+
+            if (num != 0) {
+                tokenFactory.createNumToken(num, convertStringToColor(col))
+            } else {
+                tokenFactory.createJoker(convertStringToColor(col))
+            }
+        }.toList
     }
 
-    override def to(token: TokenInterface): Unit = {
+    override def to(tokens: List[TokenInterface]): Unit = {
         import java.io._
-        val pw = new PrintWriter(new File("token.xml"))
+        val pw = new PrintWriter(new File("tokens.xml"))
         val pp = new PrettyPrinter(120, 4)
-        val xml = pp.format(tokenToXml(token))
+
+        val xml = pp.format(tokensToXml(tokens))
         pw.write(xml)
         pw.close
     }
@@ -49,6 +54,12 @@ class FileIoXml extends FileIOInterface {
                 }
             }
         </token>
+    }
+
+    def tokensToXml(tokens: List[TokenInterface]) = {
+        <tokens>
+            {tokens.map(tokenToXml)}
+        </tokens>
     }
 
     def convertStringToColor(col: String): Color = {
