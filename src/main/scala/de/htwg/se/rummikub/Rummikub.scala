@@ -4,6 +4,8 @@ import de.htwg.se.rummikub.aview.{GameView, Tui}
 import de.htwg.se.rummikub.aview.gui.Gui
 
 import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
+import de.htwg.se.rummikub.model.tokenComponent.{Color, TokenFactoryInterface}
+import de.htwg.se.rummikub.model.fileIoComponent.FileIOInterface
 
 import com.google.inject.Guice
 
@@ -13,6 +15,9 @@ object Rummikub {
   val injector = Guice.createInjector(new RummikubModule)
   val controller = injector.getInstance(classOf[ControllerInterface])
 
+  val fileIO = injector.getInstance(classOf[FileIOInterface])
+  val tokenFactory = injector.getInstance(classOf[TokenFactoryInterface])
+
   val tui: GameView = new Tui(controller)
   val gui: GameView = new Gui(controller)
 
@@ -21,6 +26,12 @@ object Rummikub {
 
     println(tui.showWelcome.mkString("\n") + "\n")
     controller.setupNewGame(2, List("Emilia", "Noah"))
+
+    val token = tokenFactory.createNumToken(5, Color.RED)
+    fileIO.to(token)
+
+    val loaded = fileIO.from
+    println("Aus FileIO geladener Token: " + loaded)
 
     while (input != "quit") {
         println(tui.showHelp)
