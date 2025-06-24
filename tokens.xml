@@ -1,0 +1,14 @@
+<tokens>
+    <token>
+        <color>[31m</color>
+        <number>5</number>
+    </token>
+    <token>
+        <color>[30m</color>
+        <number>0</number>
+    </token>
+    <token>
+        <color>[34m</color>
+        <number>7</number>
+    </token>
+</tokens>
