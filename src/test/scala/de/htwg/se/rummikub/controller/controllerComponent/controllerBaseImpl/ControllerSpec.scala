@@ -136,9 +136,42 @@ class ControllerSpec extends AnyWordSpec {
       noException should be thrownBy controller.redo
     }
 
-    "end the game" in {
-      controller.endGame
-      controller.getGameEnded shouldBe true
+    "return single winner message" in {
+      val player1 = Player("Alice", List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
+      val player2 = Player("Bob", List(NumToken(2, Color.BLUE), NumToken(8, Color.BLACK)), tokenStructureFactory = tokenStructureFactory)
+      val players = List(player1, player2)
+      val boards = List(
+        Board(0, 0, 2, 2, "dest1", 10),
+        Board(1, 0, 2, 2, "dest2", 10)
+      )
+      val table = Table(16, 90, List())
+      val stack = TokenStack(List(NumToken(3, Color.GREEN)))
+      val pf = PlayingField(players, boards, table, stack)
+
+      controller.setPlayingField(Some(pf))
+
+      val result = controller.endGame
+
+      result should be ("The winner is: Alice with 1 tokens left! Congratulations!")
+    }
+
+    "return tie message if more than 1 player have same amount of tokens" in {
+      val player1 = Player("Alice", List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
+      val player2 = Player("Bob", List(NumToken(2, Color.BLUE)), tokenStructureFactory = tokenStructureFactory)
+      val players = List(player1, player2)
+      val boards = List(
+        Board(0, 0, 2, 2, "dest1", 10),
+        Board(1, 0, 2, 2, "dest2", 10)
+      )
+      val table = Table(16, 90, List())
+      val stack = TokenStack(List(NumToken(3, Color.GREEN)))
+      val pf = PlayingField(players, boards, table, stack)
+
+      controller.setPlayingField(Some(pf))
+
+      val result = controller.endGame
+
+      result should be ("It's a tie between: Alice, Bob with 1 tokens each! Well done!")
     }
 
     "not allow to play tokens that are not on the player's board" in {
