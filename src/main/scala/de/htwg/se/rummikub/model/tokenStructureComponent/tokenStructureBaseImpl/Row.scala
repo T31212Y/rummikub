@@ -2,6 +2,8 @@ package de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl
 
 import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
+import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
+import de.htwg.se.rummikub.util.TokenUtils._
  
 case class Row(row: List[TokenInterface]) extends TokenStructureInterface {
 
@@ -18,22 +20,17 @@ case class Row(row: List[TokenInterface]) extends TokenStructureInterface {
     override def isValid: Boolean = {
         if (tokens.size < 3 || tokens.size > 13) return false
 
-        val (jokers, nonJokers) = tokens.partition {
-            case token if token.isJoker => true
-            case _                      => false
-        }
-
+        val nonJokers = tokens.filterNot(_.isJoker)
         val numTokens = nonJokers.collect {
             case token if token.isNumToken => (token.getNumber.get, token.getColor)
         }
 
         if (!hasUniformColor(numTokens)) return false
 
-        val nums = numTokens.map(_._1).distinct.sorted
-        val totalLength = nums.length + jokers.length
-
-        hasValidSequenceWithJokers(nums, jokers.length, totalLength)
+        isSortedAndContinuousWithJoker(tokens)
     }
+
+
 
     private def hasUniformColor(tokens: List[(Int, Color)]): Boolean = {
         tokens.map(_._2).distinct.size == 1
@@ -78,14 +75,15 @@ case class Row(row: List[TokenInterface]) extends TokenStructureInterface {
 
     override def points: Int = {
         jokerValues match {
-        case Some(jVals) =>
+            case Some(jVals) =>
             tokens.zipAll(jVals, null, 0).map {
-            case (token, _) if token.isNumToken => token.getNumber.get
-            case (token, jVal) if token.isJoker => jVal
-            case _ => 0
+                case (token, _) if token.isNumToken => token.getNumber.get
+                case (token, jVal) if token.isJoker => jVal
+                case _ => 0
             }.sum
-        case None =>
+            case None =>
             tokens.collect { case token if token.isNumToken => token.getNumber.get }.sum
         }
     }
+
 }

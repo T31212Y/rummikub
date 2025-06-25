@@ -28,14 +28,6 @@ trait GameModeTemplate {
         println(renderPlayingField(playingField))
     }
 
-    def isValidTable(table: List[List[TokenInterface]]): Boolean = {
-        table.filter(_.nonEmpty).forall { row =>
-            val group = tokenStructureFactory.createGroup(row)
-            val sequence = tokenStructureFactory.createRow(row)
-            group.isValid || sequence.isValid
-        }
-    }
-
     def updateBoardSinglePlayer(player: PlayerInterface, board: BoardInterface): Option[BoardInterface] = {
         if (player.getTokens.size <= cntTokens) {
           board.setBoardELRP12_1(board.formatBoardRow(player.getTokens))

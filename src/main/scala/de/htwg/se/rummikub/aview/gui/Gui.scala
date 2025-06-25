@@ -352,6 +352,11 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
             controller.setStateInternal(newState)
             stateLabel.text = message
             update
+
+            val (finalState, passMsg) = controller.passTurn(newState, false)
+            controller.setStateInternal(finalState)
+            stateLabel.text = passMsg
+            update
           } catch {
             case _: NumberFormatException =>
               Dialog.showMessage(null, "Invalid input! Group index and insert position must be integers.")
