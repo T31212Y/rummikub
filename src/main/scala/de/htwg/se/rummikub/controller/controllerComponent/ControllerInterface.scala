@@ -49,6 +49,7 @@ trait ControllerInterface extends Publisher {
     def setUndoManager(num: UndoManager): Unit
     def getGameStarted: Boolean
     def setGameStarted(ngs: Boolean): Unit
+    def getFormattedTokensOnTable: String
 }
 
 

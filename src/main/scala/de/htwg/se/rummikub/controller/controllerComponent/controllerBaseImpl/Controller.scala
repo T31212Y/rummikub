@@ -495,4 +495,32 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
     override def setGameStarted(ngs: Boolean): Unit = {
         gameStarted = ngs
     }
+
+    def getFormattedTokensOnTableWithLabels: String = {
+        val table = getState.getTable
+        val rowsCount = table.getCntRows
+        val tokensOnTable = table.getTokensOnTable
+
+        var globalIndex = 0
+
+        val rowStrings = tokensOnTable.take(rowsCount).zipWithIndex.map { case (tokens, idx) =>
+            val tokensStr = tokens.map { token =>
+            val s = s"[$globalIndex] ${token.getNumber.map(_.toString).getOrElse("J")} (${token.getColor.name})"
+            globalIndex += 1
+            s
+            }.mkString(", ")
+            s"row$idx: $tokensStr"
+        }
+
+        val groupStrings = tokensOnTable.drop(rowsCount).zipWithIndex.map { case (tokens, idx) =>
+            val tokensStr = tokens.map { token =>
+            val s = s"[$globalIndex] ${token.getNumber.getOrElse("")} (${token.getColor.name})"
+            globalIndex += 1
+            s
+            }.mkString(", ")
+            s"group$idx: $tokensStr"
+        }
+
+        (rowStrings ++ groupStrings).mkString("\n")
+    }
 }
