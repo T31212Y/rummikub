@@ -244,6 +244,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
             val copiedPlayers = field.getPlayers.map(_.deepCopy)
             val copiedBoards = field.getBoards.map(identity)
             val finalRounds = gameState.map(_.getFinalRoundsLeft).getOrElse(None)
+            val storageTokens = gameState.map(_.getStorageTokens).getOrElse(Vector.empty)
 
             GameState(
                 table = field.getInnerField,
