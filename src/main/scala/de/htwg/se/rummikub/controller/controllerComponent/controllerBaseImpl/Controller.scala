@@ -491,6 +491,17 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         turnUndoManager = num
     }
 
+    override def getTokenFromString(tokenStr: String): TokenInterface = {
+        val Array(numStr, colorStr) = tokenStr.split(":")
+        val color = Color.values.find(_.name == colorStr.trim.toLowerCase)
+            .getOrElse(throw new IllegalArgumentException(s"Unknown color: $colorStr"))
+
+        if (numStr.trim == "J")
+            tokenFactory.createJoker(color)
+        else
+            tokenFactory.createNumToken(numStr.trim.toInt, color)
+    }
+
     override def getGameStarted: Boolean = gameStarted
 
     override def setGameStarted(ngs: Boolean): Unit = {
