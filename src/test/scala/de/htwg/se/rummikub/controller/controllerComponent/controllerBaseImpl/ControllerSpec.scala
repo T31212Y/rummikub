@@ -380,5 +380,17 @@ class ControllerSpec extends AnyWordSpec {
       controller.getTurnStartState shouldBe None
       controller.getUndoManager shouldBe oldUndoManager
     }
+
+    "update players, stack and finalRoundsLeft in GameState via updated" in {
+      val playerA = Player("Anna", List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
+      val playerB = Player("Ben", List(NumToken(2, Color.BLUE)), tokenStructureFactory = tokenStructureFactory)
+      val updatedPlayers = Vector(playerA, playerB)
+      val updatedStack = TokenStack(List(NumToken(99, Color.BLACK)))
+      val gameState = controller.getState
+      val newState = gameState.updated(newPlayers = updatedPlayers, newStack = updatedStack, newFinalRoundsLeft = None)
+      newState.getPlayers shouldBe updatedPlayers
+      newState.currentStack shouldBe updatedStack
+      newState.getFinalRoundsLeft shouldBe None
+    }
   }
 }
