@@ -37,6 +37,11 @@ class FileIoJsonSpec extends AnyWordSpec {
       fileIo.convertStringToColor("[32m") shouldBe Color.GREEN
       fileIo.convertStringToColor("[30m") shouldBe Color.BLACK
     }
+
+    "throw MatchError for unknown color codes" in {
+      an [MatchError] should be thrownBy fileIo.convertStringToColor("[99m")
+      an [MatchError] should be thrownBy fileIo.convertStringToColor("UNKNOWN")
+    }
   }
 }
 
