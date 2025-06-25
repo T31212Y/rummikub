@@ -83,5 +83,15 @@ class GameStateSpec extends AnyWordSpec {
       newState.currentPlayer shouldBe player2
       newState.nextTurn.currentPlayerIndex shouldBe 0
     }
+
+    "update players, stack and finalRoundsLeft with updated" in {
+      val newPlayers = Vector(player2, player1)
+      val newStack = TokenStack(List(NumToken(99, Color.BLACK)))
+      val newFinalRoundsLeft = Some(42)
+      val newState = state.updated(newPlayers, newStack, newFinalRoundsLeft)
+      newState.getPlayers shouldBe newPlayers
+      newState.currentStack shouldBe newStack
+      newState.getFinalRoundsLeft shouldBe newFinalRoundsLeft
+    }
   }
 }
