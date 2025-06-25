@@ -115,5 +115,10 @@ class RowSpec extends AnyWordSpec {
       val row = Row(List(NumToken(5, Color.RED), dummyToken))
       row.points shouldBe 5
     }
+
+    "points should return 0 if the row contains only jokers" in {
+      val row = Row(List(Joker(Color.RED), Joker(Color.BLACK)))
+      row.points shouldBe 0
+    }
   }
 }
