@@ -1,58 +1,6 @@
 <tokens>
     <token>
-        <color>[30m</color>
-        <number>4</number>
-    </token>
-    <token>
-        <color>[30m</color>
-        <number>11</number>
-    </token>
-    <token>
-        <color>[31m</color>
-        <number>2</number>
-    </token>
-    <token>
-        <color>[34m</color>
-        <number>12</number>
-    </token>
-    <token>
-        <color>[34m</color>
-        <number>8</number>
-    </token>
-    <token>
-        <color>[31m</color>
-        <number>10</number>
-    </token>
-    <token>
-        <color>[30m</color>
-        <number>2</number>
-    </token>
-    <token>
-        <color>[31m</color>
-        <number>12</number>
-    </token>
-    <token>
         <color>[32m</color>
-        <number>8</number>
-    </token>
-    <token>
-        <color>[30m</color>
-        <number>10</number>
-    </token>
-    <token>
-        <color>[31m</color>
-        <number>5</number>
-    </token>
-    <token>
-        <color>[31m</color>
         <number>3</number>
-    </token>
-    <token>
-        <color>[34m</color>
-        <number>3</number>
-    </token>
-    <token>
-        <color>[32m</color>
-        <number>2</number>
     </token>
 </tokens>
