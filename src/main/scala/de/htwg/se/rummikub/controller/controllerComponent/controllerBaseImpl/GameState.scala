@@ -48,4 +48,9 @@ case class GameState(
   override def nextTurn: GameState = copy(currentPlayerIndex = (currentPlayerIndex + 1) % players.length)
 
   override def updated(newPlayers: Vector[PlayerInterface], newStack: TokenStackInterface, newFinalRoundsLeft: Option[Int]): GameStateInterface = copy(players = newPlayers, stack = newStack, finalRoundsLeft = newFinalRoundsLeft)
+
+  //override def getStorageTokens: Vector[String] = storageTokens
+
+  //override def updatedStorage(newStorage: Vector[String]): GameStateInterface =
+    //this.copy(storageTokens = newStorage)
 }
