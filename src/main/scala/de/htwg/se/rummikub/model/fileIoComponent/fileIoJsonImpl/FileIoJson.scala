@@ -50,10 +50,11 @@ class FileIoJson extends FileIOInterface {
 
     override def convertStringToColor(col: String): Color = {
         col match {
-            case "\u001b[31m" => Color.RED
-            case "\u001b[34m" => Color.BLUE
-            case "\u001b[32m" => Color.GREEN
-            case "\u001b[30m" => Color.BLACK
+            case "\u001b[31m" | "[31m" => Color.RED
+            case "\u001b[34m" | "[34m" => Color.BLUE
+            case "\u001b[32m" | "[32m" => Color.GREEN
+            case "\u001b[30m" | "[30m" => Color.BLACK
+            case _ => throw new MatchError(col)
         }
     }
 }
