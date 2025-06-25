@@ -9,9 +9,9 @@ import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.{Joker, NumToken}
 
 class DropZone(isRow: Boolean, controller: ControllerInterface) extends Panel {
   preferredSize = new Dimension(200, 100)
-  background = if (isRow) new java.awt.Color(220, 255, 220) else new java.awt.Color(220, 220, 255)
-  border = Swing.LineBorder(java.awt.Color.DARK_GRAY, 2)
-  opaque = true
+  //background = if (isRow) new java.awt.Color(220, 255, 220) else new java.awt.Color(220, 220, 255)
+  //border = Swing.LineBorder(java.awt.Color.DARK_GRAY, 2)
+  opaque = false
 
   var tokens: List[TokenInterface] = List()
   val zoneType: String = if (isRow) "row" else "group"
