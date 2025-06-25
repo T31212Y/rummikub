@@ -49,11 +49,13 @@ trait ControllerInterface extends Publisher {
     def setUndoManager(num: UndoManager): Unit
     def getGameStarted: Boolean
     def setGameStarted(ngs: Boolean): Unit
-    def getFormattedTokensOnTable: String
+    def getDisplayStringForTokensWithIndex: String
+    def putTokenInStorage(tokenId: Int): Option[GameStateInterface]
+    def getFormattedTokensOnTableWithLabels: String
+    def fromStorageToTable(state: GameStateInterface, tokenStr: String, groupIndex: Int, insertAtIndex: Int): (GameStateInterface, String)
+
+
 }
-
-
-
 import scala.swing.event.Event
 
 class UpdateEvent extends Event
