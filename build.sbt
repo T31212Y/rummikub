@@ -19,5 +19,7 @@ lazy val root = project
       "org.playframework" %% "play-json" % "3.0.4"
     ),
 
-    testFrameworks += new TestFramework("org.scalatest.tools.Framework")
+    testFrameworks += new TestFramework("org.scalatest.tools.Framework"),
+
+    Test / parallelExecution := false
   )
