@@ -63,8 +63,6 @@ class FileIoXml extends FileIOInterface {
     }
 
     override def convertStringToColor(col: String): Color = {
-        var color: Option[Color] = None
-
         col match {
             case "[31m" => Color.RED
             case "[34m" => Color.BLUE

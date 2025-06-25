@@ -10,6 +10,7 @@ import scala.io.Source
 import com.google.inject.Guice
 
 class FileIoJson extends FileIOInterface {
+
     override def from: List[TokenInterface] = {
         val file = Source.fromFile("tokens.json").getLines.mkString
         Json.parse(file).as[List[TokenInterface]]
@@ -48,8 +49,6 @@ class FileIoJson extends FileIOInterface {
     }
 
     override def convertStringToColor(col: String): Color = {
-        var color: Option[Color] = None
-
         col match {
             case "\u001b[31m" => Color.RED
             case "\u001b[34m" => Color.BLUE
