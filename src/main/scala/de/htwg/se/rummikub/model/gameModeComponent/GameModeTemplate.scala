@@ -28,47 +28,6 @@ trait GameModeTemplate {
         println(renderPlayingField(playingField))
     }
 
-    def isSortedAndContinuous(tokens: List[TokenInterface]): Boolean = {
-        val numbers = tokens.collect { case t if t.isNumToken => t.getNumber.get }
-        if (numbers.isEmpty) return false
-        val sorted = numbers.sorted
-        sorted == numbers && sorted.sliding(2).forall {
-            case List(a, b) => b == a + 1
-            case _ => true
-        }
-    }
-
-    def isSortedAndContinuousWithJoker(tokens: List[TokenInterface]): Boolean = {
-        val values = tokens.map {
-            case t if t.isNumToken => Some(t.getNumber.get)
-            case t if t.isJoker => None
-        }
-        def nextValue(n: Int): Int = if (n == 13) 1 else n + 1
-
-        def helper(vals: List[Option[Int]], prev: Option[Int]): Boolean = vals match {
-            case Nil => true
-            case Some(n) :: rest =>
-                prev match {
-                    case Some(p) if n != nextValue(p) => false
-                    case _ => helper(rest, Some(n))
-                }
-            case None :: rest =>
-                prev match {
-                    case Some(p) => helper(rest, Some(nextValue(p)))
-                    case None => helper(rest, None)
-                }
-        }
-        helper(values, values.head)
-    }
-
-    def isValidTable(table: List[List[TokenInterface]]): Boolean = {
-        table.filter(_.nonEmpty).forall { row =>
-            val group = tokenStructureFactory.createGroup(row)
-            val sequence = tokenStructureFactory.createRow(row)
-            group.isValid || (sequence.isValid && isSortedAndContinuousWithJoker(row))
-        }
-    }
-
     def updateBoardSinglePlayer(player: PlayerInterface, board: BoardInterface): Option[BoardInterface] = {
         if (player.getTokens.size <= cntTokens) {
           board.setBoardELRP12_1(board.formatBoardRow(player.getTokens))

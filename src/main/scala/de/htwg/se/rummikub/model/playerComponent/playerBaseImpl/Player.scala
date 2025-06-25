@@ -20,6 +20,8 @@ case class Player @Inject() (name: String,
 
   override def validateFirstMove: Boolean = {
     val structures = clusterTokens(firstMoveTokens)
+    println(s"Clustered structures: ${structures.map(_.toString).mkString("; ")}")
+
 
     if (structures.isEmpty) {
       println(s"$name's first move is invalid: cannot form valid groups or rows")
@@ -27,6 +29,7 @@ case class Player @Inject() (name: String,
     }
 
     val totalPoints = structures.map(_.points).sum
+    println(s"Total points calculated: $totalPoints")
 
     if (totalPoints < 30) {
       println(s"$name's first move must have a total of at least 30 points. You only have $totalPoints.")
@@ -44,36 +47,21 @@ case class Player @Inject() (name: String,
     commandHistory = this.commandHistory.map(identity)
   )
 
-  override def clusterTokens(tokens: List[TokenInterface]): List[TokenStructureInterface] = {
-    
-    def backtrack(remaining: List[TokenInterface], acc: List[TokenStructureInterface]): Option[List[TokenStructureInterface]] = {
-      if (remaining.isEmpty) {
-        Some(acc)
-      } else {
-        val minSize = 3
-        val maxSize = Math.min(remaining.size, 13)
+  def clusterTokens(tokens: List[TokenInterface]): List[TokenStructureInterface] = {
+    val minSize = 3
+    val maxSize = Math.min(tokens.size, 13)
 
-        val possibleSets = for {
-          size <- minSize to maxSize
-          subset <- remaining.combinations(size)
-        } yield {
-          val ts = subset.toList
-          val group = tokenStructureFactory.createGroup(ts)
-          val row = tokenStructureFactory.createRow(ts)
-          List(group, row).filter(_.isValid).map(validSet => (validSet, ts))
-        }
+    val validSets = for {
+      size <- minSize to maxSize
+      subset <- tokens.combinations(size)
+      group = tokenStructureFactory.createGroup(subset)
+      row = tokenStructureFactory.createRow(subset)
+      validSet <- List(group, row).filter(_.isValid)
+    } yield validSet
 
-        val flatPossibleSets = possibleSets.flatten.iterator
-
-        flatPossibleSets.flatMap { case (set, ts) =>
-          val newRemaining = remaining.diff(ts)
-          backtrack(newRemaining, acc :+ set)
-        }.toSeq.headOption
-      }
-    }
-
-    backtrack(tokens, List()).getOrElse(List())
+    validSets.toList.sortBy(- _.points).take(1)
   }
+
 
   override def getName: String = {
     name
