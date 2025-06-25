@@ -13,7 +13,6 @@ class FileIoJsonSpec extends AnyWordSpec {
 
     "write and read tokens correctly" in {
       import java.nio.file.{Files, Paths}
-      Files.deleteIfExists(Paths.get("tokens.json"))
 
       val tokens = List(
         tokenFactory.createNumToken(5, Color.RED),
