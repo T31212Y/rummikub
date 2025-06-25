@@ -2,8 +2,6 @@ package de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl
 
 import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color}
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureInterface
-import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
-import de.htwg.se.rummikub.util.TokenUtils._
  
 case class Row(row: List[TokenInterface]) extends TokenStructureInterface {
 
@@ -20,17 +18,22 @@ case class Row(row: List[TokenInterface]) extends TokenStructureInterface {
     override def isValid: Boolean = {
         if (tokens.size < 3 || tokens.size > 13) return false
 
-        val nonJokers = tokens.filterNot(_.isJoker)
+        val (jokers, nonJokers) = tokens.partition {
+            case token if token.isJoker => true
+            case _                      => false
+        }
+
         val numTokens = nonJokers.collect {
             case token if token.isNumToken => (token.getNumber.get, token.getColor)
         }
 
         if (!hasUniformColor(numTokens)) return false
 
-        isSortedAndContinuousWithJoker(tokens)
+        val nums = numTokens.map(_._1).distinct.sorted
+        val totalLength = nums.length + jokers.length
+
+        hasValidSequenceWithJokers(nums, jokers.length, totalLength)
     }
-
-
 
     private def hasUniformColor(tokens: List[(Int, Color)]): Boolean = {
         tokens.map(_._2).distinct.size == 1

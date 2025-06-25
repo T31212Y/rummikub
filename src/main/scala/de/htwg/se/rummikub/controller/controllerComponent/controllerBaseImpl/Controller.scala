@@ -96,7 +96,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
             return (state, message)
         }
 
-        val tableValid = gameMode.get.isValidTable(state.getTable.getTokensOnTable)
+        val tableValid = gameMode.get.isValidTable(state.getTable.getTokensOnTable, tokenStructureFactory)
         if (!tableValid) {
             val message = "You cannot end your turn. The table is not valid!"
             return (state, message)
@@ -121,6 +121,9 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         (nextState, message)
     }
 
+    override def getTokenStructureFactory : TokenStructureFactoryInterface = {
+        tokenStructureFactory
+    }
 
     override def setNextPlayer(state: GameStateInterface): GameStateInterface = {
         val current = state.getCurrentPlayerIndex

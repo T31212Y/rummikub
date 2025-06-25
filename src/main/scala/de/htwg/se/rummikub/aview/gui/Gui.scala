@@ -193,7 +193,10 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
     case ButtonClicked(`passButton`) =>
       val currentState = controller.getState
-      val tableValid = controller.getGameMode.isValidTable(currentState.getTable.getTokensOnTable)
+      val tableValid = controller.getGameMode.isValidTable(
+        currentState.getTable.getTokensOnTable,
+        controller.getTokenStructureFactory
+      )
       val storageEmpty = currentState.getStorageTokens.isEmpty
       val hasMadeMove = currentState.currentPlayer.getCommandHistory.nonEmpty
 

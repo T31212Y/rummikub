@@ -55,6 +55,7 @@ trait ControllerInterface extends Publisher {
   def getFormattedTokensOnTableWithLabels: String
   def fromStorageToTable(state: GameStateInterface, tokenStr: String, groupIndex: Int, insertAtIndex: Int): (GameStateInterface, String)
 
+  def getTokenStructureFactory: TokenStructureInterface
 }
 
 
