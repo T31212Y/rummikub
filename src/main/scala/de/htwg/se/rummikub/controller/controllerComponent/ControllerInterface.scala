@@ -47,10 +47,10 @@ trait ControllerInterface extends Publisher {
     def setTurnStartState(newState: Option[GameStateInterface]): Unit
     def getUndoManager: UndoManager
     def setUndoManager(num: UndoManager): Unit
-    def getGameStarted: Boolean
+    //def getGameStarted: Boolean
     def getTokenFromString(tokenStr: String): TokenInterface
-    def setGameStarted(ngs: Boolean): Unit
-    def getDisplayStringForTokensWithIndex: String
+    //def setGameStarted(ngs: Boolean): Unit
+    //def getDisplayStringForTokensWithIndex: String
     def putTokenInStorage(tokenId: Int): Option[GameStateInterface]
     def getFormattedTokensOnTableWithLabels: String
     def fromStorageToTable(state: GameStateInterface, tokenStr: String, groupIndex: Int, insertAtIndex: Int): (GameStateInterface, String)

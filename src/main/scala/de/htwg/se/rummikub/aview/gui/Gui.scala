@@ -342,7 +342,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
       val tokenStrInput = Dialog.showInput(null, "Enter the token string (e.g. '5:red') to move from Storage:", title = "From Storage", initial = "")
       val groupIndexInput = Dialog.showInput(null, "Enter the group index:", title = "Group Index", initial = "")
       val insertAtInput = Dialog.showInput(null, "Enter the position in the group where to insert the token:", title = "Insert At", initial = "")
-
+      /*
       (tokenStrInput, groupIndexInput, insertAtInput) match {
         case (Some(tokenStr), Some(groupStr), Some(posStr)) =>
           try {
@@ -364,7 +364,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
         case _ =>
           Dialog.showMessage(null, "Operation cancelled or incomplete.")
-      }
+      }*/
     }
 
     def updatePlayerBoardTitle(state: GameStateInterface): Unit = {
