@@ -2,8 +2,11 @@ package de.htwg.se.rummikub.model.gameModeComponent
 
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, PlayingFieldInterface}
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 
 trait GameModeTemplate {
+    val tokenStructureFactory: TokenStructureFactoryInterface
     val cntRows: Int = 20
     val cntTokens: Int = 24
     val cntEdgeSpaces: Int = 15
@@ -23,6 +26,14 @@ trait GameModeTemplate {
 
     def render(playingField: Option[PlayingFieldInterface]): Unit = {
         println(renderPlayingField(playingField))
+    }
+
+    def isValidTable(table: List[List[TokenInterface]]): Boolean = {
+        table.filter(_.nonEmpty).forall { row =>
+            val group = tokenStructureFactory.createGroup(row)
+            val sequence = tokenStructureFactory.createRow(row)
+            group.isValid || sequence.isValid
+        }
     }
 
     def updateBoardSinglePlayer(player: PlayerInterface, board: BoardInterface): Option[BoardInterface] = {

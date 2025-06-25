@@ -96,11 +96,11 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
             return (state, message)
         }
 
-        /*val tableValid = gameMode.get.isValidTable(state.getTable.getTokensOnTable)
+        val tableValid = gameMode.get.isValidTable(state.getTable.getTokensOnTable)
         if (!tableValid) {
             val message = "You cannot end your turn. The table is not valid!"
             return (state, message)
-        }*/
+        }
 
         val updatedPlayer = if (!currentPlayer.getHasCompletedFirstMove) {
             currentPlayer.updated(
@@ -250,7 +250,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
             currentPlayerIndex = currentPlayerIndex,
             stack = field.getStack,
             finalRoundsLeft = finalRounds,
-            //storageTokens = storageTokens
+            storageTokens = storageTokens
             )
 
         case None => GameState(
@@ -260,7 +260,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
             currentPlayerIndex = 0,
             stack = tokenStackFactory.createShuffledStack,
             finalRoundsLeft = None,
-            //storageTokens = Vector.empty
+            storageTokens = Vector.empty
         )
     }
 
@@ -311,27 +311,18 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         publish(UpdateEvent())
     } 
 
-    private def getUpdatedPlayerAfterMove(currentPlayer: PlayerInterface, placedTokens: List[TokenInterface]): PlayerInterface = {
-        val remainingTokens = currentPlayer.getTokens.diff(placedTokens)
+    private def getUpdatedPlayerAfterMove(currentPlayer: PlayerInterface, newTokens: List[TokenInterface]): PlayerInterface = {
+        val updatedPlayer = currentPlayer.addToFirstMoveTokens(newTokens)
 
-        val updatedFirstMoveTokens = currentPlayer.getFirstMoveTokens ++ placedTokens
-        val updatedPlayer = currentPlayer.updated(
-            newTokens = remainingTokens,
-            newCommandHistory = currentPlayer.getCommandHistory,
-            newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove
-        ).addToFirstMoveTokens(placedTokens)
-        
         playingField = playingField.map { field =>
             val updatedPlayers = field.getPlayers.map {
-                case p if p.getName == updatedPlayer.getName => updatedPlayer
-                case p => p
+            case p if p.getName == updatedPlayer.getName => updatedPlayer
+            case p => p
             }
             field.updated(newPlayers = updatedPlayers, newBoards = field.getBoards, newInnerField = field.getInnerField)
         }
-
         updatedPlayer
     }
-
 
     override def drawFromStackAndPass: (GameStateInterface, String) = {
         turnStartState match {
@@ -353,75 +344,69 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         (finalState, message)
     }
 
-    override def playRow(tokenStrings: List[String], unusedPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
-        val currentPlayer = getState.currentPlayer
+    override def playRow(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
         val tokens = changeStringListToTokenList(tokenStrings)
         val row = tokenStructureFactory.createRow(tokens)
 
         if (!row.isValid)
-            return (currentPlayer, "Your move is not valid.")
+            return (currentPlayer, "Your move is not valid for the first move requirement.")
+        
+        if (!currentPlayer.getHasCompletedFirstMove) {
+            val tentativePlayer = currentPlayer.addToFirstMoveTokens(row.getTokens)
+            if (!tentativePlayer.validateFirstMove) {
+                return (currentPlayer, "First move must total at least 30 points with valid sets.")
+            }
+        }
 
         executeAddRow(row, currentPlayer, stack)
 
-        val tentativePlayer = if (!currentPlayer.getHasCompletedFirstMove) {
-            currentPlayer.addToFirstMoveTokens(row.getTokens)
-        } else currentPlayer
-
-        val hasCompleted = tentativePlayer.validateFirstMove
-
-        val updatedPlayer = tentativePlayer.updated(
-            newTokens = getUpdatedPlayerAfterMove(currentPlayer, row.getTokens).getTokens,
+        val updatedPlayer = currentPlayer
+        .addToFirstMoveTokens(row.getTokens)
+        .updated(
+            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, row.getTokens).getTokens,
             newCommandHistory = currentPlayer.getCommandHistory :+ s"playRow: ${row.getTokens.mkString(",")}",
-            newHasCompletedFirstMove = hasCompleted
+            newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove || true
         )
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
+
         setStateInternal(newState)
         setPlayingField(gameMode.get.updatePlayingField(playingField))
 
-        val msg = if (hasCompleted) {
-            "Row placed. First move completed!"
-        } else {
-            "Row placed. First move not yet valid — keep placing to reach 30 points."
-        }
-
-        (updatedPlayer, msg)
+        (updatedPlayer, "Row successfully placed.")
     }
 
 
-    override def playGroup(tokenStrings: List[String], unusedPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
-        val currentPlayer = getState.currentPlayer
+    override def playGroup(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
         val tokens = changeStringListToTokenList(tokenStrings)
         val group = tokenStructureFactory.createGroup(tokens)
 
         if (!group.isValid)
-            return (currentPlayer, "Your move is not valid,")
+            return (currentPlayer, "Your move is not valid for the first move requirement.")
+
+        if (!currentPlayer.getHasCompletedFirstMove) {
+            val tentativePlayer = currentPlayer.addToFirstMoveTokens(group.getTokens)
+            if (!tentativePlayer.validateFirstMove) {
+                return (currentPlayer, "First move must total at least 30 points with valid sets.")
+            }
+        }
 
         executeAddGroup(group, currentPlayer, stack)
 
-        val tentativePlayer = if (!currentPlayer.getHasCompletedFirstMove) {
-            currentPlayer.addToFirstMoveTokens(group.getTokens)
-        } else currentPlayer
-
-        val hasCompleted = tentativePlayer.validateFirstMove
-
-        val updatedPlayer = tentativePlayer.updated(
-            newTokens = getUpdatedPlayerAfterMove(currentPlayer, group.getTokens).getTokens,
+        val updatedPlayer = currentPlayer
+        .addToFirstMoveTokens(group.getTokens)
+        .updated(
+            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, group.getTokens).getTokens,
             newCommandHistory = currentPlayer.getCommandHistory :+ s"playGroup: ${group.getTokens.mkString(",")}",
-            newHasCompletedFirstMove = hasCompleted
+            newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove || true
         )
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
+
         setStateInternal(newState)
         setPlayingField(gameMode.get.updatePlayingField(playingField))
 
-        val msg = if (hasCompleted) {
-            "Group placed. First move completed!"
-        } else {
-            "Group placed. First move not yet valid — keep placing to reach 30 points."
-        }
-
-        (updatedPlayer, msg)
+        (updatedPlayer, "Group successfully placed.")
     }
 
     override def appendTokenToRow(tokenString: String, index: Int): (PlayerInterface, String) = {
@@ -535,7 +520,6 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
             s"[$idx] ${getColoredTokenString(token)}"
         }.mkString("\n ")
     }
-    
 
     override def putTokenInStorage(tokenId: Int): Option[GameStateInterface] = {
         val table = getState.getTable

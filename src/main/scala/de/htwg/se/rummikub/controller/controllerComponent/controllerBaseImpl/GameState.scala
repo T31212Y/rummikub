@@ -10,7 +10,8 @@ case class GameState(
   boards: Vector[BoardInterface],
   currentPlayerIndex: Int,
   stack: TokenStackInterface,
-  finalRoundsLeft: Option[Int] = None
+  finalRoundsLeft: Option[Int] = None,
+  storageTokens: Vector[String] = Vector.empty
 ) extends GameStateInterface {
 
   override def getTable: TableInterface = table

@@ -193,11 +193,11 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
     case ButtonClicked(`passButton`) =>
       val currentState = controller.getState
-      //val tableValid = controller.getGameMode.isValidTable(currentState.getTable.getTokensOnTable)
-      //val storageEmpty = currentState.getStorageTokens.isEmpty
+      val tableValid = controller.getGameMode.isValidTable(currentState.getTable.getTokensOnTable)
+      val storageEmpty = currentState.getStorageTokens.isEmpty
       val hasMadeMove = currentState.currentPlayer.getCommandHistory.nonEmpty
 
-      /*if (!hasMadeMove) {
+      if (!hasMadeMove) {
         stateLabel.text = "You must make a move before passing your turn."
       } else if (!tableValid) {
         stateLabel.text = "You can't pass: The table is not valid!"
@@ -206,11 +206,11 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
       } else {
         val (newState, message) = controller.passTurn(currentState, false)
         controller.setStateInternal(newState)
-       // println("Storage tokens after putTokenInStorage: " + newState.getStorageTokens.mkString(", "))
+        println("Storage tokens after putTokenInStorage: " + newState.getStorageTokens.mkString(", "))
         stateLabel.text = message
         updatePlayerBoardTitle(newState)
         nextTurn
-      }*/
+      }
 
     case ButtonClicked(`rowButton`) =>
       val input = Dialog.showInput(
@@ -342,7 +342,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
       val tokenStrInput = Dialog.showInput(null, "Enter the token string (e.g. '5:red') to move from Storage:", title = "From Storage", initial = "")
       val groupIndexInput = Dialog.showInput(null, "Enter the group index:", title = "Group Index", initial = "")
       val insertAtInput = Dialog.showInput(null, "Enter the position in the group where to insert the token:", title = "Insert At", initial = "")
-      /*
+
       (tokenStrInput, groupIndexInput, insertAtInput) match {
         case (Some(tokenStr), Some(groupStr), Some(posStr)) =>
           try {
@@ -352,11 +352,6 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
             controller.setStateInternal(newState)
             stateLabel.text = message
             update
-
-            val (finalState, passMsg) = controller.passTurn(newState, false)
-            controller.setStateInternal(finalState)
-            stateLabel.text = passMsg
-            update
           } catch {
             case _: NumberFormatException =>
               Dialog.showMessage(null, "Invalid input! Group index and insert position must be integers.")
@@ -364,7 +359,7 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
         case _ =>
           Dialog.showMessage(null, "Operation cancelled or incomplete.")
-      }*/
+      }
     }
 
     def updatePlayerBoardTitle(state: GameStateInterface): Unit = {
