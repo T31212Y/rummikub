@@ -52,6 +52,6 @@ class RummikubModule extends AbstractModule with ScalaModule {
     bind[BoardFactoryInterface].to[StandardBoardFactory]
     bind[PlayerFactoryInterface].to[StandardPlayerFactory]
 
-    bind[FileIOInterface].to[FileIoCsv]
+    bind[FileIOInterface].to[FileIoJson]
   }
 }
