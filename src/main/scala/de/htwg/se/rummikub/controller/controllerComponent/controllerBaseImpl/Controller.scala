@@ -348,8 +348,8 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         val tokens = changeStringListToTokenList(tokenStrings)
         val row = tokenStructureFactory.createRow(tokens)
 
-        if (!row.isValid)
-            return (currentPlayer, "Your move is not valid for the first move requirement.")
+        /*if (!row.isValid)
+            return (currentPlayer, "Your row is not valid")*/
         
         if (!currentPlayer.getHasCompletedFirstMove) {
             val tentativePlayer = currentPlayer.addToFirstMoveTokens(row.getTokens)
@@ -381,8 +381,9 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         val tokens = changeStringListToTokenList(tokenStrings)
         val group = tokenStructureFactory.createGroup(tokens)
 
-        if (!group.isValid)
-            return (currentPlayer, "Your move is not valid for the first move requirement.")
+        /*if (!group.isValid)
+            return (currentPlayer, "Your group is not valid.")
+        */
 
         if (!currentPlayer.getHasCompletedFirstMove) {
             val tentativePlayer = currentPlayer.addToFirstMoveTokens(group.getTokens)
