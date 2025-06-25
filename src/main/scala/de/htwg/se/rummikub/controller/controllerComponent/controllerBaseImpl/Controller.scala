@@ -344,13 +344,14 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         (finalState, message)
     }
 
-    override def playRow(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
+    override def playRow(tokenStrings: List[String], unusedPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
+        val currentPlayer = getState.currentPlayer
         val tokens = changeStringListToTokenList(tokenStrings)
         val row = tokenStructureFactory.createRow(tokens)
 
         if (!row.isValid)
             return (currentPlayer, "Your move is not valid for the first move requirement.")
-        
+
         if (!currentPlayer.getHasCompletedFirstMove) {
             val tentativePlayer = currentPlayer.addToFirstMoveTokens(row.getTokens)
             if (!tentativePlayer.validateFirstMove) {
@@ -361,12 +362,12 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         executeAddRow(row, currentPlayer, stack)
 
         val updatedPlayer = currentPlayer
-        .addToFirstMoveTokens(row.getTokens)
-        .updated(
-            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, row.getTokens).getTokens,
-            newCommandHistory = currentPlayer.getCommandHistory :+ s"playRow: ${row.getTokens.mkString(",")}",
-            newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove || true
-        )
+            .addToFirstMoveTokens(row.getTokens)
+            .updated(
+                newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, row.getTokens).getTokens,
+                newCommandHistory = currentPlayer.getCommandHistory :+ s"playRow: ${row.getTokens.mkString(",")}",
+                newHasCompletedFirstMove = true
+            )
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
 
@@ -377,7 +378,8 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
     }
 
 
-    override def playGroup(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
+    override def playGroup(tokenStrings: List[String], unusedPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String) = {
+        val currentPlayer = getState.currentPlayer
         val tokens = changeStringListToTokenList(tokenStrings)
         val group = tokenStructureFactory.createGroup(tokens)
 
@@ -394,12 +396,12 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         executeAddGroup(group, currentPlayer, stack)
 
         val updatedPlayer = currentPlayer
-        .addToFirstMoveTokens(group.getTokens)
-        .updated(
-            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, group.getTokens).getTokens,
-            newCommandHistory = currentPlayer.getCommandHistory :+ s"playGroup: ${group.getTokens.mkString(",")}",
-            newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove || true
-        )
+            .addToFirstMoveTokens(group.getTokens)
+            .updated(
+                newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, group.getTokens).getTokens,
+                newCommandHistory = currentPlayer.getCommandHistory :+ s"playGroup: ${group.getTokens.mkString(",")}",
+                newHasCompletedFirstMove = true // immer true nach erstem gültigen Zug!
+            )
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
 
