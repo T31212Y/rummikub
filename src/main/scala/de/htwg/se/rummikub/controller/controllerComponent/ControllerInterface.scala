@@ -29,15 +29,13 @@ trait ControllerInterface extends Publisher {
     def setStateInternal(state: GameStateInterface): Unit
     def executeAddRow(row: TokenStructureInterface, player: PlayerInterface, stack: TokenStackInterface): Unit
     def executeAddGroup(group: TokenStructureInterface, player: PlayerInterface, stack: TokenStackInterface): Unit
-    def executeAppendToRow(token: TokenInterface, rowIndex: Int, player: PlayerInterface): Unit
-    def executeAppendToGroup(token: TokenInterface, groupIndex: Int, player: PlayerInterface): Unit
+    def executeAppendToRow(token: TokenInterface, rowIndex: Int, insertAt: Int, player: PlayerInterface): Unit
+    def executeAppendToGroup(token: TokenInterface, groupIndex: Int, insertAt: Int, player: PlayerInterface): Unit
     def undo: Unit
     def redo: Unit
     def drawFromStackAndPass: (GameStateInterface, String)
     def playRow(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String)
     def playGroup(tokenStrings: List[String], currentPlayer: PlayerInterface, stack: TokenStackInterface): (PlayerInterface, String)
-    def appendTokenToRow(tokenString: String, index: Int): (PlayerInterface, String)
-    def appendTokenToGroup(tokenString: String, index: Int): (PlayerInterface, String)
     def endGame: String
     def getGameEnded: Boolean
     def getGameMode: GameModeTemplate
@@ -54,6 +52,8 @@ trait ControllerInterface extends Publisher {
     def putTokenInStorage(tokenId: Int): Option[GameStateInterface]
     def getFormattedTokensOnTableWithLabels: String
     def fromStorageToTable(state: GameStateInterface, tokenStr: String, groupIndex: Int, insertAtIndex: Int): (GameStateInterface, String)
+    def appendTokenToRow(tokenString: String, rowIndex: Int, insertAt: Int): (PlayerInterface, String)
+    def appendTokenToGroup(tokenString: String, groupIndex: Int, insertAt: Int): (PlayerInterface, String)
 
 
 }
