@@ -249,60 +249,82 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
       }
 
     case ButtonClicked(`appendToRowButton`) =>
-      val input = Dialog.showInput(
+      val tokenInput = Dialog.showInput(
         parent = null,
         message = "Enter the token to append (e.g. 'token1:color'):",
         title = "Append to Row",
         initial = ""
       )
-      input match {
-        case Some(token) if token.nonEmpty =>
-          val indexInput = Dialog.showInput(
-            parent = null,
-            message = "Enter the row's index (starting with 0):",
-            title = "Row Index",
-            initial = ""
-          )
-          indexInput match {
-            case Some(indexStr) =>
-              val index = indexStr.trim.toInt
-              val (updatedPlayer, message) = controller.appendTokenToRow(token.trim, index)
+      val rowIndexInput = Dialog.showInput(
+        parent = null,
+        message = "Enter the row index (starting with 0):",
+        title = "Row Index",
+        initial = ""
+      )
+
+      val insertAtInput = Dialog.showInput(
+        parent = null,
+        message = "Enter the position within the row (e.g. '0'):",
+        title = "Insert At",
+        initial = ""
+      )
+
+      (tokenInput, rowIndexInput, insertAtInput) match {
+          case (Some(token), Some(rowStr), Some(posStr)) if token.nonEmpty =>
+            try {
+              val rowIndex = rowStr.trim.toInt
+              val insertAt = posStr.trim.toInt
+              val (updatedPlayer, message) = controller.appendTokenToRow(token.trim, rowIndex, insertAt)
               controller.setStateInternal(controller.getState.updateCurrentPlayer(updatedPlayer))
               stateLabel.text = message
-            case None =>
-          }
-        case Some(_) =>
-          stateLabel.text = "No input provided."
-        case None =>
+              update
+            } catch {
+              case _: NumberFormatException =>
+                Dialog.showMessage(null, "Invalid input! Row index and insert position must be integers.")
+            }
+          case _ =>
+            Dialog.showMessage(null, "Operation cancelled or incomplete.")
       }
 
     case ButtonClicked(`appendToGroupButton`) =>
-      val input = Dialog.showInput(
+      val tokenInput = Dialog.showInput(
         parent = null,
         message = "Enter the token to append (e.g. 'token1:color'):",
         title = "Append to Group",
         initial = ""
       )
-      input match {
-        case Some(token) if token.nonEmpty =>
-          val indexInput = Dialog.showInput(
-            parent = null,
-            message = "Enter the group's index (starting with 0):",
-            title = "Group Index",
-            initial = ""
-          )
-          indexInput match {
-            case Some(indexStr) =>
-              val index = indexStr.trim.toInt
-              val (updatedPlayer, message) = controller.appendTokenToGroup(token.trim, index)
-              controller.setStateInternal(controller.getState.updateCurrentPlayer(updatedPlayer))
-              stateLabel.text = message
-            case None =>
+
+      val groupIndexInput = Dialog.showInput(
+        parent = null,
+        message = "Enter the group index (starting with 0):",
+        title = "Group Index",
+        initial = ""
+      )
+
+      val insertAtInput = Dialog.showInput(
+        parent = null,
+        message = "Enter the position within the group (e.g. '0'):",
+        title = "Insert At",
+        initial = ""
+      )
+
+      (tokenInput, groupIndexInput, insertAtInput) match {
+        case (Some(token), Some(groupStr), Some(posStr)) if token.nonEmpty =>
+          try {
+            val groupIndex = groupStr.trim.toInt
+            val insertAt = posStr.trim.toInt
+            val (updatedPlayer, message) = controller.appendTokenToGroup(token.trim, groupIndex, insertAt)
+            controller.setStateInternal(controller.getState.updateCurrentPlayer(updatedPlayer))
+            stateLabel.text = message
+            update
+          } catch {
+            case _: NumberFormatException =>
+              Dialog.showMessage(null, "Invalid input! Group index and insert position must be integers.")
           }
-        case Some(_) =>
-          stateLabel.text = "No input provided."
-        case None =>
+        case _ =>
+          Dialog.showMessage(null, "Operation cancelled or incomplete.")
       }
+
 
     case ButtonClicked(`undoButton`) =>
       controller.undo
