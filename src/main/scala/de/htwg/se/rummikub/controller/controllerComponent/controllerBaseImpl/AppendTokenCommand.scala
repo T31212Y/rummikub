@@ -6,7 +6,15 @@ import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.TokenInterface
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, GameStateInterface}
 
-class AppendTokenCommand(controller: ControllerInterface, token: TokenInterface, index: Int, isRow: Boolean, player: PlayerInterface) extends Command {
+class AppendTokenCommand(
+    controller: ControllerInterface,
+    token: TokenInterface,
+    index: Int,
+    insertAt: Int,
+    isRow: Boolean,
+    player: PlayerInterface
+) extends Command {
+
 
   var oldState: Option[GameStateInterface] = Some(controller.getState)
 
@@ -15,22 +23,36 @@ class AppendTokenCommand(controller: ControllerInterface, token: TokenInterface,
       println("No state available.")
       return
     }
-    val updatedTokensOnTable = controller.getPlayingField.get.getInnerField.getTokensOnTable.zipWithIndex.map {
-      case (tokenList, i) if i == index => tokenList :+ token
-      case (tokenList, _)               => tokenList
+
+    val currentField = controller.getPlayingField.get.getInnerField
+    val currentTokens = currentField.getTokensOnTable
+
+    val updatedTokens = if (index < currentTokens.length) {
+      val targetList = currentTokens(index)
+      if (insertAt < 0 || insertAt > targetList.length) {
+        println(s"Invalid insert position: $insertAt")
+        return
+      }
+      val updatedList = targetList.patch(insertAt, Seq(token), 0)
+      currentTokens.updated(index, updatedList)
+    } else {
+      val emptyListsToAdd = List.fill(index - currentTokens.length + 1)(List.empty[TokenInterface])
+      val extendedTokens = currentTokens ++ emptyListsToAdd
+      val newList = extendedTokens(index).patch(insertAt, Seq(token), 0)
+      extendedTokens.updated(index, newList)
     }
 
-    val finalTokensOnTable =
-      if (index >= updatedTokensOnTable.length)
-        updatedTokensOnTable ++ List.fill(index - updatedTokensOnTable.length + 1)(List()).updated(index, List(token))
-      else updatedTokensOnTable
-
     controller.setPlayingField(controller.getPlayingField.map { pf =>
-      pf.updated(newPlayers = pf.getPlayers, newBoards = pf.getBoards, newInnerField = pf.getInnerField.updated(newTokensOnTable = finalTokensOnTable))
+      pf.updated(
+        newPlayers = pf.getPlayers,
+        newBoards = pf.getBoards,
+        newInnerField = currentField.updated(newTokensOnTable = updatedTokens)
+      )
     })
 
     controller.removeTokenFromPlayer(player, token)
   }
+
 
   override def undoStep(): Unit = {
     oldState match {
