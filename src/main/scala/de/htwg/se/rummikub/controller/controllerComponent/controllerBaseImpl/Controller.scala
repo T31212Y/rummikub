@@ -291,15 +291,16 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
       turnUndoManager.doStep(cmd)
     }
 
-    override def executeAppendToRow(token: TokenInterface, rowIndex: Int, player: PlayerInterface): Unit = {
-        val cmd = new AppendTokenCommand(this, token, rowIndex, isRow = true, player)
-        turnUndoManager.doStep(cmd)
+    override def executeAppendToRow(token: TokenInterface, rowIndex: Int, insertAt: Int, player: PlayerInterface): Unit = {
+    val cmd = new AppendTokenCommand(this, token, rowIndex, insertAt, isRow = true, player)
+    turnUndoManager.doStep(cmd)
     }
 
-    override def executeAppendToGroup(token: TokenInterface, groupIndex: Int, player: PlayerInterface): Unit = {
-        val cmd = new AppendTokenCommand(this, token, groupIndex, isRow = false, player)
-        turnUndoManager.doStep(cmd)
+    override def executeAppendToGroup(token: TokenInterface, groupIndex: Int, insertAt: Int, player: PlayerInterface): Unit = {
+    val cmd = new AppendTokenCommand(this, token, groupIndex, insertAt, isRow = false, player)
+    turnUndoManager.doStep(cmd)
     }
+
 
     override def undo: Unit = {
         turnUndoManager.undoStep()
@@ -410,51 +411,47 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         (updatedPlayer, "Group successfully placed.")
     }
 
-    override def appendTokenToRow(tokenString: String, index: Int): (PlayerInterface, String) = {
+    override def appendTokenToRow(tokenString: String, rowIndex: Int, insertAt: Int): (PlayerInterface, String) = {
         val tokenList = changeStringListToTokenList(List(tokenString))
-
         val token = tokenList.head
         val currentPlayer = getState.currentPlayer
 
-        executeAppendToRow(token, index, currentPlayer)
+        executeAppendToRow(token, rowIndex, insertAt, currentPlayer)
 
-        val updatedPlayer = currentPlayer
-        .updated(
-            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer,  List(token)).getTokens,
-            newCommandHistory = currentPlayer.getCommandHistory :+ s"appendToRow: ${List(token).mkString(",")}",
+        val updatedPlayer = currentPlayer.updated(
+            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, List(token)).getTokens,
+            newCommandHistory = currentPlayer.getCommandHistory :+ s"appendToRow: ${token}, at row $rowIndex pos $insertAt",
             newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove
         )
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
-
         setStateInternal(newState)
         setPlayingField(gameMode.get.updatePlayingField(playingField))
 
-        (updatedPlayer, s"Token appended to row at index $index.")
+        (updatedPlayer, s"Token appended to row $rowIndex at position $insertAt.")
     }
 
-    override def appendTokenToGroup(tokenString: String, index: Int): (PlayerInterface, String) = {
-        val tokenList = changeStringListToTokenList(List(tokenString))
 
+    override def appendTokenToGroup(tokenString: String, groupIndex: Int, insertAt: Int): (PlayerInterface, String) = {
+        val tokenList = changeStringListToTokenList(List(tokenString))
         val token = tokenList.head
         val currentPlayer = getState.currentPlayer
 
-        executeAppendToGroup(token, index, currentPlayer)
+        executeAppendToGroup(token, groupIndex, insertAt, currentPlayer)
 
-        val updatedPlayer = currentPlayer
-        .updated(
-            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer,  List(token)).getTokens,
-            newCommandHistory = currentPlayer.getCommandHistory :+ s"appendToGroup: ${List(token).mkString(",")}",
+        val updatedPlayer = currentPlayer.updated(
+            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, List(token)).getTokens,
+            newCommandHistory = currentPlayer.getCommandHistory :+ s"appendToGroup: ${token}, at group $groupIndex pos $insertAt",
             newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove
         )
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
-
         setStateInternal(newState)
         setPlayingField(gameMode.get.updatePlayingField(playingField))
 
-        (updatedPlayer, s"Token appended to group at index $index.")
+        (updatedPlayer, s"Token appended to group $groupIndex at position $insertAt.")
     }
+
     
     override def endGame: String = {
         val players = getState.getPlayers
