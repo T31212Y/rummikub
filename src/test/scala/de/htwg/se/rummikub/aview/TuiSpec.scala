@@ -92,6 +92,14 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "handle 'start' command input" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+
+      val tui = new Tui(controller)
+      val tokenStackFactory = injector.getInstance(classOf[TokenStackFactoryInterface])
+      val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+
       val in = new ByteArrayInputStream("end\n".getBytes)
       Console.withIn(in) {
         val out = new ByteArrayOutputStream()
@@ -105,6 +113,16 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "handle 'quit' command input" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+
+      val tui = new Tui(controller)
+      val tokenStackFactory = injector.getInstance(classOf[TokenStackFactoryInterface])
+      val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+
+      controller.setGameEnded(true)
+
       val outContent = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(outContent)) {
         tui.inputCommands("quit")

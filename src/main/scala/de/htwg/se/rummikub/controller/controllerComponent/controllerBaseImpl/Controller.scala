@@ -3,6 +3,7 @@ package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 import de.htwg.se.rummikub.util.TokenUtils.tokensMatch
 import de.htwg.se.rummikub.util.{Command, UndoManager}
 
+import de.htwg.se.rummikub.RummikubModule
 import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 import de.htwg.se.rummikub.model.tokenComponent.{TokenInterface, Color, TokenFactoryInterface}
 import de.htwg.se.rummikub.model.playingFieldComponent.{TokenStackInterface, TokenStackFactoryInterface, PlayingFieldInterface, TableFactoryInterface}
@@ -10,10 +11,11 @@ import de.htwg.se.rummikub.model.gameModeComponent.{GameModeTemplate, GameModeFa
 import de.htwg.se.rummikub.controller.controllerComponent.{ControllerInterface, UpdateEvent, GameStateInterface}
 import de.htwg.se.rummikub.model.tokenStructureComponent.{TokenStructureInterface, TokenStructureFactoryInterface}
 import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
+import de.htwg.se.rummikub.model.fileIoComponent.FileIOInterface
 
 import scala.swing.Publisher
 
-import com.google.inject.Inject
+import com.google.inject.{Guice, Inject}
 
 class Controller @Inject() (gameModeFactory: GameModeFactoryInterface, 
                             tokenFactory: TokenFactoryInterface, 
@@ -31,6 +33,9 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
     var turnUndoManager: UndoManager = new UndoManager
     var gameEnded: Boolean = false
     var gameStarted: Boolean = false
+
+    val injector = Guice.createInjector(new RummikubModule)
+    val fileIo = injector.getInstance(classOf[FileIOInterface])
 
     override def setupNewGame(amountPlayers: Int, names: List[String]): Unit = {
         gameMode = gameModeFactory.createGameMode(amountPlayers, names).toOption
@@ -84,7 +89,11 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
 
     override def addMultipleTokensToPlayer(player: PlayerInterface, stack: TokenStackInterface, amt: Int): (PlayerInterface, TokenStackInterface) = {
         val (tokensToAdd, updatedStack) = stack.drawMultipleTokens(amt)
-        val updatedPlayer = player.updated(newTokens = player.getTokens ++ tokensToAdd, newCommandHistory = player.getCommandHistory, newHasCompletedFirstMove = player.getHasCompletedFirstMove)
+        
+        fileIo.to(tokens = tokensToAdd)
+        val loadedTokens = fileIo.from
+
+        val updatedPlayer = player.updated(newTokens = player.getTokens ++ loadedTokens, newCommandHistory = player.getCommandHistory, newHasCompletedFirstMove = player.getHasCompletedFirstMove)
 
         (updatedPlayer, updatedStack)
     }

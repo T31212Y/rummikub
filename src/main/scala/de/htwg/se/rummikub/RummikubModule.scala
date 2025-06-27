@@ -30,6 +30,11 @@ import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.Stan
 import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.StandardPlayerFactory
 
+import de.htwg.se.rummikub.model.fileIoComponent.FileIOInterface
+import de.htwg.se.rummikub.model.fileIoComponent.fileIoXmlImpl.FileIoXml
+import de.htwg.se.rummikub.model.fileIoComponent.fileIoJsonImpl.FileIoJson
+import de.htwg.se.rummikub.model.fileIoComponent.fileIoCsvImpl.FileIoCsv
+
 class RummikubModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[ControllerInterface].to[Controller]
@@ -46,5 +51,7 @@ class RummikubModule extends AbstractModule with ScalaModule {
     bind[TableFactoryInterface].to[StandardTableFactory]
     bind[BoardFactoryInterface].to[StandardBoardFactory]
     bind[PlayerFactoryInterface].to[StandardPlayerFactory]
+
+    bind[FileIOInterface].to[FileIoJson]
   }
 }
