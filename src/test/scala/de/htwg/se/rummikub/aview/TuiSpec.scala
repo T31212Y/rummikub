@@ -214,7 +214,15 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "handle 'appendToRow' command" in {
-      val in = new ByteArrayInputStream("1:red\n0\n".getBytes)
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+
+      val tui = new Tui(controller)
+      val tokenStackFactory = injector.getInstance(classOf[TokenStackFactoryInterface])
+      val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+
+      val in = new ByteArrayInputStream("1:red\n0\n0\n".getBytes)
       Console.withIn(in) {
         val out = new ByteArrayOutputStream()
         Console.withOut(new PrintStream(out)) {
@@ -225,7 +233,15 @@ class TuiSpec extends AnyWordSpec with Matchers {
     }
 
     "handle 'appendToGroup' command" in {
-      val in = new ByteArrayInputStream("1:red\n0\n".getBytes)
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+
+      val tui = new Tui(controller)
+      val tokenStackFactory = injector.getInstance(classOf[TokenStackFactoryInterface])
+      val tokenStructureFactory = injector.getInstance(classOf[TokenStructureFactoryInterface])
+
+      val in = new ByteArrayInputStream("1:red\n0\n0\n".getBytes)
       Console.withIn(in) {
         val out = new ByteArrayOutputStream()
         Console.withOut(new PrintStream(out)) {
