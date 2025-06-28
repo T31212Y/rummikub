@@ -245,7 +245,7 @@ class ControllerSpec extends AnyWordSpec {
       val testPlayer = player1.copy(tokens = List(NumToken(5, Color.RED), NumToken(6, Color.RED), NumToken(7, Color.RED)))
       val groupTokens = List("5:red", "6:red", "7:red") 
       val (updatedPlayer, msg) = controller.playGroup(groupTokens, testPlayer, stack)
-      msg should be ("Your move is not valid for the first move requirement.")
+      msg should be ("First move must total at least 30 points with valid sets.")
     }
 
     "passTurn should not allow passing if first move is not completed and ignoreFirstMoveCheck is false" in {
@@ -331,7 +331,7 @@ class ControllerSpec extends AnyWordSpec {
       val stack = tokenStackFactory.createShuffledStack
       val (resultPlayer, message) = controller.playRow(List("1:red"), player, stack)
       resultPlayer shouldBe player
-      message shouldBe "Your move is not valid for the first move requirement."
+      message shouldBe "First move must total at least 30 points with valid sets."
     }
 
     "playRow should place a valid row and return success message" in {
@@ -353,7 +353,7 @@ class ControllerSpec extends AnyWordSpec {
       val stack = tokenStackFactory.createShuffledStack
       val (resultPlayer, message) = controller.playGroup(List("1:red"), player, stack)
       resultPlayer shouldBe player
-      message shouldBe "Your move is not valid for the first move requirement."
+      message shouldBe "First move must total at least 30 points with valid sets."
     }
 
     "playGroup should place a valid group and return success message" in {
