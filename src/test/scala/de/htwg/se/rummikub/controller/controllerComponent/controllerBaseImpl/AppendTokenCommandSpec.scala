@@ -41,7 +41,7 @@ class AppendTokenCommandSpec extends AnyWordSpec {
     controller.setPlayingField(Some(pf))
     controller.setStateInternal(GameState(innerField, Vector(player), Vector(), 0, TokenStack(List())))
 
-    val cmd = new AppendTokenCommand(controller, token, 0, isRow = true, player)
+    val cmd = new AppendTokenCommand(controller, token, 0, 0, isRow = true, player) // insertAt = 0
 
     "append a token to the table on doStep" in {
       cmd.doStep()
@@ -65,7 +65,7 @@ class AppendTokenCommandSpec extends AnyWordSpec {
 
     "print message if no state is available on doStep" in {
       controller.setPlayingField(None)
-      val cmd = new AppendTokenCommand(controller, token, 0, isRow = true, player)
+      val cmd = new AppendTokenCommand(controller, token, 0, 0, isRow = true, player)
       val out = new java.io.ByteArrayOutputStream()
       Console.withOut(out) {
         cmd.doStep()
@@ -74,7 +74,7 @@ class AppendTokenCommandSpec extends AnyWordSpec {
     }
 
     "print message if no state is available on undoStep" in {
-      val cmd = new AppendTokenCommand(controller, token, 0, isRow = true, player)
+      val cmd = new AppendTokenCommand(controller, token, 0, 0, isRow = true, player)
       cmd.oldState = None
       val out = new java.io.ByteArrayOutputStream()
       Console.withOut(out) {
@@ -89,7 +89,7 @@ class AppendTokenCommandSpec extends AnyWordSpec {
 
       controller.setStateInternal(GameState(innerField, Vector(player), Vector(), 0, TokenStack(List())))
 
-      val cmd = new AppendTokenCommand(controller, token, 0, isRow = true, player)
+      val cmd = new AppendTokenCommand(controller, token, 0, 0, isRow = true, player)
 
       cmd.doStep()
       controller.getPlayingField.get.getInnerField.getTokensOnTable(1) should contain only otherToken
