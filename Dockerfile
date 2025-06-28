@@ -1,18 +1,11 @@
-FROM debian:bookworm-slim
+FROM openjdk:17-jdk-slim
 
 RUN apt-get update && apt-get install -y \
-    openjdk-17-jdk \
-    curl \
-    gnupg2 \
-    libxext6 libxrender1 libxtst6 libxi6 libgl1-mesa-glx \
+    libxext6 libxrender1 libxtst6 libxi6 libgl1-mesa-glx libfreetype6 fontconfig fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
-
-RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" > /etc/apt/sources.list.d/sbt.list && \
-    curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x99e82a75642ac823" | apt-key add - && \
-    apt-get update && apt-get install -y sbt && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /rummikub
 
-ADD . /rummikub
+COPY target/scala-3.6.4/Rummikub-assembly-0.1.0-SNAPSHOT.jar rummikub.jar
 
-CMD ["sbt", "run"]
+CMD ["java", "-jar", "rummikub.jar"]
