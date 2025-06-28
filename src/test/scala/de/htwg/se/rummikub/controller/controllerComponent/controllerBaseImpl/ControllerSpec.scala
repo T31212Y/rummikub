@@ -246,6 +246,7 @@ class ControllerSpec extends AnyWordSpec {
       val groupTokens = List("5:red", "6:red", "7:red") 
       val (updatedPlayer, msg) = controller.playGroup(groupTokens, testPlayer, stack)
       msg should be ("First move must total at least 30 points with valid sets.")
+      updatedPlayer.getHasCompletedFirstMove shouldBe false
     }
 
     "passTurn should not allow passing if first move is not completed and ignoreFirstMoveCheck is false" in {
@@ -391,6 +392,71 @@ class ControllerSpec extends AnyWordSpec {
       newState.getPlayers shouldBe updatedPlayers
       newState.currentStack shouldBe updatedStack
       newState.getFinalRoundsLeft shouldBe None
+    }
+
+    "appendTokenToRow should append a token at the correct position" in {
+      val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
+      controller.setPlayingField(Some(pf))
+      val (updatedPlayer, msg) = controller.appendTokenToRow("1:red", 0, 0)
+      msg should include ("Token appended to row")
+      updatedPlayer.getTokens should not contain NumToken(1, Color.RED)
+    }
+
+    "getDisplayStringForTokensWithIndex should return indexed tokens as string" in {
+      val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
+      val table = Table(16, 90, List(List(NumToken(1, Color.RED))))
+      val pf = PlayingField(List(player), List(), table, stack)
+      controller.setPlayingField(Some(pf))
+      controller.setStateInternal(GameState(table, Vector(player), Vector(), 0, stack))
+      val result = controller.getDisplayStringForTokensWithIndex
+      result should include ("[0] 1 (Red)")
+    }
+
+    "putTokenInStorage should move token from table to storage" in {
+      val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
+      val table = Table(16, 90, List(List(NumToken(1, Color.RED))))
+      val pf = PlayingField(List(player), List(), table, stack)
+      controller.setPlayingField(Some(pf))
+      controller.setStateInternal(GameState(table, Vector(player), Vector(), 0, stack))
+      val result = controller.putTokenInStorage(0)
+      result shouldBe defined
+      result.get.getStorageTokens should contain ("1:red")
+      result.get.getTable.getTokensOnTable.flatten should not contain NumToken(1, Color.RED)
+    }
+
+    "putTokenInStorage should return None for invalid index" in {
+      val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
+      val table = Table(16, 90, List(List(NumToken(1, Color.RED))))
+      val pf = PlayingField(List(player), List(), table, stack)
+      controller.setPlayingField(Some(pf))
+      controller.setStateInternal(GameState(table, Vector(player), Vector(), 0, stack))
+      val result = controller.putTokenInStorage(99)
+      result shouldBe None
+    }
+
+    "fromStorageToTable should move token from storage to table" in {
+      val player = Player("Emilia", tokens = List(), tokenStructureFactory = tokenStructureFactory)
+      val table = Table(16, 90, List(List()))
+      val pf = PlayingField(List(player), List(), table, stack)
+      val state = GameState(table, Vector(player), Vector(), 0, stack).updatedStorage(Vector("1:red"))
+      controller.setPlayingField(Some(pf))
+      controller.setStateInternal(state)
+      val (newState, msg) = controller.fromStorageToTable(state, "1:red", 0, 0)
+      msg should include ("Token 1:red was placed at index 0 in group 0.")
+      newState.getStorageTokens should not contain "1:red"
+      newState.getTable.getTokensOnTable.flatten should contain (NumToken(1, Color.RED))
+    }
+
+    "fromStorageToTable should return error if token not in storage" in {
+      val player = Player("Emilia", tokens = List(), tokenStructureFactory = tokenStructureFactory)
+      val table = Table(16, 90, List(List()))
+      val pf = PlayingField(List(player), List(), table, stack)
+      val state = GameState(table, Vector(player), Vector(), 0, stack).updatedStorage(Vector())
+      controller.setPlayingField(Some(pf))
+      controller.setStateInternal(state)
+      val (newState, msg) = controller.fromStorageToTable(state, "1:red", 0, 0)
+      msg should include ("Token was not found in storage!")
+      newState shouldBe state
     }
   }
 }
