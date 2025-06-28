@@ -352,7 +352,7 @@ class ControllerSpec extends AnyWordSpec {
       val table = Table(16, 90, List.empty)
       val board = boardFactory.createBoard(15, 24, 2, 1, "up", 90)
       val board2 = boardFactory.createBoard(15, 24, 2, 1, "down", 90)
-      val stack = tokenStackFactory.createShuffledStack
+      val stack = TokenStack(List(NumToken(12, Color.BLUE)))
       val previousState: GameStateInterface = GameState(table, Vector(player, player2), Vector(board, board2), 0, stack)
 
       controller.setPlayingField(Some(PlayingField(List(player, player2), List(board, board2), table, stack)))
@@ -363,8 +363,11 @@ class ControllerSpec extends AnyWordSpec {
 
       val prevTokens = previousState.getPlayers.head.getTokens
       val newTokens = state.getPlayers.head.getTokens
-      newTokens.size shouldBe prevTokens.size + 1
-      newTokens.exists(t => !prevTokens.contains(t)) shouldBe true
+
+      val prevTokenValues = prevTokens.map(t => (t.getNumber, t.getColor))
+      val newTokenValues = newTokens.map(t => (t.getNumber, t.getColor))
+      newTokenValues.size shouldBe prevTokenValues.size + 1
+      newTokenValues.exists(t => !prevTokenValues.contains(t)) shouldBe true
 
       state.getPlayers(1).getTokens shouldBe previousState.getPlayers(1).getTokens
       state.getTable.getTokensOnTable shouldBe previousState.getTable.getTokensOnTable
@@ -547,6 +550,13 @@ class ControllerSpec extends AnyWordSpec {
       message should not include ("not valid")
     }
 
+    "setGameStarted should update the gameStarted flag" in {
+      controller.setGameStarted(true)
+      controller.getGameStarted shouldBe true
+      controller.setGameStarted(false)
+      controller.getGameStarted shouldBe false
+    }
+
     "setUndoManager should update the controller's undo manager" in {
       val oldManager = controller.getUndoManager
       val newManager = new UndoManager
@@ -580,6 +590,16 @@ class ControllerSpec extends AnyWordSpec {
         controller.getTokenFromString("1:rainbow")
       }
       ex.getMessage should include ("Unknown color: rainbow")
+    }
+
+    "should return None when mapping storage tokens if gameState is None" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      val result = controller match {
+        case c: Controller => c.gameState.map(_.getStorageTokens.map(c.getTokenFromString))
+        case _ => None
+      }
+      result shouldBe None
     }
   }
 }
