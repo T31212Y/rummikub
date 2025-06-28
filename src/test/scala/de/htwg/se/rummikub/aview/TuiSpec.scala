@@ -172,6 +172,19 @@ class TuiSpec extends AnyWordSpec with Matchers {
       out.toString should include ("ended their turn")
     }
 
+    "print warning if pass is called before first move" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+        tui.processGameInput("pass")
+      }
+      out.toString should include ("You must make a move before passing your turn.")
+    }
+
     "handle 'undo' and 'redo' commands" in {
       val out = new ByteArrayOutputStream()
       Console.withOut(new PrintStream(out)) {
