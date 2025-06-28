@@ -97,9 +97,11 @@ class Tui(controller: ControllerInterface) extends Reactor with GameView(control
                 val tokenInput = readLine().trim
                 
                 println("Enter the row's index (starting with 0):")
-                val index = readLine().trim.toInt
+                val rowIndex = readLine().trim.toInt
 
-                val (updatedPlayer, message) = controller.appendTokenToRow(tokenInput, index)
+                println("Enter the insert position in the row (starting with 0):")
+                val insertAt = readLine().trim.toInt
+                val (updatedPlayer, message) = controller.appendTokenToRow(tokenInput, rowIndex, insertAt)
                 println(message)
             }
 
@@ -108,9 +110,12 @@ class Tui(controller: ControllerInterface) extends Reactor with GameView(control
                 val tokenInput = readLine().trim
 
                 println("Enter the group's index (starting with 0):")
-                val index = readLine().trim.toInt
+                val groupIndex = readLine().trim.toInt
 
-                val (updatedPlayer, message) = controller.appendTokenToGroup(tokenInput, index)
+                println("Enter the insert position in the group (starting with 0):")
+                val insertAt = readLine().trim.toInt
+
+                val (updatedPlayer, message) = controller.appendTokenToGroup(tokenInput, groupIndex, insertAt)
                 println(message)
             }
 
