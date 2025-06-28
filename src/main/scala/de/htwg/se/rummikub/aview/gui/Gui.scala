@@ -8,6 +8,7 @@ import scala.swing.event._
 import javax.swing.BorderFactory
 import javax.swing.border.TitledBorder
 import javax.swing.ImageIcon
+import de.htwg.se.rummikub.model.tokenComponent.Color
 
 class Gui(controller: ControllerInterface) extends Frame with Reactor with GameView(controller) {
 
@@ -21,7 +22,13 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
   preferredSize = new Dimension(1200, 700)
   minimumSize = new Dimension(1000, 600)
 
-  val stateLabel = new Label("Welcome to Rummikub!")
+  val stateLabel = new Label("Welcome to Rummikub!") {
+    foreground = java.awt.Color.BLACK
+    background = java.awt.Color.WHITE
+    font = new Font("Arial", java.awt.Font.BOLD, 14)
+    opaque = true 
+  }
+
   val tokenStackSizeLabel = new Label(s"Remaining tokens in stack: ${controller.getState.currentStack.size}") {
     foreground = java.awt.Color.WHITE
     font = new Font("Arial", java.awt.Font.BOLD, 14)
@@ -44,6 +51,9 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
   val undoButton = new Button("undo")
   val redoButton = new Button("redo")
 
+  val putInStorageButton = new Button("Place in Storage")
+  val fromStorageToTableButton = new Button("fromStorageToTable")
+
   drawButton.enabled = false
   passButton.enabled = false
   rowButton.enabled = false
@@ -55,7 +65,11 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
   undoButton.enabled = false
   redoButton.enabled = false
 
-  for (btn <- Seq(drawButton, passButton, rowButton, groupButton, appendToRowButton, appendToGroupButton, undoButton, redoButton)) {
+  putInStorageButton.enabled = false
+  fromStorageToTableButton.enabled = false
+
+
+  for (btn <- Seq(drawButton, passButton, rowButton, groupButton, appendToRowButton, appendToGroupButton, undoButton, redoButton, putInStorageButton, fromStorageToTableButton)) {
     btn.font = new Font("Arial", java.awt.Font.BOLD, 12)
     btn.background = java.awt.Color.WHITE
     btn.foreground = java.awt.Color.BLACK
@@ -93,7 +107,8 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
       createButtonRow(drawButton, passButton),
       createButtonRow(rowButton, groupButton),
       createButtonRow(appendToRowButton, appendToGroupButton),
-      createButtonRow(undoButton, redoButton)
+      createButtonRow(undoButton, redoButton),
+      createButtonRow(putInStorageButton, fromStorageToTableButton)
     )
 
     contents += Swing.VStrut(5)
@@ -103,6 +118,12 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     background = java.awt.Color(0, 41, 159)
     hGap = 0
     vGap = 0
+  }
+
+  val storagePanel = new FlowPanel(FlowPanel.Alignment.Left)() {
+    border = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(java.awt.Color.WHITE), "Storage")
+    preferredSize = new Dimension(300, 150)
+    background = new java.awt.Color(245, 245, 220)
   }
 
   val finalRoundsLabelPanel = new FlowPanel(FlowPanel.Alignment.Left)(finalRoundsLabel) {
@@ -117,8 +138,10 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
     contents += tokenStackLabelPanel
     contents += finalRoundsLabelPanel
-    contents += Swing.VGlue
     contents += actionsPanel
+    contents += Swing.VStrut(10)
+    contents += storagePanel
+    contents += Swing.VStrut(10)
   }
 
   contents = new BorderPanel {
@@ -126,7 +149,15 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     layout(tablePanel) = BorderPanel.Position.Center
     layout(controlPanel) = BorderPanel.Position.East
     layout(stateLabel) = BorderPanel.Position.North
+
+    val topPanel = new BoxPanel(Orientation.Vertical) {
+      contents += stateLabel
+      background = java.awt.Color.WHITE
+    }
+
+    layout(topPanel) = BorderPanel.Position.North
   }
+  
 
   menuBar = new MenuBar {
     contents += new Menu("Game") {
@@ -145,6 +176,9 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
         undoButton.enabled = true
         redoButton.enabled = true
+
+        putInStorageButton.enabled = true
+        fromStorageToTableButton.enabled = true
 
         playGame
       })
@@ -166,31 +200,44 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
     }
   }
 
-  listenTo(drawButton, passButton, rowButton, groupButton, appendToRowButton, appendToGroupButton, undoButton, redoButton)
+  listenTo(drawButton, passButton, rowButton, groupButton, appendToRowButton, appendToGroupButton, undoButton, redoButton, putInStorageButton, fromStorageToTableButton)
 
   reactions += {
-    case ButtonClicked(`drawButton`) => {
+    case ButtonClicked(`drawButton`) => 
       stateLabel.text = "Drawing a token..."
       val (newState, message) = controller.drawFromStackAndPass
       stateLabel.text = message
       updatePlayerBoardTitle(newState)
       nextTurn
-    }
 
-    case ButtonClicked(`passButton`) => {
-      if (controller.getState.currentPlayer.getCommandHistory.length > 0) {
-        val (newState, message) = controller.passTurn(controller.getState, false)
+    case ButtonClicked(`passButton`) =>
+      val currentState = controller.getState
+      val tableValid = controller.getGameMode.isValidTable(currentState.getTable.getTokensOnTable)
+      val storageEmpty = currentState.getStorageTokens.isEmpty
+      val hasMadeMove = currentState.currentPlayer.getCommandHistory.nonEmpty
+
+      if (!hasMadeMove) {
+        stateLabel.text = "You must make a move before passing your turn."
+      } else if (!tableValid) {
+        stateLabel.text = "You can't pass: The table is not valid!"
+      } else if (!storageEmpty) {
+        stateLabel.text = "You can't pass: You still have tokens in storage!"
+      } else {
+        val (newState, message) = controller.passTurn(currentState, false)
         controller.setStateInternal(newState)
+        println("Storage tokens after putTokenInStorage: " + newState.getStorageTokens.mkString(", "))
         stateLabel.text = message
         updatePlayerBoardTitle(newState)
         nextTurn
-      } else {
-        stateLabel.text = "You must make a move before passing your turn."
       }
-    }
 
-    case ButtonClicked(`rowButton`) => {
-      val input = Dialog.showInput(parent = null, message = "Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):", title = "Play Row", initial = "")
+    case ButtonClicked(`rowButton`) =>
+      val input = Dialog.showInput(
+        parent = null,
+        message = "Enter the tokens to play as row (e.g. 'token1:color, token2:color, ...'):",
+        title = "Play Row",
+        initial = ""
+      )
 
       input match {
         case Some(tokenString) if tokenString.nonEmpty =>
@@ -198,14 +245,18 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
           val (newPlayer, message) = controller.playRow(tokenStrings, controller.getState.currentPlayer, controller.getState.currentStack)
           controller.setStateInternal(controller.getState.updateCurrentPlayer(newPlayer))
           stateLabel.text = message
-        case Some(_) => 
+        case Some(_) =>
           stateLabel.text = "No input provided."
         case None =>
       }
-    }
 
-    case ButtonClicked(`groupButton`) => {
-      val input = Dialog.showInput(parent = null, message = "Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):", title = "Play Group", initial = "")
+    case ButtonClicked(`groupButton`) =>
+      val input = Dialog.showInput(
+        parent = null,
+        message = "Enter the tokens to play as group (e.g. 'token1:color, token2:color, ...'):",
+        title = "Play Group",
+        initial = ""
+      )
 
       input match {
         case Some(tokenString) if tokenString.nonEmpty =>
@@ -213,61 +264,145 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
           val (newPlayer, message) = controller.playGroup(tokenStrings, controller.getState.currentPlayer, controller.getState.currentStack)
           controller.setStateInternal(controller.getState.updateCurrentPlayer(newPlayer))
           stateLabel.text = message
-        case Some(_) => 
-          stateLabel.text = "No input provided."
-        case None =>
-      }
-    }
-
-    case ButtonClicked(`appendToRowButton`) => {
-      val input = Dialog.showInput(parent = null, message = "Enter the token to append (e.g. 'token1:color'):", title = "Append to Row", initial = "")
-
-      input match {
-        case Some(token) if token.nonEmpty =>
-          val indexInput = Dialog.showInput(parent = null, message = "Enter the row's index (starting with 0):", title = "Row Index", initial = "")
-
-          indexInput match {
-            case Some(indexStr) =>
-                val index = indexStr.trim.toInt
-                val (updatedPlayer, message) = controller.appendTokenToRow(token.trim, index)
-
-                controller.setStateInternal(controller.getState.updateCurrentPlayer(updatedPlayer))
-                stateLabel.text = message
-            case None =>
-          }
-
         case Some(_) =>
           stateLabel.text = "No input provided."
         case None =>
       }
-    }
 
-    case ButtonClicked(`appendToGroupButton`) => {
-      val input = Dialog.showInput(parent = null, message = "Enter the token to append (e.g. 'token1:color'):", title = "Append to Group", initial = "")
+    case ButtonClicked(`appendToRowButton`) =>
+      val tokenInput = Dialog.showInput(
+        parent = null,
+        message = "Enter the token to append (e.g. 'token1:color'):",
+        title = "Append to Row",
+        initial = ""
+      )
+      val rowIndexInput = Dialog.showInput(
+        parent = null,
+        message = "Enter the row index (starting with 0):",
+        title = "Row Index",
+        initial = ""
+      )
 
+      val insertAtInput = Dialog.showInput(
+        parent = null,
+        message = "Enter the position within the row (e.g. '0'):",
+        title = "Insert At",
+        initial = ""
+      )
+
+      (tokenInput, rowIndexInput, insertAtInput) match {
+          case (Some(token), Some(rowStr), Some(posStr)) if token.nonEmpty =>
+            try {
+              val rowIndex = rowStr.trim.toInt
+              val insertAt = posStr.trim.toInt
+              val (updatedPlayer, message) = controller.appendTokenToRow(token.trim, rowIndex, insertAt)
+              controller.setStateInternal(controller.getState.updateCurrentPlayer(updatedPlayer))
+              stateLabel.text = message
+              update
+            } catch {
+              case _: NumberFormatException =>
+                Dialog.showMessage(null, "Invalid input! Row index and insert position must be integers.")
+            }
+          case _ =>
+            Dialog.showMessage(null, "Operation cancelled or incomplete.")
+      }
+
+    case ButtonClicked(`appendToGroupButton`) =>
+      val tokenInput = Dialog.showInput(
+        parent = null,
+        message = "Enter the token to append (e.g. 'token1:color'):",
+        title = "Append to Group",
+        initial = ""
+      )
+
+      val groupIndexInput = Dialog.showInput(
+        parent = null,
+        message = "Enter the group index (starting with 0):",
+        title = "Group Index",
+        initial = ""
+      )
+
+      val insertAtInput = Dialog.showInput(
+        parent = null,
+        message = "Enter the position within the group (e.g. '0'):",
+        title = "Insert At",
+        initial = ""
+      )
+
+      (tokenInput, groupIndexInput, insertAtInput) match {
+        case (Some(token), Some(groupStr), Some(posStr)) if token.nonEmpty =>
+          try {
+            val groupIndex = groupStr.trim.toInt
+            val insertAt = posStr.trim.toInt
+            val (updatedPlayer, message) = controller.appendTokenToGroup(token.trim, groupIndex, insertAt)
+            controller.setStateInternal(controller.getState.updateCurrentPlayer(updatedPlayer))
+            stateLabel.text = message
+            update
+          } catch {
+            case _: NumberFormatException =>
+              Dialog.showMessage(null, "Invalid input! Group index and insert position must be integers.")
+          }
+        case _ =>
+          Dialog.showMessage(null, "Operation cancelled or incomplete.")
+      }
+
+    case ButtonClicked(`undoButton`) => 
+      controller.undo
+
+    case ButtonClicked(`redoButton`) => 
+      controller.redo
+
+    case ButtonClicked(`putInStorageButton`) =>
+      val displayList = controller.getFormattedTokensOnTableWithLabels
+      val input = Dialog.showInput(
+        parent = null,
+        message = s"Tokens on Table:\n$displayList\n\nEnter the index of the token to put in Storage:",
+        title = "Put in Storage",
+        initial = ""
+      )
       input match {
-        case Some(token) if token.nonEmpty =>
-          val indexInput = Dialog.showInput(parent = null, message = "Enter the group's index (starting with 0):", title = "Group Index", initial = "")
+        case Some(idxStr) if idxStr.nonEmpty =>
+          try {
+            val tokenId = idxStr.trim.toInt
+            controller.putTokenInStorage(tokenId) match {
+              case Some(newState) =>
+                controller.setStateInternal(newState)
+                update
+              case None =>
+                Dialog.showMessage(null, "Ungültiger Token-Index!")
+            }
+          } catch {
+            case _: NumberFormatException =>
+              Dialog.showMessage(null, "Invalid index format!")
+          }
+        case Some(_) =>
+            Dialog.showMessage(null, "No index entered.")
 
-          indexInput match {
-            case Some(indexStr) =>
-                val index = indexStr.trim.toInt
-                val (updatedPlayer, message) = controller.appendTokenToGroup(token.trim, index)
+          case None =>
+      }
+    
+    case ButtonClicked(`fromStorageToTableButton`) =>
+      val tokenStrInput = Dialog.showInput(null, "Enter the token string (e.g. '5:red') to move from Storage:", title = "From Storage", initial = "")
+      val groupIndexInput = Dialog.showInput(null, "Enter the group index:", title = "Group Index", initial = "")
+      val insertAtInput = Dialog.showInput(null, "Enter the position in the group where to insert the token: (e.g '0')", title = "Insert At", initial = "")
 
-                controller.setStateInternal(controller.getState.updateCurrentPlayer(updatedPlayer))
-                stateLabel.text = message
-            case None =>
+      (tokenStrInput, groupIndexInput, insertAtInput) match {
+        case (Some(tokenStr), Some(groupStr), Some(posStr)) =>
+          try {
+            val groupIndex = groupStr.trim.toInt
+            val insertAt = posStr.trim.toInt
+            val (newState, message) = controller.fromStorageToTable(controller.getState, tokenStr.trim, groupIndex, insertAt)
+            controller.setStateInternal(newState)
+            stateLabel.text = message
+            update
+          } catch {
+            case _: NumberFormatException =>
+              Dialog.showMessage(null, "Invalid input! Group index and insert position must be integers.")
           }
 
-        case Some(_) =>
-          stateLabel.text = "No input provided."
-        case None =>
+        case _ =>
+          Dialog.showMessage(null, "Operation cancelled or incomplete.")
       }
-    }
-
-    case ButtonClicked(`undoButton`) => controller.undo
-
-    case ButtonClicked(`redoButton`) => controller.redo
   }
 
   def updatePlayerBoardTitle(state: GameStateInterface): Unit = {
@@ -290,6 +425,30 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
     playerBoardPanel.revalidate()
     playerBoardPanel.repaint()
+  }
+
+  def updateStoragePanel(): Unit = {
+    storagePanel.contents.clear()
+    val storageTokens = controller.getState.getStorageTokens
+
+    for (tokenStr <- storageTokens) {
+      val token = controller.getTokenFromString(tokenStr)
+
+      val label = new Label {
+        text = token.getNumber.map(_.toString).getOrElse("J")
+        foreground = token.getColor match {
+          case Color.RED => java.awt.Color.RED
+          case Color.BLUE => java.awt.Color.BLUE
+          case Color.GREEN => java.awt.Color.GREEN
+          case Color.BLACK => java.awt.Color.BLACK
+        }
+          font = new Font("Arial", java.awt.Font.BOLD, 16)
+      }
+      storagePanel.contents += label
+    
+    }
+    storagePanel.revalidate()
+    storagePanel.repaint()
   }
 
   def updateTable: Unit = {
@@ -349,7 +508,8 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
 
     updatePlayerTokens
     updateTable
-
+    updateStoragePanel()
+    
     drawButton.enabled = !state.currentStack.isEmpty && controller.getGameStarted
 
     tokenStackSizeLabel.text = s"Remaining tokens in stack: ${controller.getState.currentStack.size}"
