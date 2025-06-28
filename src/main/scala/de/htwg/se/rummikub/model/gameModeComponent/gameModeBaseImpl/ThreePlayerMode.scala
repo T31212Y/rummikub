@@ -4,6 +4,8 @@ import de.htwg.se.rummikub.model.playerComponent.{PlayerInterface, PlayerFactory
 import de.htwg.se.rummikub.model.playingFieldComponent.{BoardInterface, PlayingFieldInterface, TokenStackFactoryInterface, TableFactoryInterface, BoardFactoryInterface}
 import de.htwg.se.rummikub.model.gameModeComponent.GameModeTemplate
 import de.htwg.se.rummikub.model.builderComponent.{PlayingFieldBuilderInterface, FieldDirectorInterface}
+import de.htwg.se.rummikub.model.tokenStructureComponent.tokenStructureBaseImpl.StandardTokenStructureFactory
+import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
 
 import com.google.inject.Inject
 import com.google.inject.name.Named
@@ -26,6 +28,8 @@ case class ThreePlayerMode @Inject() (pns: List[String],
             Some(director.construct(players))
         }
     }
+
+    override val tokenStructureFactory: TokenStructureFactoryInterface = new StandardTokenStructureFactory
 
     override def createPlayers: List[PlayerInterface] = {
         playerNames.map(name => playerFactory.createPlayer(name))
