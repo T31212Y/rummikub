@@ -35,6 +35,7 @@ import de.htwg.se.rummikub.model.playerComponent.PlayerFactoryInterface
 import de.htwg.se.rummikub.model.builderComponent.PlayingFieldBuilderInterface
 import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
 import de.htwg.se.rummikub.controller.controllerComponent.GameStateInterface
+import de.htwg.se.rummikub.util.UndoManager
 
 
 class ControllerSpec extends AnyWordSpec {
@@ -265,6 +266,24 @@ class ControllerSpec extends AnyWordSpec {
       message shouldBe "The first move must have a total of at least 30 points. You cannot end your turn."
     }
 
+    "passTurn should not allow passing if the table is not valid" in {
+      val player = Player("Emilia", hasCompletedFirstMove = true, tokenStructureFactory = tokenStructureFactory)
+      val player2 = Player("Noah", tokenStructureFactory = tokenStructureFactory)
+      val players = Vector(player, player2)
+
+      val invalidRow = List(NumToken(1, Color.RED), NumToken(2, Color.RED))
+      val table = Table(16, 90, List(invalidRow))
+      val boards = Vector.empty[Board]
+      val stack = tokenStackFactory.createShuffledStack
+      val state = GameState(table, players, boards, 0, stack)
+
+      controller.setPlayingField(Some(PlayingField(players.toList, boards.toList, table, stack)))
+
+      val (resultState, message) = controller.passTurn(state, ignoreFirstMoveCheck = false)
+      resultState shouldBe state
+      message shouldBe "You cannot end your turn. The table is not valid!"
+    }
+
     "winGame should return true and print winner if a player has no tokens" in {
       val winner = Player("Emilia", tokens = List(), tokenStructureFactory = tokenStructureFactory)
       val loser = Player("Noah", tokens = List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
@@ -325,6 +344,31 @@ class ControllerSpec extends AnyWordSpec {
       val (resultState, message) = controller.drawFromStackAndPass
 
       resultState.getPlayers.head.getTokens.nonEmpty shouldBe true
+    }
+
+    "drawFromStackAndPass should restore previous state if turnStartState is set" in {
+      val player = Player("Emilia", tokens = List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
+      val player2 = Player("Noah", tokenStructureFactory = tokenStructureFactory)
+      val table = Table(16, 90, List.empty)
+      val board = boardFactory.createBoard(15, 24, 2, 1, "up", 90)
+      val board2 = boardFactory.createBoard(15, 24, 2, 1, "down", 90)
+      val stack = tokenStackFactory.createShuffledStack
+      val previousState: GameStateInterface = GameState(table, Vector(player, player2), Vector(board, board2), 0, stack)
+
+      controller.setPlayingField(Some(PlayingField(List(player, player2), List(board, board2), table, stack)))
+      controller.setTurnStartState(Some(previousState))
+
+      controller.drawFromStackAndPass
+      val state = controller.getState
+
+      val prevTokens = previousState.getPlayers.head.getTokens
+      val newTokens = state.getPlayers.head.getTokens
+      newTokens.size shouldBe prevTokens.size + 1
+      newTokens.exists(t => !prevTokens.contains(t)) shouldBe true
+
+      state.getPlayers(1).getTokens shouldBe previousState.getPlayers(1).getTokens
+      state.getTable.getTokensOnTable shouldBe previousState.getTable.getTokensOnTable
+      state.currentStack.getTokens.size shouldBe previousState.currentStack.getTokens.size - 1
     }
 
     "playRow should return error if row is not valid" in {
@@ -457,6 +501,85 @@ class ControllerSpec extends AnyWordSpec {
       val (newState, msg) = controller.fromStorageToTable(state, "1:red", 0, 0)
       msg should include ("Token was not found in storage!")
       newState shouldBe state
+    }
+
+    "fromStorageToTable should return error if insertAtIndex is invalid" in {
+      val player = Player("Emilia", tokens = List(), tokenStructureFactory = tokenStructureFactory)
+      val table = Table(16, 90, List(List()))
+      val pf = PlayingField(List(player), List(), table, stack)
+      val state = GameState(table, Vector(player), Vector(), 0, stack).updatedStorage(Vector("1:red"))
+      controller.setPlayingField(Some(pf))
+      controller.setStateInternal(state)
+      val (newState, msg) = controller.fromStorageToTable(state, "1:red", 0, 5)
+      msg should include ("invalid position to insert!")
+      newState shouldBe state
+    }
+
+    "fromStorageToTable should return error if groupIndex is invalid" in {
+      val player = Player("Emilia", tokens = List(), tokenStructureFactory = tokenStructureFactory)
+      val table = Table(16, 90, List(List()))
+      val pf = PlayingField(List(player), List(), table, stack)
+      val state = GameState(table, Vector(player), Vector(), 0, stack).updatedStorage(Vector("1:red"))
+      controller.setPlayingField(Some(pf))
+      controller.setStateInternal(state)
+      val (newState, msg) = controller.fromStorageToTable(state, "1:red", 5, 0)
+      msg should include ("invalid group-index!")
+      newState shouldBe state
+    }
+
+    "passTurn should keep player unchanged if hasCompletedFirstMove is already true" in {
+      val player = Player("Emilia", hasCompletedFirstMove = true, tokenStructureFactory = tokenStructureFactory)
+      val player2 = Player("Noah", tokenStructureFactory = tokenStructureFactory)
+      val players = Vector(player, player2)
+      val table = Table(16, 90, List(List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED))))
+      val boards = Vector(
+        boardFactory.createBoard(0, 0, 2, 2, "dest1", 10),
+        boardFactory.createBoard(1, 0, 2, 2, "dest2", 10)
+      )
+      val stack = tokenStackFactory.createShuffledStack
+      val state = GameState(table, players, boards, 0, stack)
+
+      controller.setPlayingField(Some(PlayingField(players.toList, boards.toList, table, stack)))
+
+      val (resultState, message) = controller.passTurn(state, ignoreFirstMoveCheck = false)
+      resultState.getPlayers.head shouldBe player
+      message should not include ("first move")
+      message should not include ("not valid")
+    }
+
+    "setUndoManager should update the controller's undo manager" in {
+      val oldManager = controller.getUndoManager
+      val newManager = new UndoManager
+      class DummyCommand extends de.htwg.se.rummikub.util.Command {
+        override def doStep(): Unit = {}
+        override def undoStep(): Unit = {}
+        override def redoStep(): Unit = {}
+      }
+      newManager.doStep(new DummyCommand)
+      controller.setUndoManager(newManager)
+      controller.getUndoManager should not be oldManager
+      controller.getUndoManager shouldBe newManager
+    }
+
+    "getFormattedTokensOnTableWithLabels should return formatted string with rows and groups" in {
+      val rowTokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED))
+      val groupTokens = List(NumToken(3, Color.BLUE), NumToken(4, Color.BLUE))
+      val table = Table(1, 90, List(rowTokens, groupTokens)) // 1 Row, Rest Groups
+      val pf = PlayingField(List(player1, player2), boards, table, stack)
+      controller.setPlayingField(Some(pf))
+      controller.setStateInternal(GameState(table, Vector(player1, player2), boards.toVector, 0, stack))
+
+      val result = controller.getFormattedTokensOnTableWithLabels
+
+      result should include ("row0: [0] 1 (red), [1] 2 (red)")
+      result should include ("group0: [2] 3 (blue), [3] 4 (blue)")
+    }
+
+    "getTokenFromString should throw IllegalArgumentException for unknown color" in {
+      val ex = intercept[IllegalArgumentException] {
+        controller.getTokenFromString("1:rainbow")
+      }
+      ex.getMessage should include ("Unknown color: rainbow")
     }
   }
 }
