@@ -94,5 +94,28 @@ class AppendTokenCommandSpec extends AnyWordSpec {
       cmd.doStep()
       controller.getPlayingField.get.getInnerField.getTokensOnTable(1) should contain only otherToken
     }
+
+    "print message if insertAt is invalid" in {
+      val player = Player("Anna", tokens = List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory)
+      val innerField = new Table(1, 1, List(List()))
+      val pf = PlayingField(
+        innerField = innerField,
+        players = List(player),
+        boards = List(),
+        stack = TokenStack(List())
+      )
+      controller.setPlayingField(Some(pf))
+      controller.setStateInternal(GameState(innerField, Vector(player), Vector(), 0, TokenStack(List())))
+
+      val token = NumToken(1, Color.RED)
+      val cmd = new AppendTokenCommand(controller, token, 0, 5, isRow = true, player)
+
+      val out = new java.io.ByteArrayOutputStream()
+      Console.withOut(out) {
+        cmd.doStep()
+      }
+      out.toString should include ("Invalid insert position: 5")
+      controller.getPlayingField.get.getInnerField.getTokensOnTable(0) should not contain token
+    }
   }
 }
