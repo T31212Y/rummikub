@@ -93,5 +93,11 @@ class GameStateSpec extends AnyWordSpec {
       newState.currentStack shouldBe newStack
       newState.getFinalRoundsLeft shouldBe newFinalRoundsLeft
     }
+
+    "update the storage tokens with updatedStorage" in {
+      val newStorage = Vector("1:red", "2:blue")
+      val newState = state.updatedStorage(newStorage)
+      newState.getStorageTokens shouldBe newStorage
+    }
   }
 }
