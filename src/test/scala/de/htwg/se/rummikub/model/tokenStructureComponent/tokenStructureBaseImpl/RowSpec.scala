@@ -120,5 +120,15 @@ class RowSpec extends AnyWordSpec {
       val row = Row(List(Joker(Color.RED), Joker(Color.BLACK)))
       row.points shouldBe 0
     }
+
+    "points should use case _ => 0 in zipAll (null token)" in {
+      val row = Row(List())
+      val method = row.getClass.getDeclaredMethod("jokerValues")
+      method.setAccessible(true)
+      val testRow = new Row(List()) {
+        override def jokerValues: Option[List[Int]] = Some(List(1, 2))
+      }
+      testRow.points shouldBe 0
+    }
   }
 }
