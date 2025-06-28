@@ -21,5 +21,12 @@ lazy val root = project
 
     testFrameworks += new TestFramework("org.scalatest.tools.Framework"),
 
-    Test / parallelExecution := false
+    Test / parallelExecution := false,
+
+    assembly / mainClass := Some("de.htwg.se.rummikub.Rummikub"),
+
+    assembly / assemblyMergeStrategy := {
+      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+      case x => MergeStrategy.first
+    }
   )
