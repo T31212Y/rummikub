@@ -95,6 +95,7 @@ case class Player @Inject() (name: String,
     hasCompletedFirstMove
   }
 
+  override def resetFirstMoveTokens: PlayerInterface = this.copy(firstMoveTokens = List())
   override def updated(newTokens: List[TokenInterface], newCommandHistory: List[String], newHasCompletedFirstMove: Boolean): PlayerInterface = {
     copy(tokens = newTokens, commandHistory = newCommandHistory, hasCompletedFirstMove = newHasCompletedFirstMove, firstMoveTokens = this.firstMoveTokens)
   }
