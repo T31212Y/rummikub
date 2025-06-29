@@ -71,8 +71,13 @@ class Tui(controller: ControllerInterface) extends Reactor with GameView(control
 
             case "pass" => {
                 if (currentPlayer.getCommandHistory.length > 0) {
+                    val oldIndex = controller.getState.getCurrentPlayerIndex
+                    val oldHasCompleted = controller.getState.currentPlayer.getHasCompletedFirstMove
                     val (newState, message) = controller.passTurn(controller.getState, false)
                     println(message)
+                    if (newState.getCurrentPlayerIndex != oldIndex && oldHasCompleted == false) {
+                        controller.setStateInternal(newState)
+                    }
                 } else {
                     println("You must make a move before passing your turn.")
                 }
