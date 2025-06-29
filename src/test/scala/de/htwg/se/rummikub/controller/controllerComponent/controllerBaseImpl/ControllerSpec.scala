@@ -241,14 +241,14 @@ class ControllerSpec extends AnyWordSpec {
       }
     }
 
-    "return message if first move requirement is not met when adding a group" in {
+    "return message if first move requirement is not met when adding a group (should only be checked on passTurn)" in {
       controller.setPlayingField(Some(pf))
       val testPlayer = player1.copy(tokens = List(NumToken(5, Color.RED), NumToken(6, Color.RED), NumToken(7, Color.RED)))
-      val groupTokens = List("5:red", "6:red", "7:red") 
+      val groupTokens = List("5:red", "6:red", "7:red")
       val (updatedPlayer, msg) = controller.playGroup(groupTokens, testPlayer, stack)
-      msg should be ("First move must total at least 30 points with valid sets.")
+      msg should be ("Group successfully placed.")
       updatedPlayer.getHasCompletedFirstMove shouldBe false
-    }
+  }
 
     "passTurn should not allow passing if first move is not completed and ignoreFirstMoveCheck is false" in {
       val player = Player("Emilia", hasCompletedFirstMove = false, tokenStructureFactory = tokenStructureFactory)
@@ -374,12 +374,22 @@ class ControllerSpec extends AnyWordSpec {
       state.currentStack.getTokens.size shouldBe previousState.currentStack.getTokens.size - 1
     }
 
-    "playRow should return error if row is not valid" in {
+    "playRow should return success message even if row is not valid (first move check happens on pass)" in {
       val player = Player("Emilia", tokenStructureFactory = tokenStructureFactory)
       val stack = tokenStackFactory.createShuffledStack
       val (resultPlayer, message) = controller.playRow(List("1:red"), player, stack)
-      resultPlayer shouldBe player
-      message shouldBe "First move must total at least 30 points with valid sets."
+      resultPlayer.getName shouldBe player.getName
+      resultPlayer.getHasCompletedFirstMove shouldBe false
+      message shouldBe "Row successfully placed."
+    }
+
+    "playGroup should return success message even if group is not valid (first move check happens on pass)" in {
+      val player = Player("Emilia", tokenStructureFactory = tokenStructureFactory)
+      val stack = tokenStackFactory.createShuffledStack
+      val (resultPlayer, message) = controller.playGroup(List("1:red"), player, stack)
+      resultPlayer.getName shouldBe player.getName
+      resultPlayer.getHasCompletedFirstMove shouldBe false
+      message shouldBe "Group successfully placed."
     }
 
     "playRow should place a valid row and return success message" in {
@@ -393,15 +403,7 @@ class ControllerSpec extends AnyWordSpec {
       controller.setPlayingField(Some(PlayingField(List(player, player2), List(board, board2), table, stack)))
       val (resultPlayer, message) = controller.playRow(List("10:red", "11:red", "12:red"), player, stack)
       message shouldBe "Row successfully placed."
-      resultPlayer.getHasCompletedFirstMove shouldBe true
-    }
-
-    "playGroup should return error if group is not valid" in {
-      val player = Player("Emilia", tokenStructureFactory = tokenStructureFactory)
-      val stack = tokenStackFactory.createShuffledStack
-      val (resultPlayer, message) = controller.playGroup(List("1:red"), player, stack)
-      resultPlayer shouldBe player
-      message shouldBe "First move must total at least 30 points with valid sets."
+      resultPlayer.getHasCompletedFirstMove shouldBe false
     }
 
     "playGroup should place a valid group and return success message" in {
@@ -415,7 +417,7 @@ class ControllerSpec extends AnyWordSpec {
       controller.setPlayingField(Some(PlayingField(List(player, player2), List(board, board2), table, stack)))
       val (resultPlayer, message) = controller.playGroup(List("10:red", "10:black", "10:blue"), player, stack)
       message shouldBe "Group successfully placed."
-      resultPlayer.getHasCompletedFirstMove shouldBe true
+      resultPlayer.getHasCompletedFirstMove shouldBe false
     }
 
     "beginTurn should do nothing if commandHistory is not empty" in {
