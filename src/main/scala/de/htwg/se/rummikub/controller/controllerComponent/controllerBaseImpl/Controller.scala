@@ -101,10 +101,7 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
     
     override def passTurn(state: GameStateInterface, ignoreFirstMoveCheck: Boolean = false): (GameStateInterface, String) = {
         val currentPlayer = state.currentPlayer
-        
-        println(!ignoreFirstMoveCheck)
-        println(!currentPlayer.getHasCompletedFirstMove)
-        println(!currentPlayer.validateFirstMove)
+
         
         if (!ignoreFirstMoveCheck && !currentPlayer.getHasCompletedFirstMove && !currentPlayer.validateFirstMove) {
             val message = "The first move must have a total of at least 30 points. You cannot end your turn."
@@ -116,12 +113,14 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
             return (state, message)
         }
 
-        val updatedPlayer = if (!currentPlayer.getHasCompletedFirstMove) {
-            currentPlayer.updated(
-            currentPlayer.getTokens,
-            newCommandHistory = currentPlayer.getCommandHistory,
-            newHasCompletedFirstMove = true
+        val updatedPlayer = if (!currentPlayer.getHasCompletedFirstMove && currentPlayer.validateFirstMove) {
+            currentPlayer
+            .updated(
+                currentPlayer.getTokens,
+                newCommandHistory = currentPlayer.getCommandHistory,
+                newHasCompletedFirstMove = true
             )
+            .resetFirstMoveTokens
         } else currentPlayer
 
         val nextState = setNextPlayer(state.updateCurrentPlayer(updatedPlayer))
@@ -359,26 +358,18 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         val tokens = changeStringListToTokenList(tokenStrings)
         val row = tokenStructureFactory.createRow(tokens)
 
-        
-        if (!currentPlayer.getHasCompletedFirstMove) {
-            val tentativePlayer = currentPlayer.addToFirstMoveTokens(row.getTokens)
-            if (!tentativePlayer.validateFirstMove) {
-                return (currentPlayer, "First move must total at least 30 points with valid sets.")
-            }
-        }
 
         executeAddRow(row, currentPlayer, stack)
 
         val updatedPlayer = currentPlayer
-        .addToFirstMoveTokens(row.getTokens)
-        .updated(
-            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, row.getTokens).getTokens,
-            newCommandHistory = currentPlayer.getCommandHistory :+ s"playRow: ${row.getTokens.mkString(",")}",
-            newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove || true
-        )
+            .addToFirstMoveTokens(row.getTokens)
+            .updated(
+                newTokens = currentPlayer.getTokens.diff(row.getTokens),
+                newCommandHistory = currentPlayer.getCommandHistory :+ s"playRow: ${row.getTokens.mkString(",")}",
+                newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove
+            )
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
-
         setStateInternal(newState)
         setPlayingField(gameMode.get.updatePlayingField(playingField))
 
@@ -390,23 +381,15 @@ class Controller @Inject() (gameModeFactory: GameModeFactoryInterface,
         val tokens = changeStringListToTokenList(tokenStrings)
         val group = tokenStructureFactory.createGroup(tokens)
 
-
-        if (!currentPlayer.getHasCompletedFirstMove) {
-            val tentativePlayer = currentPlayer.addToFirstMoveTokens(group.getTokens)
-            if (!tentativePlayer.validateFirstMove) {
-                return (currentPlayer, "First move must total at least 30 points with valid sets.")
-            }
-        }
-
         executeAddGroup(group, currentPlayer, stack)
 
         val updatedPlayer = currentPlayer
-        .addToFirstMoveTokens(group.getTokens)
-        .updated(
-            newTokens = getUpdatedPlayerAfterMove(getState.currentPlayer, group.getTokens).getTokens,
-            newCommandHistory = currentPlayer.getCommandHistory :+ s"playGroup: ${group.getTokens.mkString(",")}",
-            newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove || true
-        )
+            .addToFirstMoveTokens(group.getTokens)
+            .updated(
+                newTokens = currentPlayer.getTokens.diff(group.getTokens),
+                newCommandHistory = currentPlayer.getCommandHistory :+ s"playGroup: ${group.getTokens.mkString(",")}",
+                newHasCompletedFirstMove = currentPlayer.getHasCompletedFirstMove
+            )
 
         val newState = getState.updateCurrentPlayer(updatedPlayer)
 
