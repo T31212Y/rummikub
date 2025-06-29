@@ -224,11 +224,13 @@ class Gui(controller: ControllerInterface) extends Frame with Reactor with GameV
         stateLabel.text = "You can't pass: You still have tokens in storage!"
       } else {
         val (newState, message) = controller.passTurn(currentState, false)
-        controller.setStateInternal(newState)
-        println("Storage tokens after putTokenInStorage: " + newState.getStorageTokens.mkString(", "))
         stateLabel.text = message
-        updatePlayerBoardTitle(newState)
-        nextTurn
+        if (newState != currentState) {
+          controller.setStateInternal(newState)
+          println("Storage tokens after putTokenInStorage: " + newState.getStorageTokens.mkString(", "))
+          updatePlayerBoardTitle(newState)
+          nextTurn
+        }
       }
 
     case ButtonClicked(`rowButton`) =>
