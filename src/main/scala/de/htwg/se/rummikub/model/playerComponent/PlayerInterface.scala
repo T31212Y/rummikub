@@ -17,6 +17,6 @@ trait PlayerInterface {
     def deepCopy: PlayerInterface
 
     def clusterTokens(tokens: List[TokenInterface]): List[TokenStructureInterface]
-
+    def resetFirstMoveTokens: PlayerInterface
     def updated(newTokens: List[TokenInterface], newCommandHistory: List[String], newHasCompletedFirstMove: Boolean): PlayerInterface
 }
