@@ -82,7 +82,6 @@ case class Row(row: List[TokenInterface]) extends TokenStructureInterface {
             tokens.zipAll(jVals, null, 0).map {
             case (token, _) if token.isNumToken => token.getNumber.get
             case (token, jVal) if token.isJoker => jVal
-            case _ => 0
             }.sum
         case None =>
             tokens.collect { case token if token.isNumToken => token.getNumber.get }.sum
