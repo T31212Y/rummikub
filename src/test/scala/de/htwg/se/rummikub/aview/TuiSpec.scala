@@ -385,5 +385,33 @@ class TuiSpec extends AnyWordSpec with Matchers {
         output should include ("(keine Tokens im Storage)")
       }
     }
+
+    "handle 'restore' command with invalid group index input" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val token1 = NumToken(1, Color.RED)
+      val table = controller.getState.getTable
+      val newTable = table.add(List(token1))
+      val newState = controller.getState.updateTable(newTable)
+      controller.setStateInternal(newState)
+
+      val inStore = new ByteArrayInputStream("0\n".getBytes)
+      Console.withIn(inStore) {
+        tui.processGameInput("store")
+      }
+
+      val inRestore = new ByteArrayInputStream("1:red\nfoo\nbar\n".getBytes)
+      Console.withIn(inRestore) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("restore")
+        }
+        val output = out.toString
+        output should include ("Invalid input! Group index and insert position must be integers.")
+      }
+    }
   }
 }
