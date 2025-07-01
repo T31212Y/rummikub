@@ -331,5 +331,41 @@ class TuiSpec extends AnyWordSpec with Matchers {
         output should (include ("Token stored successfully.") or include ("Invalid token index!"))
       }
     }
+
+    "handle 'restore' command" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val token1 = NumToken(1, Color.RED)
+      val table = controller.getState.getTable
+      val newTable = table.add(List(token1))
+      val newState = controller.getState.updateTable(newTable)
+      controller.setStateInternal(newState)
+
+      val inStore = new ByteArrayInputStream("0\n".getBytes)
+      Console.withIn(inStore) {
+        tui.processGameInput("store")
+      }
+      val inRestore = new ByteArrayInputStream("1:red\n0\n0\n".getBytes)
+      Console.withIn(inRestore) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("restore")
+        }
+        val output = out.toString
+        output should include ("Tokens im Storage:")
+        output should include ("Enter the token string")
+        output should include ("Enter the group index:")
+        output should include ("Enter the insert position in the group:")
+        output should (
+          include ("moved from Storage") or
+          include ("Invalid input!") or
+          include ("not found") or
+          include ("invalid group-index!")
+        )
+      }
+    }
   }
 }
