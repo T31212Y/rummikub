@@ -305,5 +305,31 @@ class TuiSpec extends AnyWordSpec with Matchers {
       output should include ("[0] \u001b[31m 1\u001b[0m")
       output should include ("[1] \u001b[34m 2\u001b[0m")
     }
+
+    "handle 'store' command" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val token1 = NumToken(1, Color.RED)
+      val token2 = NumToken(2, Color.BLUE)
+      val table = controller.getState.getTable
+      val newTable = table.add(List(token1, token2))
+      val newState = controller.getState.updateTable(newTable)
+      controller.setStateInternal(newState)
+
+      val in = new ByteArrayInputStream("0\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("store")
+        }
+        val output = out.toString
+        output should include ("Tokens on Table with Index:")
+        output should include ("Enter the index of the token to store:")
+        output should (include ("Token stored successfully.") or include ("Invalid token index!"))
+      }
+    }
   }
 }
