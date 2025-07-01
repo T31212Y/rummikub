@@ -80,6 +80,8 @@ class Tui(controller: ControllerInterface) extends Reactor with GameView(control
                     println(message)
                     if (newState.getCurrentPlayerIndex != oldIndex && oldHasCompleted == false) {
                         controller.setStateInternal(newState)
+                    } else {
+                        println("Failed to set new state.")
                     }
                 } else {
                     println("You must make a move before passing your turn.")
