@@ -33,7 +33,7 @@ class TokenFactorySpec extends AnyWordSpec with Matchers {
 
       val numTokenGroups = tokens.collect { case t: NumToken => (t.number, t.color) }
         .groupBy(identity)
-        .mapValues(_.size)
+        .view.mapValues(_.size).toMap
 
       all (numTokenGroups.values) shouldBe 2
 
