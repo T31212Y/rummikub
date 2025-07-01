@@ -281,5 +281,183 @@ class TuiSpec extends AnyWordSpec with Matchers {
 
       result shouldBe expected
     }
+
+    "showTableTokensWithIndex should print tokens with indices" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val token1 = NumToken(1, Color.RED)
+      val token2 = NumToken(2, Color.BLUE)
+      val table = controller.getState.getTable
+
+      val newTable = table.add(List(token1, token2))
+      val newState = controller.getState.updateTable(newTable)
+      controller.setStateInternal(newState)
+
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+        tui.showTableTokensWithIndex()
+      }
+      val output = out.toString
+      output should include ("Tokens on Table with Index:")
+      output should include ("[0] \u001b[31m 1\u001b[0m")
+      output should include ("[1] \u001b[34m 2\u001b[0m")
+    }
+
+    "handle 'store' command" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val token1 = NumToken(1, Color.RED)
+      val token2 = NumToken(2, Color.BLUE)
+      val table = controller.getState.getTable
+      val newTable = table.add(List(token1, token2))
+      val newState = controller.getState.updateTable(newTable)
+      controller.setStateInternal(newState)
+
+      val in = new ByteArrayInputStream("0\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("store")
+        }
+        val output = out.toString
+        output should include ("Tokens on Table with Index:")
+        output should include ("Enter the index of the token to store:")
+        output should (include ("Token stored successfully.") or include ("Invalid token index!"))
+      }
+    }
+
+    "handle 'restore' command" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val token1 = NumToken(1, Color.RED)
+      val table = controller.getState.getTable
+      val newTable = table.add(List(token1))
+      val newState = controller.getState.updateTable(newTable)
+      controller.setStateInternal(newState)
+
+      val inStore = new ByteArrayInputStream("0\n".getBytes)
+      Console.withIn(inStore) {
+        tui.processGameInput("store")
+      }
+      val inRestore = new ByteArrayInputStream("1:red\n0\n0\n".getBytes)
+      Console.withIn(inRestore) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("restore")
+        }
+        val output = out.toString
+        output should include ("Tokens im Storage:")
+        output should include ("Enter the token string")
+        output should include ("Enter the group index:")
+        output should include ("Enter the insert position in the group:")
+        output should (
+          include ("moved from Storage") or
+          include ("Invalid input!") or
+          include ("not found") or
+          include ("invalid group-index!")
+        )
+      }
+    }
+
+    "handle 'restore' command with empty storage" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val inRestore = new ByteArrayInputStream("1:red\n0\n0\n".getBytes)
+      Console.withIn(inRestore) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("restore")
+        }
+        val output = out.toString
+        output should include ("Tokens im Storage:")
+        output should include ("(keine Tokens im Storage)")
+      }
+    }
+
+    "handle 'restore' command with invalid group index input" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val token1 = NumToken(1, Color.RED)
+      val table = controller.getState.getTable
+      val newTable = table.add(List(token1))
+      val newState = controller.getState.updateTable(newTable)
+      controller.setStateInternal(newState)
+
+      val inStore = new ByteArrayInputStream("0\n".getBytes)
+      Console.withIn(inStore) {
+        tui.processGameInput("store")
+      }
+
+      val inRestore = new ByteArrayInputStream("1:red\nfoo\nbar\n".getBytes)
+      Console.withIn(inRestore) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("restore")
+        }
+        val output = out.toString
+        output should include ("Invalid input! Group index and insert position must be integers.")
+      }
+    }
+
+    "handle 'store' command with invalid token index" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val token1 = NumToken(1, Color.RED)
+      val table = controller.getState.getTable
+      val newTable = table.add(List(token1))
+      val newState = controller.getState.updateTable(newTable)
+      controller.setStateInternal(newState)
+
+      val in = new ByteArrayInputStream("5\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("store")
+        }
+        val output = out.toString
+        output should include ("Invalid token index!")
+      }
+    }
+
+    "handle 'store' command with non-numeric input" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val token1 = NumToken(1, Color.RED)
+      val table = controller.getState.getTable
+      val newTable = table.add(List(token1))
+      val newState = controller.getState.updateTable(newTable)
+      controller.setStateInternal(newState)
+
+      val in = new ByteArrayInputStream("foo\n".getBytes)
+      Console.withIn(in) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("store")
+        }
+        val output = out.toString
+        output should include ("Invalid input! Please enter a number.")
+      }
+    }
   }
 }
