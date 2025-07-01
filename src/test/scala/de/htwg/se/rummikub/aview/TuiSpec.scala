@@ -7,6 +7,7 @@ import de.htwg.se.rummikub.model.gameModeComponent.gameModeBaseImpl.GameModeFact
 import de.htwg.se.rummikub.model.tokenComponent.tokenBaseImpl.NumToken
 import de.htwg.se.rummikub.model.tokenComponent.Color
 import de.htwg.se.rummikub.model.playingFieldComponent.playingFieldBaseImpl.TokenStack
+import de.htwg.se.rummikub.model.playerComponent.PlayerInterface
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
@@ -17,8 +18,12 @@ import de.htwg.se.rummikub.RummikubModule
 import de.htwg.se.rummikub.controller.controllerComponent.ControllerInterface
 import de.htwg.se.rummikub.model.playingFieldComponent.TokenStackFactoryInterface
 import de.htwg.se.rummikub.model.tokenStructureComponent.TokenStructureFactoryInterface
+import de.htwg.se.rummikub.controller.controllerComponent.GameStateInterface
 
-class TuiSpec extends AnyWordSpec with Matchers {
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito._
+
+class TuiSpec extends AnyWordSpec with Matchers with MockitoSugar {
 
   "A Tui" should {
     val injector = Guice.createInjector(new RummikubModule)
@@ -458,6 +463,32 @@ class TuiSpec extends AnyWordSpec with Matchers {
         val output = out.toString
         output should include ("Invalid input! Please enter a number.")
       }
+    }
+
+    "print error message if it is not possible to set new state in 'pass' command" in {
+      val controller = mock[ControllerInterface]
+      
+      val oldState = mock[GameStateInterface]
+      val newState = mock[GameStateInterface]
+      val currentPlayer = mock[PlayerInterface]
+
+      when(controller.getState).thenReturn(oldState)
+      when(oldState.getCurrentPlayerIndex).thenReturn(1)
+      when(newState.getCurrentPlayerIndex).thenReturn(1)
+      when(oldState.currentPlayer).thenReturn(currentPlayer)
+      when(currentPlayer.getHasCompletedFirstMove).thenReturn(false)
+
+      when(controller.passTurn(oldState, false)).thenReturn((newState, "Turn passed"))
+      when(currentPlayer.getCommandHistory).thenReturn(List("someCommand"))
+
+      val tui = new Tui(controller)
+
+      val out = new ByteArrayOutputStream()
+      Console.withOut(new PrintStream(out)) {
+        tui.processGameInput("pass")
+      }
+
+      out.toString should include ("Failed to set new state.")
     }
   }
 }
