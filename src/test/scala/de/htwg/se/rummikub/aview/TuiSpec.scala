@@ -367,5 +367,23 @@ class TuiSpec extends AnyWordSpec with Matchers {
         )
       }
     }
+
+    "handle 'restore' command with empty storage" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+      val tui = new Tui(controller)
+
+      val inRestore = new ByteArrayInputStream("1:red\n0\n0\n".getBytes)
+      Console.withIn(inRestore) {
+        val out = new ByteArrayOutputStream()
+        Console.withOut(new PrintStream(out)) {
+          tui.processGameInput("restore")
+        }
+        val output = out.toString
+        output should include ("Tokens im Storage:")
+        output should include ("(keine Tokens im Storage)")
+      }
+    }
   }
 }
