@@ -1,7 +1,7 @@
 package de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl
 
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers._
+import org.scalatest.matchers.should.Matchers
 import de.htwg.se.rummikub.model._
 import de.htwg.se.rummikub.controller.controllerComponent.controllerBaseImpl.GameState
 import de.htwg.se.rummikub.model.playerComponent.playerBaseImpl.Player
@@ -37,8 +37,10 @@ import de.htwg.se.rummikub.model.builderComponent.FieldDirectorInterface
 import de.htwg.se.rummikub.controller.controllerComponent.GameStateInterface
 import de.htwg.se.rummikub.util.UndoManager
 
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito._
 
-class ControllerSpec extends AnyWordSpec {
+class ControllerSpec extends AnyWordSpec with Matchers with MockitoSugar  {
 
   "A Controller" should {
     val injector = Guice.createInjector(new RummikubModule)
@@ -576,7 +578,7 @@ class ControllerSpec extends AnyWordSpec {
     "getFormattedTokensOnTableWithLabels should return formatted string with rows and groups" in {
       val rowTokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED))
       val groupTokens = List(NumToken(3, Color.BLUE), NumToken(4, Color.BLUE))
-      val table = Table(1, 90, List(rowTokens, groupTokens)) // 1 Row, Rest Groups
+      val table = Table(1, 90, List(rowTokens, groupTokens))
       val pf = PlayingField(List(player1, player2), boards, table, stack)
       controller.setPlayingField(Some(pf))
       controller.setStateInternal(GameState(table, Vector(player1, player2), boards.toVector, 0, stack))
@@ -602,6 +604,50 @@ class ControllerSpec extends AnyWordSpec {
         case _ => None
       }
       result shouldBe None
+    }
+
+    "getState use Vector.empty as fallback when gameState is None" in {
+      val mockField = mock[PlayingFieldInterface]
+      when(mockField.getPlayers).thenReturn(List(mock[PlayerInterface]))
+      when(mockField.getBoards).thenReturn(List(mock[BoardInterface]))
+
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+
+      controller.setPlayingField(Some(mockField))
+      controller.asInstanceOf[Controller].gameState = None
+
+      val state = controller.getState
+
+      state.getStorageTokens shouldBe Vector.empty
+    }
+
+    "getTokenFromString call createJoker on tokenFactory when input is a joker token" in {
+      val injector = Guice.createInjector(new RummikubModule)
+      val controller = injector.getInstance(classOf[ControllerInterface])
+      controller.setupNewGame(2, List("Emilia", "Noah"))
+
+      val result = controller.getTokenFromString("J:red")
+
+      result shouldBe Joker(Color.RED)
+    }
+
+    "passTurn work correctly when called without the second parameter" in {
+      val player1 = Player("Alice", List(NumToken(1, Color.RED)), tokenStructureFactory = tokenStructureFactory, hasCompletedFirstMove = true)
+      val player2 = Player("Bob", List(NumToken(2, Color.BLUE)), tokenStructureFactory = tokenStructureFactory, hasCompletedFirstMove = true)
+      
+      val rowTokens = List(NumToken(1, Color.RED), NumToken(2, Color.RED), NumToken(3, Color.RED))
+      val groupTokens = List(NumToken(3, Color.BLUE), NumToken(4, Color.BLUE), NumToken(5, Color.BLUE))
+      val table = Table(1, 90, List(rowTokens, groupTokens))
+      val pf = PlayingField(List(player1, player2), boards, table, stack)
+      controller.setPlayingField(Some(pf))
+      val state = GameState(table, Vector(player1, player2), boards.toVector, 0, stack)
+      controller.setStateInternal(state)
+
+      val (newState, message) = controller.asInstanceOf[Controller].passTurn(state)
+
+      message shouldBe "Alice ended their turn. It's now Bob's turn."
     }
   }
 }
